@@ -1,14 +1,15 @@
 services:
   backend:
-    build: ./server
+    build:
+    context: ./server
+    dockerfile: Dockerfile
     container_name: void_runner_backend
     ports:
       - "3000:3000"
-    volumes:
-      - ./server/prisma:/app/prisma
-      - .env:/app/.env
-    # We remove explicit environment vars from compose to rely on Config Wizard + .env persistence
-    restart: always
+   volumes:
+     - ./server/prisma:/app/prisma
+     - .env:/app/.env
+   restart: always
 
   frontend:
     build: .
