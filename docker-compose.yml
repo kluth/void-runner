@@ -1,15 +1,17 @@
+version: '3.8'
+
 services:
   backend:
     build:
-    context: ./server
-    dockerfile: Dockerfile
+      context: ./server
+      dockerfile: Dockerfile
     container_name: void_runner_backend
     ports:
       - "3000:3000"
-   volumes:
-     - ./server/prisma:/app/prisma
-     - .env:/app/.env
-   restart: always
+    volumes:
+      - ./server/prisma:/app/prisma
+      - .env:/app/.env
+    restart: always
 
   frontend:
     build: .
