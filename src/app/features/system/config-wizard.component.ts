@@ -95,13 +95,19 @@ export class ConfigWizardComponent implements OnInit {
   ngOnInit() {}
 
   submit() {
-    this.http.post('http://localhost:3000/api/config/setup', this.config).subscribe(() => {
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const apiUrl = isProd ? '/api/config/setup' : 'http://localhost:3000/api/config/setup';
+
+    this.http.post(apiUrl, this.config).subscribe(() => {
         window.location.reload();
     });
   }
 
   skip() {
-    this.http.post('http://localhost:3000/api/config/skip', {}).subscribe(() => {
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const apiUrl = isProd ? '/api/config/skip' : 'http://localhost:3000/api/config/skip';
+
+    this.http.post(apiUrl, {}).subscribe(() => {
         window.location.reload();
     });
   }

@@ -188,7 +188,10 @@ export class GameService {
   private rivalNames = ['Zer0_Cool', 'CrashOverride', 'AcidBurn', 'CerealKiller', 'Lord_Nikon', 'PhantomPhreak', 'Plague', 'Dark_Dante', 'Mudge', 'Gummo'];
 
   constructor() {
-    this.socket = io('http://localhost:3000');
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const socketUrl = isProd ? window.location.origin : 'http://localhost:3000';
+    this.socket = io(socketUrl);
+    
     this.setupSocket();
     this.checkConfigStatus();
 
@@ -203,7 +206,10 @@ export class GameService {
   }
 
   private checkConfigStatus() {
-    fetch('http://localhost:3000/api/config/status')
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const apiUrl = isProd ? '/api/config/status' : 'http://localhost:3000/api/config/status';
+    
+    fetch(apiUrl)
       .then(r => r.json())
       .then((res: {configured: boolean}) => this.isConfigured.set(res.configured))
       .catch(() => this.isConfigured.set(true)); 

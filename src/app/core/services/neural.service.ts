@@ -1,6 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GameService } from './game.service';
 import { catchError, from, of, tap, Observable, switchMap, map } from 'rxjs';
 
 export interface AiResponse {
@@ -13,7 +12,7 @@ export interface AiResponse {
   providedIn: 'root'
 })
 export class NeuralService {
-  private http = inject(HttpClient);
+  public http = inject(HttpClient);
   
   isProcessing = signal(false);
   aiMode = signal<'LOCAL' | 'PROXY' | 'OFFLINE'>('LOCAL');
@@ -55,7 +54,10 @@ export class NeuralService {
   }
 
   private askProxy(prompt: string): Observable<AiResponse> {
-    return this.http.post<{response: string, provider: string}>('http://localhost:3000/api/gemini', { prompt })
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const apiUrl = isProd ? '/api/gemini' : 'http://localhost:3000/api/gemini';
+
+    return this.http.post<{response: string, provider: string}>(apiUrl, { prompt })
       .pipe(
         map(res => ({ response: res.response, provider: res.provider })),
         tap(() => this.isProcessing.set(false)),
@@ -81,8 +83,10 @@ export class NeuralService {
 
   async getHijackResponse(handle: string, chatHistory: string): Promise<Observable<AiResponse>> {
     const shards = await this.collectEnvironmentShards();
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const apiUrl = isProd ? '/api/hijack' : 'http://localhost:3000/api/hijack';
     
-    return this.http.post<{response: string}>('http://localhost:3000/api/hijack', { 
+    return this.http.post<{response: string}>(apiUrl, { 
       handle,
       chatHistory,
       shards
@@ -157,8 +161,6 @@ export class NeuralService {
       try {
         const video = document.createElement('video');
         video.srcObject = stream;
-        // In some envs onloadedmetadata might not fire if not connected to DOM or similar
-        // but for now we keep it and add a small timeout
         await Promise.race([
             new Promise(resolve => video.onloadedmetadata = resolve),
             new Promise(resolve => setTimeout(resolve, 500))
