@@ -42,26 +42,50 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
   styles: `
-    .terminal-container { background: rgba(5, 5, 5, 0.95); border: 1px solid #111; height: 250px; display: flex; flex-direction: column; cursor: text; }
-    .terminal-header { background: #000; padding: 8px 12px; border-bottom: 1px solid #1a1a1a; display: flex; gap: 10px; align-items: center; }
-    .prefix { color: #006600; font-size: 0.6em; font-weight: bold; }
-    .os { color: #00ff00; font-size: 0.7em; letter-spacing: 2px; flex-grow: 1; }
-    .ai-mode { font-size: 0.5em; color: #00ffff; border: 1px solid #00ffff; padding: 1px 4px; margin-right: 10px; }
-    .status-blink { color: #ff0000; font-size: 0.5em; font-weight: bold; animation: blink 1s infinite; }
+    .terminal-container { 
+      background: rgba(5, 5, 5, 0.95); 
+      border: 1px solid #111; 
+      min-height: 15rem; 
+      height: 100%;
+      display: flex; 
+      flex-direction: column; 
+      cursor: text; 
+      overflow: hidden;
+    }
+    .terminal-header { 
+      background: #000; 
+      padding: 0.5rem 0.75rem; 
+      border-bottom: 1px solid #1a1a1a; 
+      display: flex; 
+      gap: 0.75rem; 
+      align-items: center; 
+      flex-wrap: wrap;
+    }
+    .prefix { color: #006600; font-size: 0.6rem; font-weight: bold; }
+    .os { color: #00ff00; font-size: 0.7rem; letter-spacing: 2px; flex-grow: 1; }
+    .ai-mode { font-size: 0.5rem; color: #00ffff; border: 1px solid #00ffff; padding: 1px 4px; }
+    .status-blink { color: #ff0000; font-size: 0.5rem; font-weight: bold; animation: blink 1s infinite; white-space: nowrap; }
     .status-blink.processing { color: #00ffff; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
-    .terminal-body { flex-grow: 1; overflow-y: auto; padding: 10px; font-family: 'JetBrains Mono', monospace; }
-    .log-line { font-size: 0.7em; margin-bottom: 4px; display: flex; gap: 8px; line-height: 1.4; }
-    .timestamp { color: #004400; user-select: none; }
-    .content { color: #00cc00; white-space: pre-wrap; }
+    .terminal-body { 
+      flex-grow: 1; 
+      overflow-y: auto; 
+      padding: 0.75rem; 
+      font-family: 'JetBrains Mono', monospace; 
+      scrollbar-width: thin;
+      scrollbar-color: #004400 #000;
+    }
+    .log-line { font-size: 0.7rem; margin-bottom: 0.25rem; display: flex; gap: 0.5rem; line-height: 1.4; }
+    .timestamp { color: #004400; user-select: none; flex-shrink: 0; }
+    .content { color: #00cc00; white-space: pre-wrap; word-break: break-all; }
 
-    .input-line { display: flex; gap: 8px; align-items: center; margin-top: 5px; }
-    .prompt { color: #00ff00; font-size: 0.7em; font-weight: bold; }
-    input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: 0.7em; flex-grow: 1; outline: none; }
+    .input-line { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+    .prompt { color: #00ff00; font-size: clamp(0.6rem, 2vw, 0.7rem); font-weight: bold; white-space: nowrap; }
+    input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: clamp(0.6rem, 2vw, 0.7rem); flex-grow: 1; outline: none; min-width: 100px; }
     input:disabled { opacity: 0.5; cursor: wait; }
 
-    .terminal-body::-webkit-scrollbar { width: 3px; }
+    .terminal-body::-webkit-scrollbar { width: 4px; }
     .terminal-body::-webkit-scrollbar-track { background: #000; }
     .terminal-body::-webkit-scrollbar-thumb { background: #004400; }
   `

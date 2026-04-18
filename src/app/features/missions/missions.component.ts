@@ -195,88 +195,97 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
   styles: `
-    .missions-container { background: rgba(10, 10, 10, 0.9); border: 1px solid #1a1a1a; padding: 15px; }
-    .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; margin-bottom: 15px; padding-bottom: 10px; }
-    h3 { margin: 0; font-size: 0.8em; color: #00ff00; letter-spacing: 2px; }
-    .sub { font-size: 0.5em; color: #004400; }
+    .missions-container { background: rgba(10, 10, 10, 0.9); border: 1px solid #1a1a1a; padding: 1rem; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; margin-bottom: 1rem; padding-bottom: 0.75rem; flex-wrap: wrap; gap: 1rem; }
+    h3 { margin: 0; font-size: 0.8rem; color: #00ff00; letter-spacing: 2px; }
+    .sub { font-size: 0.5rem; color: #004400; }
 
-    .detection-meter { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .detection-meter .label { font-size: 0.5em; color: #ff0000; }
-    .bar-bg { width: 120px; height: 6px; background: #200; border: 1px solid #400; }
+    .detection-meter { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: 1; min-width: 120px; }
+    .detection-meter .label { font-size: 0.5rem; color: #ff0000; }
+    .bar-bg { width: 100%; max-width: 150px; height: 6px; background: #200; border: 1px solid #400; }
     .bar-fg { height: 100%; background: #ff0000; box-shadow: 0 0 10px #f00; transition: width 0.3s; }
-    .det-val { font-size: 0.7em; color: #ff0000; font-weight: bold; }
+    .det-val { font-size: 0.7rem; color: #ff0000; font-weight: bold; }
 
-    .mission-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 800px) { .mission-list { grid-template-columns: 1fr; } }
-    .mission-card { background: #000; border: 1px solid #222; padding: 12px; transition: all 0.2s; }
-    .mission-card:hover { border-color: #00ff00; transform: scale(1.02); }
-    .m-top { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.6em; }
+    .mission-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 1rem; }
+    @media (max-width: 600px) { .mission-list { grid-template-columns: 1fr; } }
+    .mission-card { background: #000; border: 1px solid #222; padding: 1rem; transition: all 0.2s; display: flex; flex-direction: column; }
+    .mission-card:hover { border-color: #00ff00; transform: translateY(-2px); }
+    .m-top { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.6rem; }
     .m-type { color: #008800; font-weight: bold; }
     .m-reward { color: #fff; font-weight: bold; }
-    .m-name { font-size: 0.8em; font-weight: bold; color: #fff; margin-bottom: 4px; }
-    .m-target { font-size: 0.6em; color: #666; margin-bottom: 5px; }
+    .m-name { font-size: 0.8rem; font-weight: bold; color: #fff; margin-bottom: 0.25rem; }
+    .m-target { font-size: 0.6rem; color: #666; margin-bottom: 0.75rem; flex-grow: 1; }
     
-    .honeypot-warning { font-size: 0.55em; color: #f00; background: #200; padding: 2px 4px; margin-bottom: 10px; border: 1px dashed #f00; text-align: center; font-weight: bold; animation: blink 2s infinite; }
+    .m-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .m-actions button { flex: 1; min-width: 5rem; padding: 0.5rem; font-size: 0.55rem; }
+    
+    button { background: #00ff00; color: #000; border: none; padding: 0.5rem 1rem; font-size: 0.65rem; font-weight: bold; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    button:hover:not(:disabled) { background: #fff; color: #000; }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    button { background: #00ff00; color: #000; border: none; padding: 6px 12px; font-size: 0.65em; font-weight: bold; cursor: pointer; font-family: inherit; }
-    button:hover { background: #fff; }
-
-    .m-actions { display: flex; gap: 5px; margin-top: 10px; }
-    .m-actions button { flex: 1; padding: 6px 4px; font-size: 0.55em; }
     .init-btn { background: #00ff00; color: #000; }
     .zero-day-btn { background: #ff00ff; color: #fff; border: 1px solid #ff00ff; }
-    .zero-day-btn:hover { box-shadow: 0 0 10px #ff00ff; background: #fff; color: #000; }
     .one-day-btn { background: #00ffff; color: #000; border: 1px solid #00ffff; }
-    .one-day-btn:hover { box-shadow: 0 0 10px #00ffff; background: #fff; }
 
     .active-mission-view { text-align: center; }
-    .active-header { font-size: 0.7em; color: #00ff00; margin-bottom: 15px; }
+    .active-header { font-size: 0.7rem; color: #00ff00; margin-bottom: 1rem; }
     .blink { animation: blink 1s infinite; color: #ff0000; margin-right: 5px; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
-    .mini-game-container { background: #000; border: 1px solid #111; padding: 15px; min-height: 220px; position: relative; margin-bottom: 15px; }
-    .game-info { font-size: 0.5em; color: #333; position: absolute; top: 5px; left: 10px; letter-spacing: 1px; }
+    .mini-game-container { background: #000; border: 1px solid #111; padding: 1.5rem; min-height: 250px; position: relative; margin-bottom: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .game-info { font-size: 0.5rem; color: #444; position: absolute; top: 0.5rem; left: 0.75rem; letter-spacing: 1px; }
 
-    .ports-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 15px; }
-    .port-tile { font-size: 0.6em; padding: 8px 4px; border: 1px solid #222; cursor: pointer; color: #444; }
+    .ports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); gap: 0.25rem; width: 100%; margin-top: 1rem; }
+    .port-tile { font-size: 0.6rem; padding: 0.5rem 0.25rem; border: 1px solid #222; cursor: pointer; color: #444; transition: all 0.2s; }
     .port-tile.scanned { background: #050505; color: #222; }
-    .port-tile.open { background: #00ff00; color: #000; border-color: #fff; }
+    .port-tile.open { background: #00ff00 !important; color: #000 !important; border-color: #fff; box-shadow: 0 0 10px #0f0; }
 
-    .code-display { font-size: 1.8em; letter-spacing: 5px; color: #fff; margin: 20px 0; font-family: monospace; }
-    .input-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; }
-    .code-btn { padding: 8px 4px; font-size: 0.7em; }
+    .code-display { font-size: clamp(1.2rem, 5vw, 2rem); letter-spacing: 0.5rem; color: #fff; margin: 1.5rem 0; font-family: monospace; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+    .input-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.25rem; width: 100%; max-width: 350px; }
+    @media (max-width: 400px) { .input-grid { grid-template-columns: repeat(4, 1fr); } }
+    .code-btn { padding: 0.5rem 0.25rem; font-size: 0.7rem; }
 
-    .sql-stream { display: flex; flex-direction: column; gap: 4px; margin-top: 15px; }
-    .sql-item { font-size: 0.7em; padding: 5px; border: 1px solid #111; cursor: pointer; text-align: left; }
-    .sql-item.vuln { color: #00ff00; border-color: #00ff00; background: #001100; }
+    .sql-stream { display: flex; flex-direction: column; gap: 0.25rem; width: 100%; margin-top: 1rem; }
+    .sql-item { font-size: 0.7rem; padding: 0.5rem; border: 1px solid #111; cursor: pointer; text-align: left; transition: all 0.2s; }
+    .sql-item.vuln { color: #00ff00; border-color: #00ff00; background: #001100; box-shadow: inset 0 0 5px #0f0; }
 
-    .rfid-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 200px; margin: 20px auto 10px; }
-    .rfid-tile { padding: 15px; background: #050505; border: 1px solid #222; color: #222; font-size: 0.7em; }
-    .rfid-tile.active { color: #ff00ff; border-color: #ff00ff; box-shadow: 0 0 10px #f0f; }
-    .progress-info { font-size: 0.6em; color: #ff00ff; }
+    .rfid-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; width: 100%; max-width: 250px; margin: 1rem auto; }
+    .rfid-tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #050505; border: 1px solid #222; color: #222; font-size: 0.6rem; cursor: pointer; transition: all 0.1s; }
+    .rfid-tile.active { color: #ff00ff; border-color: #ff00ff; box-shadow: 0 0 15px #f0f; transform: scale(1.05); }
+    .progress-info { font-size: 0.6rem; color: #ff00ff; font-weight: bold; }
 
-    .stack-view { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin: 20px auto; max-width: 240px; }
-    .stack-cell { font-size: 0.55em; padding: 4px; border: 1px solid #111; color: #333; }
-    .stack-cell.eip { border-color: #ff00ff; color: #ff00ff; }
-    .stack-cell.overwritten { background: #110011; color: #606; }
-    .overflow-controls input { background: #000; border: 1px solid #222; color: #fff; padding: 8px; font-size: 0.7em; font-family: inherit; width: 120px; }
+    .stack-view { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.25rem; width: 100%; max-width: 300px; margin: 1.5rem auto; }
+    @media (max-width: 400px) { .stack-view { grid-template-columns: repeat(4, 1fr); } }
+    .stack-cell { font-size: 0.55rem; padding: 0.4rem; border: 1px solid #111; color: #333; text-align: center; }
+    .stack-cell.eip { border-color: #ff00ff; color: #ff00ff; font-weight: bold; }
+    .stack-cell.overwritten { background: #1a001a; color: #ff00ff; }
+    
+    .overflow-controls { display: flex; gap: 0.5rem; width: 100%; max-width: 300px; }
+    .overflow-controls input { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; font-size: 0.7rem; font-family: inherit; flex-grow: 1; outline: none; }
+    .overflow-controls input:focus { border-color: #ff00ff; }
 
-    .xss-controls textarea { width: 100%; height: 60px; background: #000; border: 1px solid #222; color: #fff; font-size: 0.7em; padding: 10px; margin-top: 15px; }
-    .render-view { border: 1px dashed #222; min-height: 40px; margin-top: 10px; padding: 8px; font-size: 0.6em; color: #444; }
+    .xss-controls { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .xss-controls textarea { width: 100%; height: 80px; background: #000; border: 1px solid #222; color: #fff; font-size: 0.7rem; padding: 0.75rem; font-family: inherit; resize: none; outline: none; }
+    .xss-controls textarea:focus { border-color: #00ffff; }
+    .render-view { width: 100%; max-width: 400px; border: 1px dashed #222; min-height: 50px; margin-top: 0.75rem; padding: 0.75rem; font-size: 0.6rem; color: #555; text-align: left; }
 
-    .osint-game .profile-card { background: #050505; border: 1px solid #111; padding: 15px; text-align: left; margin-top: 15px; }
-    .fact-line { font-size: 0.7em; color: #00ff00; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .f-label { color: #006600; width: 80px; }
+    .osint-game { width: 100%; max-width: 400px; }
+    .osint-game .profile-card { background: #050505; border: 1px solid #111; padding: 1rem; text-align: left; margin-top: 1rem; width: 100%; }
+    .fact-line { font-size: 0.7rem; color: #00ff00; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .f-label { color: #006600; min-width: 4rem; font-weight: bold; }
     .f-val { flex-grow: 1; color: #fff; }
-    .security-questions { margin-top: 15px; display: flex; gap: 5px; }
-    .security-questions input { background: #000; border: 1px solid #222; color: #fff; padding: 8px; flex-grow: 1; font-size: 0.7em; }
+    .reveal-btn { padding: 0.2rem 0.5rem; font-size: 0.5rem; }
+    .security-questions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+    .security-questions input { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; flex-grow: 1; font-size: 0.7rem; outline: none; }
+    .security-questions input:focus { border-color: #00ff00; }
 
-    .phishing-setup { display: flex; flex-direction: column; gap: 10px; text-align: left; margin-top: 15px; }
-    .setup-group label { font-size: 0.5em; color: #333; margin-bottom: 4px; display: block; }
-    .setup-group select { background: #000; border: 1px solid #222; color: #fff; padding: 8px; width: 100%; font-size: 0.7em; }
-    .launch-btn { width: 100%; margin-top: 20px; background: #ff00ff; }
+    .phishing-setup { display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-top: 1rem; width: 100%; max-width: 300px; }
+    .setup-group label { font-size: 0.5rem; color: #444; margin-bottom: 0.25rem; display: block; }
+    .setup-group select { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; width: 100%; font-size: 0.7rem; font-family: inherit; outline: none; }
+    .launch-btn { width: 100%; margin-top: 1.5rem; background: #ff00ff; color: #fff; }
 
-    .abort-btn { background: #333; color: #00ff00; margin-top: 10px; padding: 10px 20px; font-size: 0.7em; }
+    .abort-btn { background: #1a1a1a; color: #00ff00; margin-top: 1rem; padding: 0.75rem 1.5rem; font-size: 0.7rem; border: 1px solid #333; }
+    .abort-btn:hover { background: #300; color: #f00; border-color: #f00; }
   `
 })
 export class MissionComponent implements OnDestroy {

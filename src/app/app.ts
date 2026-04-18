@@ -140,7 +140,7 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
   styles: `
     :host {
       display: block;
-      height: 100vh;
+      height: 100dvh;
       background: #030303;
       color: #00ff00;
       font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
@@ -162,10 +162,12 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
       display: flex;
       flex-direction: column;
       height: 100%;
-      padding: 10px;
+      padding: 1rem;
       box-sizing: border-box;
-      gap: 10px;
+      gap: 1rem;
       transition: all 1s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .game-wrapper.matrix { filter: sepia(1) saturate(2) hue-rotate(80deg); }
@@ -185,21 +187,23 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
     header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      padding: 12px;
+      align-items: center;
+      padding: 1rem;
       background: rgba(10, 10, 10, 0.8);
       border: 1px solid #111;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 1rem;
+      flex-shrink: 0;
     }
 
-    .logo { font-size: 1.5em; font-weight: 900; color: #00ff00; letter-spacing: 4px; }
-    .version { font-size: 0.6em; color: #006600; margin-top: 2px; }
+    .logo-group { flex-shrink: 0; }
+    .logo { font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 900; color: #00ff00; letter-spacing: 4px; }
+    .version { font-size: 0.6rem; color: #006600; margin-top: 2px; }
 
-    .stats { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-    .stat-box { display: flex; flex-direction: column; align-items: flex-end; }
-    .stat-box .label { font-size: 0.5em; color: #008800; }
-    .stat-box .value { font-size: 1em; font-weight: bold; color: #fff; }
+    .stats { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; flex-grow: 1; justify-content: flex-end; }
+    .stat-box { display: flex; flex-direction: column; align-items: flex-end; min-width: 4rem; }
+    .stat-box .label { font-size: 0.5rem; color: #008800; white-space: nowrap; }
+    .stat-box .value { font-size: 0.9rem; font-weight: bold; color: #fff; }
     .stat-box .value.research { color: #ff00ff; }
     .stat-box .value.danger { color: #ff0000; text-shadow: 0 0 8px #f00; }
     .stat-box.warning .value { animation: pulse 0.5s infinite alternate; }
@@ -212,66 +216,80 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
       align-items: center;
       background: #001100;
       border: 1px solid #00ff00;
-      padding: 4px 10px;
-      min-width: 180px;
+      padding: 0.25rem 0.5rem;
+      min-width: 8rem;
     }
-    .music-player .label { font-size: 0.45em; color: #00ff00; letter-spacing: 1px; margin-bottom: 2px; }
-    .music-player .track-name { font-size: 0.7em; color: #fff; font-weight: bold; margin-bottom: 5px; font-family: monospace; }
+    .music-player .label { font-size: 0.4rem; color: #00ff00; letter-spacing: 1px; margin-bottom: 2px; }
+    .music-player .track-name { font-size: 0.6rem; color: #fff; font-weight: bold; margin-bottom: 5px; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 10rem; }
 
     .audio-toggle {
       background: #003300;
       border: 1px solid #00ff00;
       color: #00ff00;
-      padding: 4px 8px;
+      padding: 0.25rem 0.5rem;
       cursor: pointer;
       font-family: inherit;
-      font-size: 0.5em;
+      font-size: 0.5rem;
       text-transform: uppercase;
       width: 100%;
     }
 
     main {
       display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 15px;
+      grid-template-columns: 1fr 25rem;
+      gap: 1rem;
       flex-grow: 1;
       overflow: hidden;
+      min-height: 0;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
+      main {
+        grid-template-columns: 1fr 20rem;
+      }
+    }
+
+    @media (max-width: 1024px) {
       main {
         grid-template-columns: 1fr;
         overflow-y: auto;
       }
-      :host { overflow: auto; }
-      .left-panel, .right-panel { overflow-y: visible !important; }
-      .game-wrapper { height: auto; }
+      :host { overflow-y: auto; }
+      .game-wrapper { height: auto; min-height: 100dvh; overflow: visible; }
+      .left-panel, .right-panel { overflow-y: visible !important; height: auto !important; }
+      .stats { justify-content: flex-start; }
     }
 
     @media (max-width: 600px) {
       .btn-text { display: none; }
-      header { flex-direction: column; align-items: center; }
-      .stats { width: 100%; justify-content: center; }
+      .music-player { min-width: 3rem; width: auto; }
+      header { flex-direction: column; align-items: center; text-align: center; }
+      .logo-group { width: 100%; }
+      .stats { justify-content: center; gap: 0.75rem; width: 100%; }
+      .stat-box { align-items: center; min-width: 3.5rem; }
+      .stat-box .value { font-size: 0.8rem; }
     }
 
     .left-panel, .right-panel {
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      gap: 15px;
+      gap: 1rem;
+      min-height: 0;
     }
 
-    .viz-card { background: #000; border: 1px solid #1a1a1a; padding: 5px; }
+    .viz-card { background: #000; border: 1px solid #1a1a1a; padding: 0.25rem; width: 100%; box-sizing: border-box; }
+    app-globe { display: block; width: 100%; aspect-ratio: 1; }
 
-    .inventory-section { background: rgba(15, 15, 15, 0.9); border: 1px solid #222; padding: 15px; }
-    .sec-header { font-size: 0.6em; color: #555; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 10px; letter-spacing: 2px; }
-    .inventory-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-    .inventory-item { background: #000; border-left: 3px solid #00ff00; padding: 8px; display: flex; flex-direction: column; font-size: 0.65em; }
+    .inventory-section { background: rgba(15, 15, 15, 0.9); border: 1px solid #222; padding: 1rem; }
+    .sec-header { font-size: 0.6rem; color: #555; border-bottom: 1px solid #222; padding-bottom: 0.5rem; margin-bottom: 0.75rem; letter-spacing: 2px; }
+    .inventory-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; }
+    .inventory-item { background: #000; border-left: 3px solid #00ff00; padding: 0.5rem; display: flex; flex-direction: column; font-size: 0.6rem; }
     .inventory-item .name { color: #fff; font-weight: bold; }
     .inventory-item .tag { color: #00aa00; font-size: 0.8em; margin-top: 2px; }
-    .empty-inv { font-size: 0.65em; color: #333; text-align: center; padding: 10px; }
+    .empty-inv { font-size: 0.6rem; color: #333; text-align: center; padding: 0.5rem; }
 
-    .footer-bar { font-size: 0.55em; color: #333; padding: 5px; border-top: 1px solid #111; }
+    .footer-bar { font-size: 0.5rem; color: #333; padding: 0.5rem; border-top: 1px solid #111; flex-shrink: 0; }
     .status-ok { color: #008800; }
     .matrix-text { color: #00ff00; font-weight: bold; }
 

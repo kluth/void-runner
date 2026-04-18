@@ -100,54 +100,61 @@ import { FormsModule } from '@angular/forms';
     }
   `,
   styles: `
-    .darknet-container { background: rgba(5, 5, 5, 0.95); border: 1px double #00ffff; padding: 15px; margin-bottom: 15px; }
-    .darknet-header { display: flex; justify-content: space-between; border-bottom: 1px solid #004444; padding-bottom: 10px; margin-bottom: 15px; }
-    .title { font-size: 0.8em; color: #00ffff; letter-spacing: 3px; font-weight: bold; }
-    .pulse { color: #00ffff; animation: blink 2s infinite; font-size: 0.6em; }
+    .darknet-container { background: rgba(5, 5, 5, 0.95); border: 1px double #00ffff; padding: 1rem; margin-bottom: 1rem; }
+    .darknet-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #004444; padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .title { font-size: 0.8rem; color: #00ffff; letter-spacing: 3px; font-weight: bold; }
+    .pulse { color: #00ffff; animation: blink 2s infinite; font-size: 0.6rem; }
 
-    .darknet-layout { display: grid; grid-template-columns: 120px 1fr; gap: 15px; height: 300px; }
+    .darknet-layout { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; height: 25rem; }
+    @media (max-width: 600px) {
+      .darknet-layout { grid-template-columns: 1fr; height: auto; min-height: 25rem; }
+      .sidebar { flex-direction: row !important; border-right: none !important; border-bottom: 1px solid #111; padding-right: 0 !important; padding-bottom: 0.5rem; }
+      .tab-btn { flex: 1; text-align: center; }
+    }
     
-    .sidebar { display: flex; flex-direction: column; gap: 8px; border-right: 1px solid #111; padding-right: 10px; }
-    .tab-btn { font-size: 0.6em; color: #008888; cursor: pointer; padding: 8px; border: 1px solid transparent; }
+    .sidebar { display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #111; padding-right: 0.75rem; }
+    .tab-btn { font-size: 0.6rem; color: #008888; cursor: pointer; padding: 0.75rem 0.5rem; border: 1px solid transparent; transition: all 0.2s; }
     .tab-btn:hover { color: #00ffff; background: #001111; }
     .tab-btn.active { color: #00ffff; border-color: #008888; background: #001111; }
 
-    .main-view { flex-grow: 1; overflow-y: auto; }
+    .main-view { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
     
-    .chat-view, .dm-view { display: flex; flex-direction: column; height: 100%; }
-    .chat-log, .dm-log { flex-grow: 1; background: #000; border: 1px solid #111; padding: 10px; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 5px; }
-    .msg { font-size: 0.6em; color: #00ff00; line-height: 1.4; }
+    .chat-view, .dm-view, .team-view { display: flex; flex-direction: column; height: 100%; min-height: 20rem; }
+    .chat-log, .dm-log { flex-grow: 1; background: #000; border: 1px solid #111; padding: 0.75rem; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 0.5rem; }
+    .msg { font-size: 0.6rem; color: #00ff00; line-height: 1.4; word-break: break-all; }
     .msg.sent { color: #00ffff; text-align: right; }
     .sender { color: #00ffff; font-weight: bold; }
 
-    .chat-input { display: flex; gap: 5px; margin-top: 10px; }
-    .chat-input input { background: #000; border: 1px solid #004444; color: #fff; font-size: 0.7em; padding: 8px; flex-grow: 1; font-family: inherit; }
-    .chat-input button { background: #004444; color: #00ffff; border: 1px solid #00ffff; font-size: 0.6em; padding: 8px 15px; cursor: pointer; }
+    .chat-input { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .chat-input input { background: #000; border: 1px solid #004444; color: #fff; font-size: 0.7rem; padding: 0.6rem; flex-grow: 1; font-family: inherit; outline: none; }
+    .chat-input button { background: #004444; color: #00ffff; border: 1px solid #00ffff; font-size: 0.6rem; padding: 0.6rem 1rem; cursor: pointer; transition: all 0.2s; }
+    .chat-input button:hover { background: #00ffff; color: #000; }
 
-    .teams-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
-    .team-node { display: flex; justify-content: space-between; align-items: center; background: #050505; border: 1px solid #111; padding: 10px; }
-    .t-name { font-size: 0.7em; color: #fff; font-weight: bold; }
-    .t-count { font-size: 0.5em; color: #008800; margin-left: 10px; }
-    .team-node button { background: transparent; border: 1px solid #008888; color: #008888; font-size: 0.5em; cursor: pointer; padding: 4px 8px; }
+    .teams-grid { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .team-node { display: flex; justify-content: space-between; align-items: center; background: #050505; border: 1px solid #111; padding: 0.75rem; gap: 1rem; }
+    .t-info { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; flex-grow: 1; }
+    .t-name { font-size: 0.7rem; color: #fff; font-weight: bold; }
+    .t-count { font-size: 0.55rem; color: #008800; }
+    .team-node button { background: transparent; border: 1px solid #008888; color: #008888; font-size: 0.55rem; cursor: pointer; padding: 0.4rem 0.75rem; white-space: nowrap; transition: all 0.2s; }
     .team-node button:hover:not(:disabled) { background: #00ffff; color: #000; border-color: #00ffff; }
 
-    .create-team { display: flex; gap: 5px; }
-    .create-team input { flex-grow: 1; background: #000; border: 1px solid #222; color: #fff; font-size: 0.6em; padding: 8px; font-family: inherit; }
-    .create-team button { background: #003333; color: #00ffff; border: 1px solid #00ffff; font-size: 0.6em; padding: 0 15px; cursor: pointer; }
+    .create-team { display: flex; gap: 0.5rem; }
+    .create-team input { flex-grow: 1; background: #000; border: 1px solid #222; color: #fff; font-size: 0.7rem; padding: 0.6rem; font-family: inherit; outline: none; }
+    .create-team button { background: #003333; color: #00ffff; border: 1px solid #00ffff; font-size: 0.6rem; padding: 0 1rem; cursor: pointer; transition: all 0.2s; }
 
-    .online-ops { margin-bottom: 15px; }
-    .op-label { font-size: 0.5em; color: #008800; display: block; margin-bottom: 5px; }
-    .op-list { display: flex; flex-wrap: wrap; gap: 5px; }
-    .op-chip { font-size: 0.55em; background: #001111; border: 1px solid #004444; color: #00ffff; padding: 3px 8px; cursor: pointer; }
+    .online-ops { margin-bottom: 1rem; }
+    .op-label { font-size: 0.55rem; color: #008800; display: block; margin-bottom: 0.5rem; letter-spacing: 1px; }
+    .op-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .op-chip { font-size: 0.6rem; background: #001111; border: 1px solid #004444; color: #00ffff; padding: 0.25rem 0.6rem; cursor: pointer; transition: all 0.2s; }
     .op-chip:hover { background: #00ffff; color: #000; }
 
-    .active-dm { border-top: 1px solid #222; padding-top: 15px; display: flex; flex-direction: column; height: 200px; }
-    .dm-header { font-size: 0.6em; color: #00ffff; margin-bottom: 10px; font-weight: bold; }
+    .active-dm { border-top: 1px solid #222; padding-top: 1rem; display: flex; flex-direction: column; flex-grow: 1; min-height: 15rem; }
+    .dm-header { font-size: 0.6rem; color: #00ffff; margin-bottom: 0.75rem; font-weight: bold; }
 
-    .locked-container { background: rgba(10, 0, 0, 0.5); border: 1px dashed #400; padding: 40px; text-align: center; }
-    .lock-icon { font-size: 3em; margin-bottom: 20px; }
-    .lock-text { font-size: 1em; font-weight: bold; color: #ff0000; margin-bottom: 10px; }
-    .lock-sub { font-size: 0.6em; color: #600; }
+    .locked-container { background: rgba(10, 0, 0, 0.5); border: 1px dashed #400; padding: 2rem; text-align: center; }
+    .lock-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .lock-text { font-size: 1rem; font-weight: bold; color: #ff0000; margin-bottom: 0.5rem; }
+    .lock-sub { font-size: 0.6rem; color: #600; }
   `
 })
 export class DarknetNodeComponent {

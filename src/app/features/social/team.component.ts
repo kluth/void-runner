@@ -64,47 +64,51 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
   styles: `
-    .teams-container { background: rgba(10, 10, 10, 0.9); border: 1px solid #1a1a1a; padding: 15px; margin-bottom: 15px; }
-    .sec-header { font-size: 0.7em; color: #00ffff; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 12px; letter-spacing: 2px; }
+    .teams-container { background: rgba(10, 10, 10, 0.9); border: 1px solid #1a1a1a; padding: 1rem; margin-bottom: 1rem; }
+    .sec-header { font-size: 0.7rem; color: #00ffff; border-bottom: 1px solid #222; padding-bottom: 0.5rem; margin-bottom: 1rem; letter-spacing: 2px; }
     
-    .handle-config { display: flex; gap: 5px; align-items: center; margin-bottom: 15px; background: #001111; padding: 8px; border: 1px solid #003333; }
-    .handle-config label { font-size: 0.5em; color: #00ffff; }
-    .handle-config input { background: #000; border: 1px solid #004444; color: #fff; font-size: 0.6em; padding: 4px; flex-grow: 1; font-family: inherit; }
-    .handle-config button { background: #004444; color: #00ffff; border: 1px solid #00ffff; font-size: 0.5em; padding: 4px 8px; cursor: pointer; }
+    .handle-config { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1.5rem; background: #001111; padding: 0.75rem; border: 1px solid #003333; flex-wrap: wrap; }
+    .handle-config label { font-size: 0.5rem; color: #00ffff; white-space: nowrap; }
+    .handle-config input { background: #000; border: 1px solid #004444; color: #fff; font-size: 0.6rem; padding: 0.5rem; flex-grow: 1; font-family: inherit; outline: none; min-width: 8rem; }
+    .handle-config button { background: #004444; color: #00ffff; border: 1px solid #00ffff; font-size: 0.6rem; padding: 0.5rem 1rem; cursor: pointer; transition: all 0.2s; }
+    .handle-config button:hover { background: #00ffff; color: #000; }
 
-    .teams-list { display: flex; flex-direction: column; gap: 10px; }
-    .team-card { background: #000; border: 1px solid #222; padding: 12px; }
+    .teams-list { display: flex; flex-direction: column; gap: 1rem; }
+    .team-card { background: #000; border: 1px solid #222; padding: 1rem; transition: all 0.2s; }
     .team-card.locked { opacity: 0.5; border-style: dashed; }
+    .team-card:hover:not(.locked) { border-color: #00ffff; transform: translateY(-2px); }
     
-    .team-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
-    .team-name { font-size: 0.8em; font-weight: bold; color: #00ffff; }
-    .req { font-size: 0.55em; color: #666; }
+    .team-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .team-name { font-size: 0.8rem; font-weight: bold; color: #00ffff; }
+    .req { font-size: 0.55rem; color: #666; }
     
-    .team-desc { font-size: 0.6em; color: #888; margin-bottom: 5px; }
-    .team-bonus { font-size: 0.6em; color: #00ff00; font-family: monospace; margin-bottom: 10px; }
+    .team-desc { font-size: 0.6rem; color: #888; margin-bottom: 0.5rem; line-height: 1.4; }
+    .team-bonus { font-size: 0.6rem; color: #00ff00; font-family: monospace; margin-bottom: 1rem; }
     
-    .join-btn { width: 100%; background: #004444; color: #00ffff; border: 1px solid #00ffff; padding: 6px; font-size: 0.6em; cursor: pointer; font-family: inherit; }
+    .join-btn { width: 100%; background: #004444; color: #00ffff; border: 1px solid #00ffff; padding: 0.6rem; font-size: 0.65rem; font-weight: bold; cursor: pointer; font-family: inherit; transition: all 0.2s; }
     .join-btn:hover:not(:disabled) { background: #00ffff; color: #000; }
     
-    .active-team { background: #001111; border: 1px solid #00ffff; padding: 12px; }
-    .at-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .at-actions { display: flex; gap: 5px; }
-    .at-name { font-size: 1em; font-weight: bold; color: #00ffff; }
-    .at-bonus { font-size: 0.6em; color: #00ff00; margin-bottom: 15px; }
+    .active-team { background: #001111; border: 1px solid #00ffff; padding: 1rem; }
+    .at-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+    .at-actions { display: flex; gap: 0.5rem; }
+    .at-name { font-size: 1rem; font-weight: bold; color: #00ffff; }
+    .at-bonus { font-size: 0.6rem; color: #00ff00; margin-bottom: 1.5rem; }
     
-    .mfa-btn { background: #004444; border: 1px solid #00ff00; color: #00ff00; font-size: 0.5em; padding: 2px 6px; cursor: pointer; }
-    .leave-btn { background: transparent; border: 1px solid #440000; color: #880000; font-size: 0.5em; padding: 2px 6px; cursor: pointer; }
+    .mfa-btn { background: #004444; border: 1px solid #00ff00; color: #00ff00; font-size: 0.55rem; padding: 0.25rem 0.5rem; cursor: pointer; }
+    .leave-btn { background: transparent; border: 1px solid #440000; color: #880000; font-size: 0.55rem; padding: 0.25rem 0.5rem; cursor: pointer; transition: all 0.2s; }
     .leave-btn:hover { background: #440000; color: #fff; }
     
-    .team-comms { background: #000; border: 1px solid #003333; padding: 10px; }
-    .comms-header { font-size: 0.55em; color: #008888; margin-bottom: 5px; }
-    .comms-log { height: 100px; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 4px; margin-bottom: 10px; }
-    .comms-msg { font-size: 0.55em; color: #00ff00; line-height: 1.2; }
+    .team-comms { background: #000; border: 1px solid #003333; padding: 1rem; display: flex; flex-direction: column; }
+    .comms-header { font-size: 0.55rem; color: #008888; margin-bottom: 0.5rem; letter-spacing: 1px; }
+    .comms-log { height: 8rem; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 0.5rem; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.5); }
+    .comms-msg { font-size: 0.6rem; color: #00ff00; line-height: 1.4; word-break: break-all; }
     .comms-msg .sender { color: #00ffff; font-weight: bold; }
 
-    .chat-input { display: flex; gap: 4px; }
-    .chat-input input { background: #000; border: 1px solid #004444; color: #00ff00; font-size: 0.6em; padding: 4px; flex-grow: 1; font-family: inherit; }
-    .chat-input button { background: #003333; color: #00ff00; border: 1px solid #008888; font-size: 0.5em; cursor: pointer; }
+    .chat-input { display: flex; gap: 0.5rem; }
+    .chat-input input { background: #000; border: 1px solid #004444; color: #00ff00; font-size: 0.65rem; padding: 0.5rem; flex-grow: 1; font-family: inherit; outline: none; }
+    .chat-input input:focus { border-color: #00ffff; }
+    .chat-input button { background: #003333; color: #00ff00; border: 1px solid #008888; font-size: 0.6rem; padding: 0.5rem 1rem; cursor: pointer; transition: all 0.2s; }
+    .chat-input button:hover { background: #00ff00; color: #000; }
   `
 })
 export class TeamComponent {

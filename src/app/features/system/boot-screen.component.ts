@@ -28,21 +28,35 @@ import { CommonModule } from '@angular/common';
   `,
   styles: `
     .boot-container {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
       background: #000; z-index: 20000;
       display: flex; align-items: center; justify-content: center;
       color: #00ff00; font-family: 'JetBrains Mono', monospace;
+      padding: 1rem;
     }
-    .boot-box { width: 600px; padding: 40px; border: 1px solid #111; }
-    .boot-logo { font-size: 2em; font-weight: 900; letter-spacing: 10px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 10px #00ff00; }
-    .boot-version { font-size: 0.6em; color: #008800; margin-bottom: 40px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+    .boot-box { 
+      width: 100%; 
+      max-width: 40rem; 
+      padding: 2.5rem; 
+      border: 1px solid #111; 
+      background: rgba(5,5,5,0.8);
+      box-shadow: 0 0 20px rgba(0,255,0,0.05);
+    }
+    .boot-logo { font-size: clamp(1.5rem, 8vw, 2.5rem); font-weight: 900; letter-spacing: 10px; margin-bottom: 0.75rem; color: #fff; text-shadow: 0 0 10px #00ff00; text-align: center; }
+    .boot-version { font-size: 0.6rem; color: #008800; margin-bottom: 2.5rem; border-bottom: 1px solid #222; padding-bottom: 0.75rem; text-align: center; }
     
-    .log-stream { display: flex; flex-direction: column; gap: 5px; height: 250px; overflow: hidden; }
-    .log-entry { font-size: 0.7em; }
-    .status { color: #fff; font-weight: bold; margin-right: 10px; }
+    .log-stream { display: flex; flex-direction: column; gap: 0.4rem; height: 15rem; overflow: hidden; mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
+    .log-entry { font-size: 0.7rem; line-height: 1.4; }
+    .status { color: #fff; font-weight: bold; margin-right: 0.75rem; }
     
-    .success-line { margin-top: 30px; font-size: 0.8em; color: #00ffff; animation: blink 1s infinite; }
+    .success-line { margin-top: 2rem; font-size: 0.8rem; color: #00ffff; animation: blink 1s infinite; text-align: center; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
+    @media (max-width: 480px) {
+      .boot-box { padding: 1.5rem; }
+      .boot-logo { letter-spacing: 5px; }
+      .log-stream { height: 12rem; }
+    }
   `
 })
 export class BootScreenComponent implements OnInit {

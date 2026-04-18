@@ -80,85 +80,97 @@ import { AudioService } from '../../core/services/audio.service';
     .shop-container {
       background: rgba(10, 10, 10, 0.9);
       border: 1px solid #1a1a1a;
-      padding: 15px;
+      padding: 1rem;
     }
     .shop-header {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid #222;
-      padding-bottom: 8px;
-      margin-bottom: 15px;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
-    .shop-header .title { font-size: 0.8em; color: #00ff00; letter-spacing: 2px; }
-    .shop-header .status { font-size: 0.6em; color: #004400; }
+    .shop-header .title { font-size: 0.8rem; color: #00ff00; letter-spacing: 2px; }
+    .shop-header .status { font-size: 0.6rem; color: #004400; }
 
     .zero-day-market {
       background: #050505;
       border: 1px dashed #ff00ff;
-      padding: 10px;
-      margin-bottom: 15px;
+      padding: 1rem;
+      margin-bottom: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .zd-info h4 { margin: 0 0 5px 0; color: #ff00ff; font-size: 0.8em; text-shadow: 0 0 5px #ff00ff; }
-    .zd-info p { margin: 0; color: #888; font-size: 0.6em; max-width: 300px; }
+    .zd-info { flex: 1; min-width: 15rem; }
+    .zd-info h4 { margin: 0 0 0.25rem 0; color: #ff00ff; font-size: 0.8rem; text-shadow: 0 0 5px #ff00ff; }
+    .zd-info p { margin: 0; color: #888; font-size: 0.6rem; max-width: 100%; }
     
-    .zd-actions { display: flex; align-items: center; gap: 10px; }
-    .zd-stat { font-size: 0.8em; color: #fff; font-weight: bold; }
-    .zd-stat .highlight { color: #ff00ff; font-size: 1.2em; }
+    .zd-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; flex: 1; min-width: 15rem; }
+    .zd-choice { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .zd-stat { font-size: 0.7rem; color: #fff; }
+    .highlight { color: #ff00ff; font-weight: bold; }
 
-    .zd-btn { border: 1px solid #ff00ff; background: #110011; color: #ff00ff; padding: 6px 10px; font-size: 0.6em; cursor: pointer; font-family: inherit; font-weight: bold; }
-    .zd-btn:hover:not(:disabled) { background: #ff00ff; color: #000; box-shadow: 0 0 10px #ff00ff; }
-    .zd-btn:disabled { border-color: #303; color: #404; background: #000; cursor: not-allowed; }
-    
-    .zd-btn.sell { border-color: #00ff00; color: #00ff00; background: #001100; }
-    .zd-btn.sell:hover:not(:disabled) { background: #00ff00; color: #000; box-shadow: 0 0 10px #00ff00; }
-    .zd-btn.sell:disabled { border-color: #003300; color: #004400; }
+    @media (max-width: 600px) {
+      .zero-day-market { flex-direction: column; align-items: stretch; }
+      .zd-actions { justify-content: flex-start; align-items: stretch; min-width: 0; }
+      .zd-choice { width: 100%; }
+      .zd-choice .zd-btn { flex: 1; min-width: 0; }
+      .zd-btn.research { width: 100%; }
+    }
 
     .hardware-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+      gap: 1rem;
     }
 
     .hw-card {
       background: #000;
       border: 1px solid #222;
-      padding: 12px;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
       transition: all 0.3s;
+      min-height: 12rem;
     }
 
     .hw-card.affordable { border-color: #008800; }
     .hw-card:hover:not(.locked) { border-color: #00ff00; transform: translateY(-2px); box-shadow: 0 0 15px rgba(0, 255, 0, 0.1); }
     .hw-card.locked { border-color: #300; opacity: 0.8; }
 
-    .hw-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-    .hw-name { font-size: 0.75em; font-weight: bold; color: #fff; line-height: 1.2; }
-    .hw-type { font-size: 0.55em; color: #00ff00; background: #002200; padding: 2px 4px; border: 1px solid #004400; }
+    .hw-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .hw-name { font-size: 0.7rem; font-weight: bold; color: #fff; line-height: 1.2; }
+    .hw-type { font-size: 0.5rem; color: #00ff00; background: #002200; padding: 0.1rem 0.25rem; border: 1px solid #004400; white-space: nowrap; }
 
-    .hw-desc { font-size: 0.65em; color: #666; margin-bottom: 10px; flex-grow: 1; min-height: 35px; }
+    .hw-desc { font-size: 0.6rem; color: #666; margin-bottom: 0.75rem; flex-grow: 1; min-height: 2.5rem; }
     .hw-desc.locked { color: #400; font-style: italic; }
 
-    .hw-stat { font-size: 0.6em; color: #00ff00; margin-bottom: 8px; font-family: monospace; }
-    .hw-price, .research-cost { font-size: 0.9em; font-weight: 900; margin-bottom: 10px; }
+    .hw-stat { font-size: 0.6rem; color: #00ff00; margin-bottom: 0.5rem; font-family: monospace; }
+    .hw-price, .research-cost { font-size: 0.8rem; font-weight: 900; margin-bottom: 0.75rem; }
     .hw-price { color: #fff; }
     .research-cost { color: #ff00ff; }
 
-    button {
+    .zd-btn, .buy-btn, .research-btn {
       border: none;
-      padding: 8px;
+      padding: 0.5rem;
       font-family: inherit;
-      font-size: 0.7em;
+      font-size: 0.6rem;
       font-weight: bold;
       cursor: pointer;
       text-transform: uppercase;
+      transition: all 0.2s;
     }
+
+    .zd-btn.research { background: #ff00ff; color: #fff; }
+    .zd-btn.sell { background: #003333; color: #00ffff; border: 1px solid #00ffff; }
+    .zd-btn.disclose { background: #333; color: #fff; }
+    .zd-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .buy-btn { background: #00ff00; color: #000; }
     .buy-btn:disabled { background: #111; color: #333; cursor: not-allowed; }
