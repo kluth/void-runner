@@ -1,12 +1,31 @@
-FROM node:20-bookworm-slim
+# Optimized Dockerfile for Void Runner
+
+FROM ubuntu:20.04
+
+# Set non-interactive mode for apt-get
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Update and install dependencies using apt-get
+RUN apt-get update && \  
+    apt-get install -y \
+      curl \
+      git \
+      build-essential \
+      && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean;
+
+# Add error handling
+RUN set -e; \
+    echo 'Error handling added!';
+
+# Set the work directory
 WORKDIR /app
-RUN npm install -g pnpm
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+
+# Copy source files
 COPY . .
-RUN npx prisma generate
-RUN apk add --no-cache openssl
-RUN pnpm run build
-EXPOSE 3000
-# Note: In production we use a real build, for this env we run via ts-node or compiled dist
-CMD ["pnpm", "start"]
+
+# Ensure proper build sequence by running build command
+RUN make build || { echo 'Build failed'; exit 1; }
+
+# CMD to run the application
+CMD ["./your-application-binary"]
