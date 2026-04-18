@@ -1,31 +1,41 @@
-# Optimized Dockerfile for Void Runner
+# Use Node.js 20 with multi-stage build
 
-FROM ubuntu:20.04
+# Build stage
+FROM node:20-bookworm-slim AS build
 
-# Set non-interactive mode for apt-get
-ARG DEBIAN_FRONTEND=noninteractive
-
-# Update and install dependencies using apt-get
-RUN apt-get update && \  
-    apt-get install -y \
-      curl \
-      git \
-      build-essential \
-      && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean;
-
-# Add error handling
-RUN set -e; \
-    echo 'Error handling added!';
-
-# Set the work directory
+# Set working directory
 WORKDIR /app
 
-# Copy source files
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package.json and pnpm-lock.yaml
+COPY package.json .
+COPY pnpm-lock.yaml .
+
+# Install dependencies
+RUN pnpm install
+
+# Copy application files
 COPY . .
 
-# Ensure proper build sequence by running build command
-RUN make build || { echo 'Build failed'; exit 1; }
+# Generate Prisma client with correct binary targets for OpenSSL 3
+RUN pnpm prisma generate --binary-targets=native
 
-# CMD to run the application
-CMD ["./your-application-binary"]
+# Runtime stage
+FROM node:20-bookworm-slim AS runtime
+
+# Create app directory
+WORKDIR /app
+
+# Copy only necessary files from build stage
+COPY --from=build /app .
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
+
+# Command to run the application
+CMD ["pnpm", "start"]
