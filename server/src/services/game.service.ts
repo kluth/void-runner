@@ -4,7 +4,14 @@ import { vectorService } from './vector.service';
 import { configService } from './config.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-const { authenticator } = require('otplib');
+
+interface OtpAuthenticator {
+  check: (code: string, secret: string) => boolean;
+  generateSecret: () => string;
+  keyuri: (user: string, service: string, secret: string) => string;
+}
+
+const { authenticator } = require('otplib') as { authenticator: OtpAuthenticator };
 import * as qrcode from 'qrcode';
 
 const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC'] as const;

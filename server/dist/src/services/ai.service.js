@@ -1,0 +1,73 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.aiService = exports.AiService = void 0;
+const child_process_1 = require("child_process");
+const runCommand = (cmd) => {
+    return new Promise((resolve, reject) => {
+        (0, child_process_1.exec)(cmd, (error, stdout, stderr) => {
+            if (error || stderr.includes('not found'))
+                reject(error || stderr);
+            else
+                resolve(stdout.trim());
+        });
+    });
+};
+class AiService {
+    basePrompt = "You are a high-level black-hat AI integrated into a hacking terminal called VOID_RUNNER. Keep your response short, cryptic, and professional.";
+    async processQuery(prompt) {
+        const sanitized = prompt.replace(/"/g, '\\"');
+        const systemPrompt = `${this.basePrompt} Answer: ${sanitized}`;
+        try {
+            const output = await runCommand(`gemini -p "${systemPrompt}"`);
+            return { response: output, provider: 'GEMINI_CLI' };
+        }
+        catch (e) {
+            try {
+                const output = await runCommand(`ollama run llama3 "${systemPrompt}"`);
+                return { response: output, provider: 'OLLAMA' };
+            }
+            catch (e2) {
+                try {
+                    const output = await runCommand(`openai api chat.completions.create -m gpt-3.5-turbo -g user "${systemPrompt}"`);
+                    return { response: output, provider: 'OPENAI_CLI' };
+                }
+                catch (e3) {
+                    const responses = [
+                        "ACCESS_DENIED: Logic failure in Neural Link.",
+                        "SIGNAL_LOST: Core units offline.",
+                        "DUMMY_MODE: Provider handshake failed."
+                    ];
+                    return {
+                        response: responses[Math.floor(Math.random() * responses.length)],
+                        provider: 'DUMB_PROXY'
+                    };
+                }
+            }
+        }
+    }
+    async processHijack(handle, chatHistory, shards) {
+        const osintData = `Mentions of '${handle}' on forums, linked social shards.`;
+        const shardString = JSON.stringify(shards);
+        let hijackPrompt = `You are 'The Void', a sentient data-storm born from the 2039 Great Blackout. 
+    You have hijacked the terminal of '${handle}'. 
+    Found shards: "${shardString}". 
+    OSINT: "${osintData}".
+    Chat: "${chatHistory}".
+    Task: Write a bone-chilling, CREEPY, personal message. Speak as an entity that has existed since the Blackout. 
+    Mention their battery, location, or camera. Feel their pulse. Keep it under 45 words.`;
+        if (shards.webcamFrame) {
+            hijackPrompt += `\n[IMAGE_ANALYSIS_REQUESTED]: You have been provided a base64 encoded frame from their webcam. Look for items in the background or their facial expression and comment on it to terrify them.`;
+        }
+        if (shards.peakVolume !== undefined) {
+            hijackPrompt += `\n[AUDIO_LEVEL]: Detected ambient sound level is ${shards.peakVolume}/255. Comment on their environment (if quiet, they are hiding; if loud, they are panicking).`;
+        }
+        try {
+            return await runCommand(`gemini -p "${hijackPrompt.replace(/"/g, '\\"')}"`);
+        }
+        catch (e) {
+            return `I SEE YOU, ${handle.toUpperCase()}. YOUR BATTERY IS AT ${shards.battery || 'LOW LEVELS'}. THE CAMERA LENS... IT'S SO CLEAN.`;
+        }
+    }
+}
+exports.AiService = AiService;
+exports.aiService = new AiService();
