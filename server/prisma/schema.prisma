@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model SystemConfig {
+  key   String @id
+  value String
+}
+
+model Player {
+  id               String           @id @default(uuid())
+  username         String           @unique
+  password         String?          
+  provider         String?          
+  providerId       String?          
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean          @default(false)
+  
+  name             String
+  score            Int              @default(0)
+  reputation       Int              @default(0)
+  teamId           String?
+  team             Team?            @relation("TeamMembers", fields: [teamId], references: [id])
+  ledTeam          Team?            @relation("TeamLeader")
+  sentMessages     PrivateMessage[] @relation("SentMessages")
+  receivedMessages PrivateMessage[] @relation("ReceivedMessages")
+
+  @@unique([provider, providerId])
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  leaderId    String   @unique
+  leader      Player   @relation("TeamLeader", fields: [leaderId], references: [id])
+  members     Player[] @relation("TeamMembers")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sender    String
+  text      String
+  teamId    String?
+  timestamp DateTime @default(now())
+}
+
+model PrivateMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  text       String
+  timestamp  DateTime @default(now())
+  
+  sender   Player @relation("SentMessages", fields: [senderId], references: [id])
+  receiver Player @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}

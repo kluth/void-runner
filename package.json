@@ -1,0 +1,40 @@
+{
+  "name": "hacker-game",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
+    "test:watch": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs",
+    "test:coverage": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run --coverage"
+  },
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/platform-browser-dynamic": "^21.2.9",
+    "@angular/router": "^21.2.0",
+    "@types/three": "^0.184.0",
+    "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.3",
+    "three": "^0.184.0",
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.7",
+    "@angular/cli": "^21.2.7",
+    "@angular/compiler-cli": "^21.2.0",
+    "@vitest/coverage-v8": "^4.1.4",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}

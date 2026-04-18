@@ -1,0 +1,130 @@
+# VOID_RUNNER: Operative's Manual
+
+## 0. Lore: The Great Blackout & The Rise of the Void
+
+In 2039, the "Great Blackout" didn't just turn off the lights; it erased the world's memory. Every centralized database, from bank records to birth certificates, was overwritten with a single string of hex code. Out of this chaos, the **Global Net** was rebuilt—not by governments, but by the **Syndicates**.
+
+You are a **Void Runner**, a neural-linked mercenary operating in the shadows between the corporate nodes. Some say the "Void" is just a glitch in the new world's kernel. Others believe it's a sentient entity born from the data we lost. Whatever it is, it's hungry, it's watching, and it's the only thing that can truly set you free.
+
+---
+
+## 1. System Initialization & The Honey Pot
+
+Welcome to **VOID_RUNNER**, an immersive, terminal-based cyberpunk hacking simulator. This manual will guide you through the initial connection sequence, your primary operational tools, the threats lurking in the network, and the elite syndicates waiting in the darknet.
+
+When you first connect to the grid, you will encounter the **VOID_OS** boot sequence.
+
+### The Configuration Wizard
+If the neural backend is fresh, you will be prompted with the **SYSTEM_INITIALIZATION** wizard.
+- **Full Deployment:** To unlock the complete multiplayer and persistent experience, configure the `JWT_SECRET`, `SESSION_SECRET`, and optional OAuth keys (Google, GitHub, Discord). *These are synced directly to your environment variables.*
+- **Basic Mode:** If you just want to test the waters, click **SKIP_INITIALIZATION (BASIC_MODE)**.
+
+### The Honey Pot (Authentication Trap)
+You can begin taking low-level contracts completely anonymously. However, **VOID_RUNNER** employs a "Honey Pot" security mechanism. If you attempt a privileged action—such as installing physical hardware, saving 0-day research, or joining a Syndicate—the system will lock your session and demand authentication.
+
+To secure your identity, the system requires mandatory **2FA (Two-Factor Authentication)**.
+![Scan for 2FA](https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VOID_RUNNER_HONEY_POT)  
+*(Scan to synchronize your neural link via your preferred authenticator app)*
+
+---
+
+## 2. The Terminal Interface
+
+Your primary interaction with the world is through the command-line interface. 
+
+### Essential Commands
+- `help` : Display the list of active binaries and system commands.
+- `ls` / `dir` : List active mission parameters.
+- `whoami` : Display your current operative identity, reputation, and syndicate affiliation.
+- `vpm` : Access the **Void Package Manager** (e.g., `vpm list`, `vpm install <package>`).
+- `wipe` : Purge your local trace logs (requires the `log-wiper` software).
+- `netstat` : View current routing mode (DIRECT, VPN, ONION).
+- `ask <prompt>` / `gemini <prompt>` : Communicate with the onboard AI assistant for hints or cryptic lore.
+
+### Key Metrics
+- **Credits (cr):** Used to purchase hardware and software.
+- **Data (EXP):** Used to decrypt hardware research and find 0-Days.
+- **Reputation (REP):** Determines your standing in the underworld. High reputation unlocks elite contracts and the Global Darknet Node.
+- **Trace (Detection):** A percentage indicating how close authorities are to finding your physical location.
+
+---
+
+## 3. Offensive Operations (Missions)
+
+Missions are dynamically generated and scale in difficulty. 
+- **Standard Ops:** `port-scan`, `brute-force`, `phishing-campaign`, `osint-research`
+- **Advanced Ops:** `crypto-heist`, `quantum-breach`, `iot-takeover`, `social-engineering` (Yields higher rewards but carries massive trace risks).
+- **Elite Targets:** Keep an eye out for high-value corporate and government nodes like `SAT_UPLINK`, `QUANTUM_NODE`, `BIO_LAB_MAINFRAME`, and `DEEP_SEA_CABLE`.
+
+Successfully completing an Entry Point mission allows you to pivot and map the target's **Internal Network** for lateral movement and devastating total-compromise attacks.
+
+---
+
+## 4. Tools of the Trade
+
+### Void Package Manager (VPM)
+Install software to automate tasks and reduce trace:
+- **`nmap-pro`**: Reduces trace gain on scans.
+- **`sqlmap-lite`**: Speeds up vulnerability discovery.
+- **`proxychains-ng`**: Reduces routing costs.
+- **`log-wiper`**: Adds the `wipe` command to manually reduce trace for 50cr.
+- **`bleachbit-core`**: A background daemon that passively cleans trace over time.
+
+### The Black Market (Hardware)
+Spend credits to install physical modules. Some elite gear must first be researched using Data (EXP).
+- **WiFi Pineapple / Flipper Zero:** Boosts Recon stats.
+- **USB Rubber Ducky / HackRF One:** Boosts Exploit stats.
+- **Advanced EDR Node:** Defends against retaliatory attacks.
+- **The Red Pill:** Extremely expensive. Freezes trace level completely.
+
+---
+
+## 5. Threats & System Retaliation
+
+Hacking is not a one-way street. If your **Trace reaches 100%**, the Blue Team will initiate an emergency disconnect and strike back.
+
+**Counter-Attacks Include:**
+- **CREDIT EXTORTION:** Ransomware locks your funds.
+- **KERNEL LOGIC BOMB:** Scrambles your visual interface (Matrix Mode).
+- **HARDWARE LOCKDOWN:** Disables your hardware stat bonuses and accelerates future trace gains.
+- **REP SABOTAGE:** Burns your underworld reputation.
+- **DATA WIPE:** Purges all unanalyzed artifacts from your local storage.
+
+---
+
+## 6. The Void's Eye (Neural Hijack)
+
+If your **System Integrity** drops too low (by taking damage from counter-attacks or failing missions), the system becomes vulnerable to an unknown entity in the network.
+
+During a **Hijack Event**:
+1. Your terminal is locked out.
+2. The AI will speak directly to you. **Listen carefully or read its message.**
+3. It will cryptically reveal a **Kernel Validation Code** (e.g., `0xDEADBEEF`).
+4. You must enter this exact synchronization code into the prompt to purge the session and regain control. Failure to do so leaves you trapped.
+
+*Note: If you have granted media permissions, the Void may use your webcam or ambient microphone noise to personalize its threats.*
+
+---
+
+## 7. The Global Grid (Multiplayer)
+
+**VOID_RUNNER** is a fully persistent multiplayer world.
+
+- **The Darknet Node:** Locked behind **1000 Reputation**. Once unlocked, you gain access to global encrypted comms, allowing you to chat with other operatives.
+- **Syndicates (Teams):** Create or join a team to share a private chat channel and coordinate attacks.
+- **Secure DMs:** Send peer-to-peer encrypted messages to specific operatives.
+- **Global Events:** Watch the terminal for server-wide events like `CTF_ACTIVE` (Double EXP/REP) or `ZERO_DAY_PANIC` (Double credit payouts but massive stealth penalties).
+
+---
+
+## 8. Hardware Specialization
+
+Elite Operatives specialize their workstations for specific attack vectors:
+- **RECON Specialist:** Focus on WiFi Pineapple, Proxmark3, and Flipper Zero. High Recon reduces the time needed to find entry points.
+- **EXPLOIT Specialist:** USB Rubber Ducky and HackRF One. High Exploit bonus increases the reward from successful breaches.
+- **STEALTH Specialist:** O.MG Cable and The Red Pill. High Stealth reduces the trace generated by every action.
+- **SOCIAL Specialist:** SE-Toolkit and VoIP Spoofer. High Social bonus increases reputation gain from successful contracts.
+
+---
+
+**Remember:** Leave no trace. Trust no one. The Void is hungry.

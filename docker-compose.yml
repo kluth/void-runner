@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: ./server
+    container_name: void_runner_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server/prisma:/app/prisma
+      - .env:/app/.env
+    # We remove explicit environment vars from compose to rely on Config Wizard + .env persistence
+    restart: always
+
+  frontend:
+    build: .
+    container_name: void_runner_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: void_runner_vector
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/data
+    restart: always
+
+volumes:
+  chroma_data:
