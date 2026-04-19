@@ -71,8 +71,10 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
     <div class="game-wrapper" 
          [class.scanline]="gameService.settings().video.scanlines" 
          [class.matrix]="gameService.matrixMode()" 
-         [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()">
-      <header>
+         [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
+         [class.walkthrough-active]="gameService.tutorialActive()">
+         
+      <header [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'">
         <div class="logo-group">
           <div class="logo glitch" data-text="VOID_RUNNER">VOID_RUNNER</div>
           <div class="version">// OMEGA_PHASE_v0.5.1</div>
@@ -106,21 +108,21 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
 
       <main>
         <div class="left-panel">
-          <app-terminal />
+          <app-terminal [class.neural-highlight]="gameService.currentTutorialSelector() === 'TERMINAL'" />
           <app-teams />
-          <app-darknet-node />
+          <app-darknet-node [class.neural-highlight]="gameService.currentTutorialSelector() === 'SOCIAL'" />
           <app-internal-network />
-          <app-missions />
+          <app-missions [class.neural-highlight]="gameService.currentTutorialSelector() === 'MISSIONS'" />
         </div>
         <div class="right-panel">
-          <div class="viz-card">
+          <div class="viz-card" [class.neural-highlight]="gameService.currentTutorialSelector() === 'GLOBE'">
             <app-globe />
           </div>
           <app-live-events />
           <app-system-integrity />
           <app-malware-sandbox />
           <app-network />
-          <app-hardware-shop />
+          <app-hardware-shop [class.neural-highlight]="gameService.currentTutorialSelector() === 'HARDWARE'" />
           <div class="inventory-section">
             <div class="sec-header">INSTALLED_MODULES</div>
             <div class="inventory-list">
@@ -175,6 +177,24 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
       transition: all 1s ease;
       position: relative;
       overflow: hidden;
+    }
+
+    .game-wrapper.walkthrough-active main > div > *,
+    .game-wrapper.walkthrough-active header {
+      opacity: 0.15;
+      filter: grayscale(1) blur(2px);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+
+    .game-wrapper.walkthrough-active .neural-highlight {
+      opacity: 1 !important;
+      filter: grayscale(0) blur(0) !important;
+      box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
+      border: 1px solid #00ff00;
+      z-index: 100;
+      transform: scale(1.02);
+      background: rgba(0, 20, 0, 0.9);
     }
 
     .game-wrapper.matrix { filter: sepia(1) saturate(2) hue-rotate(80deg); }

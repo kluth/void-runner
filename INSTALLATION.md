@@ -1,4 +1,4 @@
-# VOID_RUNNER: System Deployment Guide (v2.0 - 100+ Feature Stack)
+# VOID_RUNNER: System Deployment Guide (v2.1 - The Singularity Expansion)
 
 Follow these protocols to establish your node on the Global Net. This guide is optimized for deployment on a Hostinger VPS or any standard Linux server.
 
@@ -6,9 +6,10 @@ Follow these protocols to establish your node on the Global Net. This guide is o
 
 ## 1. Tactical Requirements
 Ensure your host machine has the following binaries initialized:
-- **Docker** (Engine v24.0+)
+- **Docker** (Engine v26.0+)
 - **Docker Compose** (v2.0+)
 - **Git** (for source exfiltration)
+- **Node.js** (optional, for TUI Mode)
 
 ---
 

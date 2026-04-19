@@ -187,7 +187,7 @@ This turns the hacking simulator into a high-stakes, asymmetric multiplayer expe
 ## 12. Interactive Walkthrough (Tutorial)
 
 First-time operatives will be greeted by the **Walkthrough Overlay**, an interactive guide narrated by the onboard AI. 
-- It highlights critical UI elements like the Terminal, Hardware Shop, and Global Grid.
+- **Neural Spotlight:** The system utilizes a visual isolation protocol to highlight the specific workstation sector being discussed (Terminal, Hardware Shop, Global Grid, etc.).
 - **Manual Trigger:** If you ever need a refresher on the interface, simply type `tutorial` in the terminal to re-initialize the guided sequence.
 
 ---

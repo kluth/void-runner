@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { NeuralService } from '../../core/services/neural.service';
@@ -43,23 +43,31 @@ interface WalkthroughStep {
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.4);
       z-index: 5000;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(2px);
       font-family: 'JetBrains Mono', monospace;
+      pointer-events: none; /* Let clicks pass through to highlighted elements if needed, but the card will override this */
     }
 
     .tutorial-card {
+      pointer-events: all;
       width: 500px;
       max-width: 90vw;
       background: #050505;
-      border: 1px solid #00ff00;
-      box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+      border: 2px solid #00ff00;
+      box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
       display: flex;
       flex-direction: column;
+      animation: slide-up 0.5s ease-out;
+    }
+
+    @keyframes slide-up {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .card-header {
@@ -100,7 +108,7 @@ interface WalkthroughStep {
     }
 
     button {
-      padding: 8px 20px;
+      padding: 10px 25px;
       font-family: inherit;
       font-size: 0.7rem;
       cursor: pointer;
@@ -112,12 +120,13 @@ interface WalkthroughStep {
       background: #00ff00;
       border: 1px solid #00ff00;
       color: #000;
-      font-weight: bold;
+      font-weight: 900;
+      letter-spacing: 1px;
     }
 
     .next-btn:hover {
       background: #00cc00;
-      box-shadow: 0 0 10px #00ff00;
+      box-shadow: 0 0 20px #00ff00;
     }
 
     .skip-btn {
@@ -142,39 +151,53 @@ export class WalkthroughOverlayComponent {
   steps: WalkthroughStep[] = [
     {
       title: 'WELCOME OPERATIVE',
-      content: 'I am your onboard AI. Welcome to VOID_OS. Your neural link is established. I will guide you through the primary workstation interfaces.'
+      content: 'I am your onboard AI. Welcome to VOID_OS. Your neural link is established. I will guide you through the primary workstation interfaces.',
+      selector: 'STATS'
     },
     {
       title: 'THE TERMINAL',
-      content: 'This is your primary interface. Type commands to interact with the grid. Try <code>help</code> to see available binaries, or <code>ask [message]</code> to talk to me directly.'
+      content: 'This is your primary interface. Type commands to interact with the grid. Try <code>help</code> to see available binaries, or <code>ask [message]</code> to talk to me directly.',
+      selector: 'TERMINAL'
     },
     {
-      title: 'HARDWARE SHOP',
-      content: 'Access physical modules here. Buy WiFi Pineapples, Flipper Zeros, and more. Advanced gear like <b>Neural Coprocessors</b> and <b>Quantum Decryptors</b> provide critical passive bonuses during missions.'
-    },
-    {
-      title: 'SOFTWARE (VPM)',
-      content: 'Install software daemons like the <b>Worm Propagator</b> or <b>Cryptojacker</b> for passive income. Use <b>Memory Scrapers</b> to accelerate artifact analysis automatically.'
+      title: 'GLOBAL GRID & GEOLOCATION',
+      content: 'Monitor global events and coordinate attacks on the 3D globe. Your physical location is being spoofed in real-time.',
+      selector: 'GLOBE'
     },
     {
       title: 'MISSIONS & CONTRACTS',
-      content: 'Browse active contracts. Be careful: higher difficulty missions increase your TRACE level faster. Some missions require specialized hardware like <b>Satellite Uplinks</b>.'
+      content: 'Browse active contracts. Be careful: higher difficulty missions increase your TRACE level faster. Some missions require specialized hardware like <b>Satellite Uplinks</b>.',
+      selector: 'MISSIONS'
     },
     {
-      title: 'RETALIATION & THREATS',
-      content: 'Keep your TRACE low. If it reaches 100%, expect retaliation. Beware of <b>SWAT Raids</b> (total loss) and <b>Account Freezes</b>. Use <b>EMP Grenades</b> as a last resort to purge your trace.'
+      title: 'SOCIAL NETWORK',
+      content: 'Access the Darknet Node, join Syndicates, and communicate with other runners once your reputation reaches 1000.',
+      selector: 'SOCIAL'
     },
     {
-      title: 'GLOBAL GRID (SOCIAL)',
-      content: 'Monitor global events, join hacker teams, and communicate via the Darknet. Streamers can enable integration to let their chat help—or hinder—their progress.'
+      title: 'HARDWARE SHOP',
+      content: 'Access physical modules here. Buy WiFi Pineapples, Flipper Zeros, and more. Advanced gear like <b>Neural Coprocessors</b> provide critical passive bonuses.',
+      selector: 'HARDWARE'
     },
     {
       title: 'FINAL ADVICE',
-      content: 'Keep your system integrity high. If it drops too low, you may become vulnerable to <b>Unknown Overrides</b>. Use <code>wipe</code> to purge your logs regularly. Good luck, operative.'
+      content: 'Keep your system integrity high. If it drops too low, you may become vulnerable to <b>Unknown Overrides</b>. Use <code>wipe</code> to purge your logs regularly. Good luck, operative.',
+      selector: 'STATS'
     }
   ];
 
   currentStep = computed(() => this.steps[this.currentStepIndex()]);
+
+  constructor() {
+    // Synchronize the highlighted selector in GameService
+    effect(() => {
+      if (this.gameService.tutorialActive()) {
+        this.gameService.currentTutorialSelector.set(this.currentStep().selector || null);
+      } else {
+        this.gameService.currentTutorialSelector.set(null);
+      }
+    });
+  }
 
   next() {
     if (this.currentStepIndex() < this.steps.length - 1) {
@@ -193,6 +216,7 @@ export class WalkthroughOverlayComponent {
   finish() {
     this.gameService.tutorialActive.set(false);
     this.gameService.updateSetting('general.tutorial_completed', 'true');
+    this.gameService.currentTutorialSelector.set(null);
     this.audioService.playSuccess();
     this.gameService.log('SYSTEM_GUIDE: Tutorial complete. Good luck, operative.');
   }

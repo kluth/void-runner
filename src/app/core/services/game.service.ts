@@ -289,6 +289,7 @@ export class GameService {
   isBooting = signal(true); 
   isConfigured = signal(true); 
   tutorialActive = signal(false);
+  currentTutorialSelector = signal<string | null>(null);
 
   private rivalNames = ['Zer0_Cool', 'CrashOverride', 'AcidBurn', 'CerealKiller', 'Lord_Nikon', 'PhantomPhreak', 'Plague', 'Dark_Dante', 'Mudge', 'Gummo'];
 
