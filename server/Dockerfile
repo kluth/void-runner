@@ -1,7 +1,8 @@
-# Use Node.js 20 with multi-stage build
+# Use Node.js 20 on Debian Bookworm
+FROM node:20-bookworm-slim
 
-# Build stage
-FROM node:20-bookworm-slim AS build
+# Install system dependencies
+RUN apt-get update && apt-get install -y openssl libssl3 ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -9,41 +10,26 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy package.json and pnpm-lock.yaml
-COPY package.json .
-COPY pnpm-lock.yaml .
+# Copy configuration files
+COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies (including openssl for prisma generation)
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Install all dependencies
 RUN pnpm install
 
-# Copy application files
+# Copy application source
 COPY . .
 
-# Generate Prisma client for multiple potential targets
+# Generate Prisma client for the current environment
 RUN pnpm prisma generate
 
-# Compile TypeScript
+# Build the TypeScript application
 RUN pnpm run build
 
-# Runtime stage
-FROM node:20-bookworm-slim AS runtime
-
-# Install runtime dependencies (OpenSSL 3 is standard in Bookworm)
-RUN apt-get update && apt-get install -y openssl libssl3 ca-certificates curl && rm -rf /var/lib/apt/lists/*
-
-# Create app directory
-WORKDIR /app
-
-# Copy only necessary files from build stage
-# We copy the whole /app to ensure dist/ and node_modules/ are present
-COPY --from=build /app .
-
-# Expose port
+# Expose backend port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:3000/api/config/status || exit 1
+# Health check using relative path
+HEALTHCHECK --interval=10s --timeout=5s --retries=5 CMD curl -f http://localhost:3000/api/config/status || exit 1
 
-# Command to run the application
+# Start the application using the compiled entry point
 CMD ["node", "dist/index.js"]
