@@ -256,11 +256,11 @@ export class GameService {
   }
 
   private async getLeaderboard() {
-    const cyberNames = [
-        'Neo', 'Trinity', 'Morpheus', 'Cypher', 'Acid Burn', 'Zero Cool', 'Cereal Killer', 
-        'Lord Nikon', 'Phantom Phreak', 'The Plague', 'Elliot Alderson', 'Darlene', 
-        'Tyrell Wellick', 'White Rose', 'Case', 'Molly Millions', 'Armitage', 'Wintermute',
-        'Neuromancer', 'Hiro Protagonist', 'Y.T.', 'Raven', 'Lain Iwakura', 'Motoko Kusanagi'
+    const firstNames = [
+        'Neo', 'Trinity', 'Morpheus', 'Elliot', 'Darlene', 'Tyrell', 'Angela', 'Case', 'Molly', 'Hiro', 'Raven', 'Lain', 'Motoko', 'Solid', 'Liquid', 'Raiden', 'Deckard', 'Gaff', 'Rachael', 'Roy', 'Pris', 'Leon', 'Zhora', 'Chell', 'Glados', 'Wheatley', 'Gordon', 'Alyx', 'Barney', 'Kliener', 'Vance', 'Corben', 'Leeloo', 'Ruby', 'Zorg', 'Kevin', 'Quorra', 'Clu', 'Rinzler', 'Tron', 'Sark'
+    ];
+    const lastNames = [
+        'Anderson', 'Alderson', 'Wellick', 'Moss', 'Millions', 'Protagonist', 'Iwakura', 'Kusanagi', 'Snake', 'Snake', 'Batty', 'Deckard', 'Dallas', 'Flynn', 'Freeman', 'Vance', 'Rhod', 'Zorg', 'Johnson', 'Smith', 'Doe', 'Null', 'Void', 'Shadow', 'Ghost', 'Prime', 'One', 'Zero', 'Alpha', 'Omega', 'Cyber', 'Neon', 'Cobalt', 'Static'
     ];
 
     return prisma.player.findMany({
@@ -268,9 +268,14 @@ export class GameService {
       take: 10,
       select: { id: true, reputation: true }
     }).then(players => players.map(p => {
-        // Deterministic mapping: use the sum of char codes of ID to pick a name
-        const idSum = p.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const maskedName = cyberNames[idSum % cyberNames.length];
+        // Deterministic hashing based on ID shards
+        const idChars = p.id.split('');
+        const firstSum = idChars.slice(0, 18).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const lastSum = idChars.slice(18).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        
+        const firstName = firstNames[firstSum % firstNames.length];
+        const lastName = lastNames[lastSum % lastNames.length];
+        const maskedName = `${firstName} ${lastName}`;
         
         return {
             ...p,
