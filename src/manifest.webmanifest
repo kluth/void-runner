@@ -1,0 +1,31 @@
+{
+  "name": "VOID_RUNNER // Neural Interface",
+  "short_name": "VOID_RUNNER",
+  "theme_color": "#00ff00",
+  "background_color": "#030303",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["games", "security"],
+  "description": " SENTIENT DATA-STORM NEURAL LINK. LEAVE NO TRACE.",
+  "orientation": "any",
+  "shortcuts": [
+    {
+      "name": "TERMINAL",
+      "url": "/?tab=TERMINAL",
+      "description": "Direct link to command center"
+    },
+    {
+      "name": "MISSIONS",
+      "url": "/?tab=MISSIONS",
+      "description": "Active contracts"
+    }
+  ]
+}

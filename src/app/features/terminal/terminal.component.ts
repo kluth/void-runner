@@ -93,14 +93,17 @@ export class TerminalComponent implements AfterViewChecked {
         '  video.font_size   : Terminal text size [8-24]',
         '  video.opacity     : UI transparency [0-100]',
         '  video.crt_curvature: Simulate monitor curve [on|off]',
+        '  video.view_mode    : Single page or Sector Tabs [SINGLE|TABBED]',
         '  social.notifications: Browser alerts for DMs [on|off]',
         '  social.incognito   : Hide handle in global chat [on|off]',
         '  social.broadcast_location: Show location on grid globe [on|off]',
         '  social.status      : Status [ONLINE|AWAY|DND]',
+        '  beta.experimental_pwa: Enable Badge API and extra PWA hooks [on|off]',
         '  general.auto_wipe  : Automatic wipe at 90% trace [on|off]',
         '  general.auto_analysis: 2x speed for artifact analysis [on|off]',
         '  general.language   : Localization [EN|DE|SV|HEX]',
         '  general.tutorial_completed: Manually mark tutorial state [on|off]',
+        '  general.wake_lock  : Prevent screen sleep during sessions [on|off]',
         '  control.scroll_speed: Log scrolling velocity [50-500]',
         '  control.vibe_intensity: Hardware feedback strength [0-200]',
         '  streamer.enabled  : Toggle streaming integrations [on|off]',
@@ -446,10 +449,10 @@ export class TerminalComponent implements AfterViewChecked {
           this.gameService.log('--- WORKSTATION_CONFIGURATION ---');
           const s = this.gameService.settings();
           this.gameService.log(`[AUDIO] vol=${s.audio.volume}% speech=${s.audio.speech} ambient=${s.audio.ambient} complex=${s.audio.music_complexity}`);
-          this.gameService.log(`[VIDEO] matrix=${s.video.matrix} glitch=${s.video.glitch} lines=${s.video.scanlines} font=${s.video.font_size}px opac=${s.video.opacity}% curve=${s.video.crt_curvature}`);
+          this.gameService.log(`[VIDEO] mode=${s.video.view_mode} matrix=${s.video.matrix} glitch=${s.video.glitch} lines=${s.video.scanlines} font=${s.video.font_size}px opac=${s.video.opacity}% curve=${s.video.crt_curvature}`);
           this.gameService.log(`[SOCIAL] notify=${s.social.notifications} incog=${s.social.incognito} loc=${s.social.broadcast_location} status=${s.social.status}`);
-          this.gameService.log(`[BETA] vibe=${s.beta.neural_vibration} emo=${s.beta.ai_emotions} globe=${s.beta.high_res_globe} shaders=${s.beta.experimental_shaders}`);
-          this.gameService.log(`[GENERAL] autowipe=${s.general.auto_wipe} autoanal=${s.general.auto_analysis} theme=${s.general.theme} lang=${s.general.language}`);
+          this.gameService.log(`[BETA] vibe=${s.beta.neural_vibration} emo=${s.beta.ai_emotions} globe=${s.beta.high_res_globe} pwa=${s.beta.experimental_pwa}`);
+          this.gameService.log(`[GENERAL] autowipe=${s.general.auto_wipe} autoanal=${s.general.auto_analysis} theme=${s.general.theme} lang=${s.general.language} wakelock=${s.general.wake_lock}`);
           this.gameService.log(`[CONTROL] auto=${s.control.autocomplete} scroll=${s.control.scroll_speed} vibe=${s.control.vibe_intensity}`);
           this.gameService.log(`[STREAMER] enabled=${s.streamer.enabled} platform=${s.streamer.platform}`);
           this.gameService.log('Use "set [category.key] [on|off|value]" to modify.');

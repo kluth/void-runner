@@ -21,11 +21,13 @@ import { AuthComponent } from './features/system/auth.component';
 import { BootScreenComponent } from './features/system/boot-screen.component';
 import { ConfigWizardComponent } from './features/system/config-wizard.component';
 import { WalkthroughOverlayComponent } from './features/system/walkthrough-overlay.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
+    CommonModule,
     TerminalComponent, 
     HardwareShopComponent, 
     MissionComponent, 
@@ -72,13 +74,50 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
          [class.scanline]="gameService.settings().video.scanlines" 
          [class.matrix]="gameService.matrixMode()" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
-         [class.walkthrough-active]="gameService.tutorialActive()">
+         [class.walkthrough-active]="gameService.tutorialActive()"
+         [class.tabbed-mode]="gameService.settings().video.view_mode === 'TABBED'">
          
       <header [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'">
         <div class="logo-group">
           <div class="logo glitch" data-text="VOID_RUNNER">VOID_RUNNER</div>
           <div class="version">// OMEGA_PHASE_v0.5.1</div>
         </div>
+        
+        @if (gameService.settings().video.view_mode === 'TABBED') {
+          <nav class="tactical-tabs">
+            <button (click)="gameService.clearTabNotification('TERMINAL')" [class.active]="gameService.activeTab() === 'TERMINAL'">
+              TERMINAL
+              @if (gameService.tabNotifications()['TERMINAL'] > 0) {
+                <span class="badge">{{ gameService.tabNotifications()['TERMINAL'] }}</span>
+              }
+            </button>
+            <button (click)="gameService.clearTabNotification('MISSIONS')" [class.active]="gameService.activeTab() === 'MISSIONS'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'MISSIONS'">
+              MISSIONS
+              @if (gameService.tabNotifications()['MISSIONS'] > 0) {
+                <span class="badge">{{ gameService.tabNotifications()['MISSIONS'] }}</span>
+              }
+            </button>
+            <button (click)="gameService.clearTabNotification('HARDWARE')" [class.active]="gameService.activeTab() === 'HARDWARE'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'HARDWARE'">
+              MARKET
+              @if (gameService.tabNotifications()['HARDWARE'] > 0) {
+                <span class="badge">{{ gameService.tabNotifications()['HARDWARE'] }}</span>
+              }
+            </button>
+            <button (click)="gameService.clearTabNotification('GRID')" [class.active]="gameService.activeTab() === 'GRID'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'GLOBE'">
+              GRID
+              @if (gameService.tabNotifications()['GRID'] > 0) {
+                <span class="badge">{{ gameService.tabNotifications()['GRID'] }}</span>
+              }
+            </button>
+            <button (click)="gameService.clearTabNotification('SOCIAL')" [class.active]="gameService.activeTab() === 'SOCIAL'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'SOCIAL'">
+              SOCIAL
+              @if (gameService.tabNotifications()['SOCIAL'] > 0) {
+                <span class="badge">{{ gameService.tabNotifications()['SOCIAL'] }}</span>
+              }
+            </button>
+          </nav>
+        }
+
         <div class="stats">
           <div class="stat-box">
             <span class="label">CREDITS</span>
@@ -106,38 +145,89 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
         </div>
       </header>
 
-      <main>
-        <div class="left-panel">
-          <app-terminal [class.neural-highlight]="gameService.currentTutorialSelector() === 'TERMINAL'" />
-          <app-teams />
-          <app-darknet-node [class.neural-highlight]="gameService.currentTutorialSelector() === 'SOCIAL'" />
-          <app-internal-network />
-          <app-missions [class.neural-highlight]="gameService.currentTutorialSelector() === 'MISSIONS'" />
-        </div>
-        <div class="right-panel">
-          <div class="viz-card" [class.neural-highlight]="gameService.currentTutorialSelector() === 'GLOBE'">
-            <app-globe />
-          </div>
-          <app-live-events />
-          <app-system-integrity />
-          <app-malware-sandbox />
-          <app-network />
-          <app-hardware-shop [class.neural-highlight]="gameService.currentTutorialSelector() === 'HARDWARE'" />
-          <div class="inventory-section">
-            <div class="sec-header">INSTALLED_MODULES</div>
-            <div class="inventory-list">
-              @for (item of gameService.inventory(); track $index) {
-                <div class="inventory-item">
-                  <span class="name">{{ item.name }}</span>
-                  <span class="tag">{{ item.bonusType.toUpperCase() }}</span>
+      @if (gameService.settings().video.view_mode === 'TABBED') {
+        <div class="tab-viewport">
+          @switch (gameService.activeTab()) {
+            @case ('TERMINAL') {
+              <div class="full-sector"><app-terminal /></div>
+            }
+            @case ('MISSIONS') {
+              <div class="sector-split">
+                <app-missions />
+                <div class="sidebar">
+                  <app-internal-network />
+                  <app-malware-sandbox />
                 </div>
-              } @empty {
-                <div class="empty-inv">NO MODULES CONNECTED</div>
-              }
-            </div>
-          </div>
+              </div>
+            }
+            @case ('HARDWARE') {
+              <div class="sector-split">
+                <app-hardware-shop />
+                <div class="inventory-section highlighted">
+                    <div class="sec-header">INSTALLED_MODULES</div>
+                    <div class="inventory-list">
+                    @for (item of gameService.inventory(); track $index) {
+                        <div class="inventory-item">
+                        <span class="name">{{ item.name }}</span>
+                        <span class="tag">{{ item.bonusType.toUpperCase() }}</span>
+                        </div>
+                    } @empty {
+                        <div class="empty-inv">NO MODULES CONNECTED</div>
+                    }
+                    </div>
+                </div>
+              </div>
+            }
+            @case ('GRID') {
+              <div class="grid-sector">
+                <div class="viz-card large"><app-globe /></div>
+                <app-network />
+                <app-live-events />
+              </div>
+            }
+            @case ('SOCIAL') {
+              <div class="social-sector">
+                <app-darknet-node />
+                <app-teams />
+              </div>
+            }
+          }
         </div>
-      </main>
+      } @else {
+        <main>
+            <div class="left-panel">
+            <app-terminal [class.neural-highlight]="gameService.currentTutorialSelector() === 'TERMINAL'" />
+            <app-teams />
+            <app-darknet-node [class.neural-highlight]="gameService.currentTutorialSelector() === 'SOCIAL'" />
+            <app-internal-network />
+            <app-missions [class.neural-highlight]="gameService.currentTutorialSelector() === 'MISSIONS'" />
+            </div>
+            <div class="right-panel">
+            <div class="viz-card" [class.neural-highlight]="gameService.currentTutorialSelector() === 'GLOBE'">
+                <app-globe />
+            </div>
+            <app-live-events />
+            <app-system-integrity />
+            <app-malware-sandbox />
+            <app-network />
+            <app-hardware-shop [class.neural-highlight]="gameService.currentTutorialSelector() === 'HARDWARE'" />
+            <div class="inventory-section">
+                <div class="sec-header">INSTALLED_MODULES</div>
+                <div class="inventory-list">
+                @for (item of gameService.inventory(); track $index) {
+                    <div class="inventory-item">
+                    <span class="name">{{ item.name }}</span>
+                    <span class="tag">{{ item.bonusType.toUpperCase() }}</span>
+                    </div>
+                } @empty {
+                    <div class="empty-inv">NO MODULES CONNECTED</div>
+                }
+                </div>
+            </div>
+            </div>
+        </main>
+      }
+
       <div class="footer-bar">
         <div class="status-group">
           SYSTEM_STATUS: <span class="status-ok">OPERATIONAL</span> | ENCRYPTION: <span class="status-ok">AES-256</span> | SIGNAL: <span class="status-ok">STABLE</span>
@@ -180,6 +270,7 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
     }
 
     .game-wrapper.walkthrough-active main > div > *,
+    .game-wrapper.walkthrough-active .tab-viewport > *,
     .game-wrapper.walkthrough-active header {
       opacity: 0.15;
       filter: grayscale(1) blur(2px);
@@ -223,6 +314,45 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
       flex-shrink: 0;
     }
 
+    .tactical-tabs {
+      display: flex;
+      gap: 5px;
+      flex-grow: 1;
+      justify-content: center;
+    }
+
+    .tactical-tabs button {
+      background: transparent;
+      border: 1px solid #111;
+      color: #008800;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .tactical-tabs button.active {
+      border-color: #00ff00;
+      color: #00ff00;
+      background: rgba(0, 255, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+    }
+
+    .tactical-tabs button .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ff0000;
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 2px 5px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #f00;
+    }
+
     .logo-group { flex-shrink: 0; }
     .logo { font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 900; color: #00ff00; letter-spacing: 4px; }
     .version { font-size: 0.6rem; color: #006600; margin-top: 2px; }
@@ -261,29 +391,39 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
       width: 100%;
     }
 
-    main {
+    main, .tab-viewport {
       display: grid;
-      grid-template-columns: 1fr 25rem;
       gap: 1rem;
       flex-grow: 1;
       overflow: hidden;
       min-height: 0;
     }
 
+    main {
+      grid-template-columns: 1fr 25rem;
+    }
+
+    .full-sector { height: 100%; overflow: hidden; }
+    .sector-split { display: grid; grid-template-columns: 1fr 25rem; gap: 1rem; height: 100%; }
+    .grid-sector { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1rem; height: 100%; }
+    .grid-sector .large { grid-row: span 2; }
+    .social-sector { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 100%; }
+
     @media (max-width: 1200px) {
-      main {
+      main, .sector-split {
         grid-template-columns: 1fr 20rem;
       }
     }
 
     @media (max-width: 1024px) {
-      main {
-        grid-template-columns: 1fr;
+      main, .sector-split, .grid-sector, .social-sector {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto !important;
         overflow-y: auto;
       }
       :host { overflow-y: auto; }
       .game-wrapper { height: auto; min-height: 100dvh; overflow: visible; }
-      .left-panel, .right-panel { overflow-y: visible !important; height: auto !important; }
+      .left-panel, .right-panel, .sidebar { overflow-y: visible !important; height: auto !important; }
       .stats { justify-content: flex-start; }
     }
 
@@ -295,9 +435,11 @@ import { WalkthroughOverlayComponent } from './features/system/walkthrough-overl
       .stats { justify-content: center; gap: 0.75rem; width: 100%; }
       .stat-box { align-items: center; min-width: 3.5rem; }
       .stat-box .value { font-size: 0.8rem; }
+      .tactical-tabs { overflow-x: auto; width: 100%; padding-bottom: 5px; }
+      .tactical-tabs button { padding: 5px 10px; font-size: 0.6rem; }
     }
 
-    .left-panel, .right-panel {
+    .left-panel, .right-panel, .sidebar {
       display: flex;
       flex-direction: column;
       overflow-y: auto;

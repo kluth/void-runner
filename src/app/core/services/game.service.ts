@@ -68,6 +68,7 @@ export interface GameSettings {
     font_size: number;
     opacity: number;
     crt_curvature: boolean;
+    view_mode: 'SINGLE' | 'TABBED';
   };
   social: {
     notifications: boolean;
@@ -81,6 +82,7 @@ export interface GameSettings {
     ai_emotions: boolean;
     high_res_globe: boolean;
     experimental_shaders: boolean;
+    experimental_pwa: boolean;
   };
   general: {
     auto_wipe: boolean;
@@ -88,6 +90,7 @@ export interface GameSettings {
     theme: 'CLASSIC' | 'OMEGA' | 'NOIR';
     language: 'EN' | 'DE' | 'SV' | 'HEX';
     tutorial_completed: boolean;
+    wake_lock: boolean;
   };
   control: {
     autocomplete: boolean;
@@ -202,13 +205,26 @@ export class GameService {
   // Settings State
   settings = signal<GameSettings>({
     audio: { volume: 50, speech: true, ambient: true, music_complexity: 50 },
-    video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11, opacity: 100, crt_curvature: true },
+    video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11, opacity: 100, crt_curvature: true, view_mode: 'SINGLE' },
     social: { notifications: true, public_profile: true, incognito: false, broadcast_location: false, status: 'ONLINE' },
-    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false },
-    general: { auto_wipe: false, auto_analysis: false, theme: 'CLASSIC', language: 'EN', tutorial_completed: false },
+    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false },
+    general: { auto_wipe: false, auto_analysis: false, theme: 'CLASSIC', language: 'EN', tutorial_completed: false, wake_lock: false },
     control: { autocomplete: true, scroll_speed: 100, vibe_intensity: 100 },
     streamer: { enabled: false, platform: 'TWITCH' }
   });
+
+  // Tab Notification State
+  tabNotifications = signal<Record<string, number>>({
+    'TERMINAL': 0,
+    'MISSIONS': 0,
+    'HARDWARE': 0,
+    'GRID': 0,
+    'SOCIAL': 0
+  });
+
+  activeTab = signal('TERMINAL');
+
+  private wakeLock: any = null;
 
   // Core State
   credits = signal(500);
@@ -405,6 +421,7 @@ export class GameService {
       this.teamMessages.update(msgs => [msg, ...msgs].slice(0, 20));
       if (msg.sender !== this.playerHandle()) {
         this.log(`[COMMS] ${msg.sender}: ${msg.text}`);
+        this.incrementTabNotification('SOCIAL');
         if (Math.random() > 0.8) {
           this.audioService.speakCreepy(`${msg.sender} says: ${msg.text}`);
         }
@@ -414,6 +431,51 @@ export class GameService {
     this.socket.on('disconnect', () => {
       this.log('[NETWORK] UPLINK LOST. RECONNECTING...');
     });
+  }
+
+  private async handleWakeLock(enable: boolean) {
+    if (enable) {
+      if ('wakeLock' in navigator) {
+        try {
+          this.wakeLock = await (navigator as any).wakeLock.request('screen');
+          this.log('SYSTEM: Screen wake lock active.');
+        } catch (err) {
+          console.error('[PWA] Wake Lock failed:', err);
+        }
+      }
+    } else {
+      if (this.wakeLock) {
+        await this.wakeLock.release();
+        this.wakeLock = null;
+        this.log('SYSTEM: Screen wake lock released.');
+      }
+    }
+  }
+
+  private incrementTabNotification(tab: string) {
+    if (this.settings().video.view_mode === 'TABBED' && this.activeTab() !== tab) {
+      const current = { ...this.tabNotifications() };
+      current[tab] = (current[tab] || 0) + 1;
+      this.tabNotifications.set(current);
+      
+      if (this.settings().beta.experimental_pwa && 'setAppBadge' in navigator) {
+          const total = Object.values(current).reduce((a, b) => a + b, 0);
+          (navigator as any).setAppBadge(total);
+      }
+    }
+  }
+
+  clearTabNotification(tab: string) {
+    const current = { ...this.tabNotifications() };
+    current[tab] = 0;
+    this.tabNotifications.set(current);
+    this.activeTab.set(tab);
+
+    if (this.settings().beta.experimental_pwa && 'setAppBadge' in navigator) {
+        const total = Object.values(current).reduce((a, b) => a + b, 0);
+        if (total === 0) (navigator as any).clearAppBadge();
+        else (navigator as any).setAppBadge(total);
+    }
   }
 
   private restoreFullState(player: PlayerData) {
@@ -445,6 +507,7 @@ export class GameService {
             const parsed = JSON.parse(player.settings);
             this.settings.set({ ...this.settings(), ...parsed });
             this.applySettingsToSignals();
+            if (this.settings().general.wake_lock) this.handleWakeLock(true);
         }
     } catch(e) {}
     
@@ -490,6 +553,7 @@ export class GameService {
       if (state.settings) {
           this.settings.set({ ...this.settings(), ...state.settings });
           this.applySettingsToSignals();
+          if (this.settings().general.wake_lock) this.handleWakeLock(true);
       }
 
       if (state.inventory) {
@@ -533,6 +597,7 @@ export class GameService {
         if (key === 'font_size') s.video.font_size = parseInt(value);
         if (key === 'opacity') s.video.opacity = parseInt(value);
         if (key === 'crt_curvature') s.video.crt_curvature = boolVal;
+        if (key === 'view_mode') s.video.view_mode = value.toUpperCase() as any;
     } else if (category === 'social') {
         if (key === 'notifications') s.social.notifications = boolVal;
         if (key === 'public_profile') s.social.public_profile = boolVal;
@@ -544,12 +609,17 @@ export class GameService {
         if (key === 'ai_emotions') s.beta.ai_emotions = boolVal;
         if (key === 'high_res_globe') s.beta.high_res_globe = boolVal;
         if (key === 'experimental_shaders') s.beta.experimental_shaders = boolVal;
+        if (key === 'experimental_pwa') s.beta.experimental_pwa = boolVal;
     } else if (category === 'general') {
         if (key === 'auto_wipe') s.general.auto_wipe = boolVal;
         if (key === 'auto_analysis') s.general.auto_analysis = boolVal;
         if (key === 'theme') s.general.theme = value.toUpperCase() as any;
         if (key === 'language') s.general.language = value.toUpperCase() as any;
         if (key === 'tutorial_completed') s.general.tutorial_completed = boolVal;
+        if (key === 'wake_lock') {
+            s.general.wake_lock = boolVal;
+            this.handleWakeLock(boolVal);
+        }
     } else if (category === 'control') {
         if (key === 'autocomplete') s.control.autocomplete = boolVal;
         if (key === 'scroll_speed') s.control.scroll_speed = parseInt(value);
@@ -774,6 +844,7 @@ export class GameService {
       const now = new Date();
       const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
       this.newsFeed.update(n => [{ timestamp, headline: h }, ...n].slice(0, 10));
+      this.incrementTabNotification('GRID');
   }
 
   async triggerHijack() {
@@ -893,6 +964,7 @@ export class GameService {
       isEntryPoint: Math.random() < 0.20
     };
     this.activeMissions.update(m => [...m, newMission]);
+    this.incrementTabNotification('MISSIONS');
   }
 
   increaseDetection(amount: number) {
