@@ -3,13 +3,14 @@ import { prisma } from './db.service';
 import { vectorService } from './vector.service';
 import { configService } from './config.service';
 import { profilerService } from './profiler.service';
+import { realWorldService } from './realworld.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 const { authenticator } = require('otplib');
 import * as qrcode from 'qrcode';
 import { firstNames, lastNames } from './names.data';
 
-const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC'] as const;
+const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC', 'SINGULARITY'] as const;
 type EventType = typeof EVENT_TYPES[number] | 'NONE';
 
 class GameState {
@@ -122,6 +123,7 @@ export class GameService {
           leaderboard: await this.getLeaderboard(),
           chatMessages: await this.getChatHistory(),
           teams: await this.getTeams(),
+          realWorld: realWorldService.getState(),
           player
         });
 
@@ -350,7 +352,18 @@ export class GameService {
   }
 
   private startEventLoop() {
+    // Initial Real-World Sync
+    realWorldService.sync().then(state => {
+        if (this.io) this.io.emit('real_world_update', state);
+    });
+
     setInterval(async () => {
+      // Periodic Real-World Sync (every 60s)
+      if (Date.now() % 60000 < 1000) {
+          const state = await realWorldService.sync();
+          if (this.io) this.io.emit('real_world_update', state);
+      }
+
       // Global Event Logic
       if (this.state.eventTimer > 0) {
         this.state.eventTimer--;

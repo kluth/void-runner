@@ -301,7 +301,7 @@ import { FormsModule } from '@angular/forms';
             <!-- Stock Manipulation -->
             @else if (activeMission()?.type === 'stock-manipulation') {
               <div class="stocks-game">
-                <div class="game-info">HFT_FLASH_CRASH_INITIATOR</div>
+                <div class="game-info">HFT_FLASH_CRASH_INITIATOR // TARGET: {{ targetTicker() }}</div>
                 <div class="stock-graph">
                    <div class="graph-line" [style.height.%]="stockPrice()"></div>
                    <div class="sell-zone" [style.top.%]="targetPriceRange().min" [style.height.%]="targetPriceRange().max - targetPriceRange().min"></div>
@@ -524,6 +524,7 @@ export class MissionComponent implements OnDestroy {
   signalLock = signal(0);
 
   stockPrice = signal(50);
+  targetTicker = signal<string>('MARKET');
   targetPriceRange = signal({min: 20, max: 40});
   matchedTrades = signal(0);
 
@@ -854,6 +855,13 @@ export class MissionComponent implements OnDestroy {
 
   private startStockGame(difficulty: number) {
       this.matchedTrades.set(0);
+      const rw = this.gameService.realWorldState();
+      if (rw && rw.finance && rw.finance.length > 0) {
+          const asset = rw.finance[Math.floor(Math.random() * rw.finance.length)];
+          this.targetTicker.set(asset.symbol);
+          this.gameService.log(`MARKET_LINK: Targeting ${asset.symbol} volatility.`);
+      }
+
       this.intervals.push(setInterval(() => {
           this.stockPrice.update(p => Math.max(0, Math.min(100, p + (Math.random() * 20 - 10))));
       }, 500));

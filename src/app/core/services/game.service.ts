@@ -271,6 +271,7 @@ export class GameService {
 
   // Global Live Events & Multiplayer
   globalEvent = signal<'NONE' | 'CTF_ACTIVE' | 'PATCH_TUESDAY' | 'ZERO_DAY_PANIC' | 'SINGULARITY'>('NONE');
+  realWorldState = signal<any>(null);
   leaderboard = signal<{id?: string, name: string, reputation: number, score: number, isPlayer: boolean}[]>([]);
   eventTimer = signal(0);
   activeTeam = signal<Team | null>(null);
@@ -408,6 +409,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         leaderboard: any[], 
         chatMessages: any[], 
         teams: Team[],
+        realWorld: any,
         player: PlayerData 
     }) => {
       this.globalEvent.set(data.globalEvent);
@@ -415,9 +417,14 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.leaderboard.set(data.leaderboard.map((p: any) => ({ ...p, isPlayer: p.id === data.player.id })));
       this.teamMessages.set(data.chatMessages);
       this.availableTeams.set(data.teams);
+      this.realWorldState.set(data.realWorld);
       this.restoreFullState(data.player);
       this.authRequired.set(false);
       this.twoFactorUserId.set(null);
+    });
+
+    this.socket.on('real_world_update', (data: any) => {
+        this.realWorldState.set(data);
     });
 
     this.socket.on('error_msg', (msg: string) => {
