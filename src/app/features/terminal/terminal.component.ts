@@ -96,6 +96,8 @@ export class TerminalComponent implements AfterViewChecked {
         '  general.auto_wipe  : Automatic wipe at 90% trace [on|off]',
         '  general.auto_analysis: 2x speed for artifact analysis [on|off]',
         '  control.scroll_speed: Log scrolling velocity [50-500]',
+        '  streamer.enabled   : Toggle chat integration [on|off]',
+        '  streamer.platform  : Live platform [TWITCH|YOUTUBE|TIKTOK]',
         'EXAMPLE: set general.auto_wipe on'
     ],
     'settings': [
@@ -138,6 +140,10 @@ export class TerminalComponent implements AfterViewChecked {
     'help': [
         'NAME: help - list grid binaries',
         'DESCRIPTION: Prints a summary of all standard workstation commands.'
+    ],
+    'tutorial': [
+        'NAME: tutorial - initiate neural walkthrough',
+        'DESCRIPTION: Triggers the onboard AI guide to explain workstation interfaces.'
     ]
   };
 
@@ -247,6 +253,7 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('settings    - Display current configuration');
         this.gameService.log('set [val]   - Modify system parameters');
         this.gameService.log('man [cmd]   - Detailed manual for command');
+        this.gameService.log('tutorial    - Start onboard AI walkthrough');
         break;
 
       case 'vpm':
@@ -317,6 +324,12 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('TERMINAL_CLEARED');
         break;
 
+      case 'tutorial':
+        this.gameService.tutorialActive.set(true);
+        this.gameService.log('NEURAL_LINK: Initializing tutorial overlay...');
+        this.audioService.playClick();
+        break;
+
       case 'matrix':
       case 'neo':
         this.gameService.matrixMode.set(!this.gameService.matrixMode());
@@ -334,6 +347,7 @@ export class TerminalComponent implements AfterViewChecked {
           this.gameService.log(`[BETA] vibe=${s.beta.neural_vibration} emo=${s.beta.ai_emotions} globe=${s.beta.high_res_globe}`);
           this.gameService.log(`[GENERAL] autowipe=${s.general.auto_wipe} autoanal=${s.general.auto_analysis} theme=${s.general.theme}`);
           this.gameService.log(`[CONTROL] auto=${s.control.autocomplete} speed=${s.control.scroll_speed}`);
+          this.gameService.log(`[STREAMER] enabled=${s.streamer.enabled} platform=${s.streamer.platform}`);
           this.gameService.log('Use "set [category.key] [on|off|value]" to modify.');
           break;
 

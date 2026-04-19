@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { GameService } from './core/services/game.service';
 import { AudioService } from './core/services/audio.service';
+import { StreamerIntegrationService } from './core/services/streamer-integration.service';
 import { TerminalComponent } from './features/terminal/terminal.component';
 import { HardwareShopComponent } from './features/hardware/hardware-shop.component';
 import { MissionComponent } from './features/missions/missions.component';
@@ -19,6 +20,7 @@ import { CalibrationOverlayComponent } from './features/system/calibration-overl
 import { AuthComponent } from './features/system/auth.component';
 import { BootScreenComponent } from './features/system/boot-screen.component';
 import { ConfigWizardComponent } from './features/system/config-wizard.component';
+import { WalkthroughOverlayComponent } from './features/system/walkthrough-overlay.component';
 
 @Component({
   selector: 'app-root',
@@ -41,7 +43,8 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
     CalibrationOverlayComponent,
     AuthComponent,
     BootScreenComponent,
-    ConfigWizardComponent
+    ConfigWizardComponent,
+    WalkthroughOverlayComponent
   ],
   template: `
     @if (!gameService.isConfigured()) {
@@ -63,6 +66,7 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
     <app-intrusion-overlay />
     <app-hijack-overlay />
     <app-calibration-overlay />
+    <app-walkthrough-overlay />
     
     <div class="game-wrapper" 
          [class.scanline]="gameService.settings().video.scanlines" 
@@ -313,4 +317,5 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
 export class AppComponent {
   gameService = inject(GameService);
   audioService = inject(AudioService);
+  streamerService = inject(StreamerIntegrationService);
 }

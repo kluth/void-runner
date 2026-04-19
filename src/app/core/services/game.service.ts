@@ -82,10 +82,15 @@ export interface GameSettings {
     auto_wipe: boolean;
     auto_analysis: boolean;
     theme: 'CLASSIC' | 'OMEGA' | 'NOIR';
+    tutorial_completed: boolean;
   };
   control: {
     autocomplete: boolean;
     scroll_speed: number;
+  };
+  streamer: {
+    enabled: boolean;
+    platform: 'TWITCH' | 'YOUTUBE' | 'TIKTOK';
   };
 }
 
@@ -117,7 +122,7 @@ export interface Mission {
   target: string;
   difficulty: number;
   reward: number;
-  type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering';
+  type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering' | 'physical-infiltration' | 'drone-hijacking' | 'stock-manipulation' | 'dark-web-hit' | 'corporate-espionage' | 'undersea-tap' | 'satellite-hacking' | 'bgp-hijacking' | 'election-interference' | 'hacker-takedown';
   isHoneypot: boolean;
   isEntryPoint?: boolean;
 }
@@ -136,7 +141,22 @@ export const AVAILABLE_HARDWARE: HardwareItem[] = [
   { id: 'firewall', name: 'Sentinel Firewall', description: 'Blocks rival intrusion attempts.', price: 300, bonusType: 'defense', bonusValue: 20, unlocked: true },
   { id: 'edr', name: 'Advanced EDR Node', description: 'Detects stealthy intrusions on your botnet.', price: 550, bonusType: 'defense', bonusValue: 35, unlocked: false },
   { id: 'bucket-bruter', name: 'S3 Bucket Hunter', description: 'Scans for misconfigured cloud storage.', price: 700, bonusType: 'cloud', bonusValue: 40, unlocked: false },
-  { id: 'red-pill', name: 'The Red Pill', description: 'See the world as it truly is. Frozen trace level.', price: 1000, bonusType: 'stealth', bonusValue: 99, unlocked: false }
+  { id: 'red-pill', name: 'The Red Pill', description: 'See the world as it truly is. Frozen trace level.', price: 1000, bonusType: 'stealth', bonusValue: 99, unlocked: false },
+  { id: 'neural-coprocessor', name: 'Neural Coprocessor', description: 'Decreases mini-game complexity (e.g., slower timer).', price: 1200, bonusType: 'recon', bonusValue: 20, unlocked: false },
+  { id: 'quantum-decryptor', name: 'Quantum Decryptor', description: 'Allows skipping one port scan per mission.', price: 1500, bonusType: 'exploit', bonusValue: 35, unlocked: false },
+  { id: 'faraday-cage', name: 'Faraday Cage', description: 'Prevents "HARDWARE_LOCKDOWN" debuffs.', price: 800, bonusType: 'defense', bonusValue: 30, unlocked: false },
+  { id: 'emp-grenade', name: 'EMP Grenade', description: 'Clears active trace instantly but destroys all current mission progress.', price: 600, bonusType: 'defense', bonusValue: 50, unlocked: false },
+  { id: 'biometric-spoof', name: 'Biometric Spoof', description: 'Increases success rate of Social Engineering missions.', price: 900, bonusType: 'social', bonusValue: 40, unlocked: false },
+  { id: 'optic-camo', name: 'Optic Camo Cloak', description: 'Drastically reduces trace gain during physical infiltration.', price: 1300, bonusType: 'stealth', bonusValue: 45, unlocked: false },
+  { id: 'signal-jammer', name: 'Signal Jammer', description: 'Delays Blue Team retaliation by 30 seconds.', price: 700, bonusType: 'stealth', bonusValue: 30, unlocked: false },
+  { id: 'rfid-injector', name: 'Subdermal RFID Injector', description: 'Auto-completes RFID cloning games.', price: 1100, bonusType: 'recon', bonusValue: 40, unlocked: false },
+  { id: 'darknet-router', name: 'Darknet Router', description: 'Halves the cost of Onion routing.', price: 1000, bonusType: 'stealth', bonusValue: 25, unlocked: false },
+  { id: 'overclocked-gpu', name: 'Overclocked GPU', description: 'Doubles crypto mining speed for botnets.', price: 2000, bonusType: 'cloud', bonusValue: 50, unlocked: false },
+  { id: 'cryo-cooling', name: 'Cryo-Cooling Rig', description: 'Allows botnet to run without increasing detection over time.', price: 2500, bonusType: 'cloud', bonusValue: 60, unlocked: false },
+  { id: 'satellite-uplink', name: 'Satellite Uplink', description: 'Allows access to orbital missions.', price: 3000, bonusType: 'recon', bonusValue: 50, unlocked: false },
+  { id: 'holographic-emitter', name: 'Holographic Emitter', description: 'Creates decoys to confuse trace algorithms.', price: 1400, bonusType: 'stealth', bonusValue: 40, unlocked: false },
+  { id: 'acoustic-dampener', name: 'Acoustic Dampener', description: 'Suppresses peak volume detection from the real-life microphone API.', price: 900, bonusType: 'stealth', bonusValue: 35, unlocked: false },
+  { id: 'retinal-scanner', name: 'Retinal Scanner', description: 'Required for Level 5+ secure vault missions.', price: 1800, bonusType: 'recon', bonusValue: 60, unlocked: false }
 ];
 
 @Injectable({
@@ -155,7 +175,22 @@ export class GameService {
     { id: 'sqlmap-lite', name: 'sqlmap-lite', description: 'SQL automation. Reveals vulnerabilities faster.', price: 200, type: 'BINARY', installed: false },
     { id: 'proxychains-ng', name: 'proxychains-ng', description: 'Advanced routing. -30% routing costs.', price: 100, type: 'UTIL', installed: false },
     { id: 'wiper', name: 'log-wiper', description: 'Adds "wipe" command to purge active trace.', price: 300, type: 'UTIL', installed: false },
-    { id: 'bleachbit-core', name: 'bleachbit-core', description: 'Passive trace cleaning daemon.', price: 500, type: 'DAEMON', installed: false }
+    { id: 'bleachbit-core', name: 'bleachbit-core', description: 'Passive trace cleaning daemon.', price: 500, type: 'DAEMON', installed: false },
+    { id: 'ai-fuzzer', name: 'ai-fuzzer', description: 'Automatically highlights vulnerable SQL injection points.', price: 450, type: 'BINARY', installed: false },
+    { id: 'deepfake-studio', name: 'deepfake-studio', description: 'Required for high-tier phishing campaigns.', price: 600, type: 'BINARY', installed: false },
+    { id: 'worm-propagator', name: 'worm-propagator', description: 'Slowly increases botnet size automatically while active.', price: 800, type: 'DAEMON', installed: false },
+    { id: 'trace-spoof', name: 'trace-spoof', description: 'Fakes a disconnect and redirects trace to a decoy IP.', price: 1000, type: 'UTIL', installed: false },
+    { id: 'raas', name: 'raas', description: 'Ransomware-as-a-Service. Increases ransom payout by 50%.', price: 750, type: 'DAEMON', installed: false },
+    { id: 'market-crawler', name: 'market-crawler', description: 'Automatically buys public exploits when credits are high.', price: 1200, type: 'DAEMON', installed: false },
+    { id: 'cryptojacker', name: 'cryptojacker', description: 'Steals credits passively from compromised networks.', price: 900, type: 'DAEMON', installed: false },
+    { id: 'firewall-bypass', name: 'firewall-bypass', description: 'Reduces required port matches in scanning mini-games.', price: 400, type: 'BINARY', installed: false },
+    { id: 'packet-sniffer', name: 'packet-sniffer', description: 'Reveals hidden passwords in network traffic.', price: 350, type: 'UTIL', installed: false },
+    { id: 'keylogger', name: 'keylogger', description: 'Captures admin passwords over time during a session.', price: 300, type: 'UTIL', installed: false },
+    { id: 'botnet-orchestrator', name: 'botnet-orchestrator', description: 'Groups botnets for massive DDoS attacks.', price: 1500, type: 'DAEMON', installed: false },
+    { id: 'memory-scraper', name: 'memory-scraper', description: 'Extracts artifacts from compromised nodes automatically.', price: 550, type: 'BINARY', installed: false },
+    { id: 'social-scraper', name: 'social-scraper', description: 'Auto-gathers OSINT facts for phishing.', price: 250, type: 'UTIL', installed: false },
+    { id: 'rootkit', name: 'rootkit', description: 'Prevents compromised nodes from being patched for 24 hours.', price: 2000, type: 'DAEMON', installed: false },
+    { id: 'hypervisor-breakout', name: 'hypervisor-breakout', description: 'Allows pivoting from a VM to the host server.', price: 1800, type: 'BINARY', installed: false }
   ]);
 
   // Settings State
@@ -164,10 +199,13 @@ export class GameService {
     video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11 },
     social: { notifications: true, public_profile: true, incognito: false, status: 'ONLINE' },
     beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false },
-    general: { auto_wipe: false, auto_analysis: false, theme: 'CLASSIC' },
-    control: { autocomplete: true, scroll_speed: 100 }
+    general: { auto_wipe: false, auto_analysis: false, theme: 'CLASSIC', tutorial_completed: false },
+    control: { autocomplete: true, scroll_speed: 100 },
+    streamer: { enabled: false, platform: 'TWITCH' }
   });
 
+  tutorialActive = signal(false);
+  
   // Core State
   credits = signal(500);
   experience = signal(0);
@@ -249,6 +287,10 @@ export class GameService {
     this.initSocket();
     this.loadLocalState();
     this.checkConfigStatus();
+
+    if (!this.settings().general.tutorial_completed) {
+      setTimeout(() => this.tutorialActive.set(true), 2000);
+    }
 
     this.log('INITIALIZING VOID_OS...');
     this.log('CORE SYSTEMS ONLINE.');
@@ -491,9 +533,13 @@ export class GameService {
         if (key === 'auto_wipe') s.general.auto_wipe = boolVal;
         if (key === 'auto_analysis') s.general.auto_analysis = boolVal;
         if (key === 'theme') s.general.theme = value.toUpperCase() as any;
+        if (key === 'tutorial_completed') s.general.tutorial_completed = boolVal;
     } else if (category === 'control') {
         if (key === 'autocomplete') s.control.autocomplete = boolVal;
         if (key === 'scroll_speed') s.control.scroll_speed = parseInt(value);
+    } else if (category === 'streamer') {
+        if (key === 'enabled') s.streamer.enabled = boolVal;
+        if (key === 'platform') s.streamer.platform = value.toUpperCase() as any;
     }
 
     this.settings.set(s);
@@ -744,16 +790,23 @@ export class GameService {
   }
 
   addRandomMission() {
-    const types: Mission['type'][] = ['port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign', 'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering'];
+    const types: Mission['type'][] = [
+      'port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 
+      'xss-injection', 'osint-research', 'phishing-campaign', 'crypto-heist', 
+      'quantum-breach', 'iot-takeover', 'social-engineering',
+      'physical-infiltration', 'drone-hijacking', 'stock-manipulation', 
+      'dark-web-hit', 'corporate-espionage', 'undersea-tap', 
+      'satellite-hacking', 'bgp-hijacking', 'election-interference', 'hacker-takedown'
+    ];
     const type = types[Math.floor(Math.random() * types.length)];
-    const baseDifficulty = (['crypto-heist', 'quantum-breach'].includes(type)) ? 4 : 1;
+    const baseDifficulty = (['crypto-heist', 'quantum-breach', 'satellite-hacking', 'undersea-tap', 'bgp-hijacking'].includes(type)) ? 4 : 1;
     const difficulty = this.campaignLevel() + baseDifficulty + Math.floor(Math.random() * 2);
     const reward = (difficulty * 150) + Math.floor(Math.random() * 100);
     const targetPrefixes = ['GLOBAL_NET', 'CORP_NODE', 'SECURE_VAULT', 'DATA_HUB', 'VOID_LINK', 'SHADOW_SRV', 'SAT_UPLINK', 'BIO_LAB_MAINFRAME', 'CRYPTO_EXCHANGE', 'DEEP_SEA_CABLE', 'QUANTUM_NODE', 'GOV_DATACENTER'];
     const target = targetPrefixes[Math.floor(Math.random() * targetPrefixes.length)] + '_' + Math.floor(Math.random() * 9999);
     const newMission: Mission = {
       id: Math.random().toString(36).substring(7),
-      name: `OP_${type.replace('-', '_').toUpperCase()}`,
+      name: `OP_${type.replace(/-/g, '_').toUpperCase()}`,
       target, difficulty, reward, type,
       isHoneypot: Math.random() < 0.15,
       isEntryPoint: Math.random() < 0.20
