@@ -4,11 +4,11 @@ import bodyParser from 'body-parser';
 import session from 'express-session';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
-import { Strategy as TwitterStrategy } from 'passport-twitter';
-import { Strategy as GithubStrategy } from 'passport-github2';
-import { Strategy as DiscordStrategy } from 'passport-discord';
-import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
+// Deactivated for lockdown: import { Strategy as FacebookStrategy } from 'passport-facebook';
+// Deactivated for lockdown: import { Strategy as TwitterStrategy } from 'passport-twitter';
+// Deactivated for lockdown: import { Strategy as GithubStrategy } from 'passport-github2';
+// Deactivated for lockdown: import { Strategy as DiscordStrategy } from 'passport-discord';
+// Deactivated for lockdown: import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { aiService } from './services/ai.service';
@@ -23,11 +23,9 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-        // In production, we allow same-origin (proxied) or explicit FRONTEND_URL
         if (!origin || origin === FRONTEND_URL || origin.includes('localhost') || origin.includes('127.0.0.1')) {
             callback(null, true);
         } else {
-            // For VPS access via IP, we accept all origins to ensure handshake stability
             callback(null, true);
         }
     },
@@ -69,7 +67,7 @@ app.post('/api/config/skip', async (req, res) => {
 passport.serializeUser((user: any, done) => done(null, user));
 passport.deserializeUser((user: any, done) => done(null, user));
 
-// --- Google ---
+// --- Google (PRIMARY UPLINK) ---
 if (process.env['GOOGLE_CLIENT_ID']) {
   passport.use(new GoogleStrategy({
     clientID: process.env['GOOGLE_CLIENT_ID'],
@@ -80,6 +78,8 @@ if (process.env['GOOGLE_CLIENT_ID']) {
   }));
 }
 
+/* 
+DEACTIVATED: STRATEGIC LOCKDOWN ACTIVE
 // --- Facebook ---
 if (process.env['FACEBOOK_APP_ID']) {
   passport.use(new FacebookStrategy({
@@ -90,57 +90,13 @@ if (process.env['FACEBOOK_APP_ID']) {
     done(null, await authService.validateOAuthUser(profile, 'facebook'));
   }));
 }
+... other providers ...
+*/
 
-// --- Twitter ---
-if (process.env['TWITTER_CONSUMER_KEY']) {
-  passport.use(new TwitterStrategy({
-    consumerKey: process.env['TWITTER_CONSUMER_KEY'],
-    consumerSecret: process.env['TWITTER_CONSUMER_SECRET']!,
-    callbackURL: "/api/auth/twitter/callback"
-  }, async (_t: string, _ts: string, profile: any, done: any) => {
-    done(null, await authService.validateOAuthUser(profile, 'twitter'));
-  }));
-}
-
-// --- GitHub ---
-if (process.env['GITHUB_CLIENT_ID']) {
-  passport.use(new GithubStrategy({
-    clientID: process.env['GITHUB_CLIENT_ID'],
-    clientSecret: process.env['GITHUB_CLIENT_SECRET']!,
-    callbackURL: "/api/auth/github/callback"
-  }, async (_at: string, _rt: string, profile: any, done: any) => {
-    done(null, await authService.validateOAuthUser(profile, 'github'));
-  }));
-}
-
-// --- Discord ---
-if (process.env['DISCORD_CLIENT_ID']) {
-  passport.use(new DiscordStrategy({
-    clientID: process.env['DISCORD_CLIENT_ID'],
-    clientSecret: process.env['DISCORD_CLIENT_SECRET']!,
-    callbackURL: "/api/auth/discord/callback",
-    scope: ['identify']
-  }, async (_at: string, _rt: string, profile: any, done: any) => {
-    done(null, await authService.validateOAuthUser(profile, 'discord'));
-  }));
-}
-
-// --- Microsoft ---
-if (process.env['MICROSOFT_CLIENT_ID']) {
-  passport.use(new MicrosoftStrategy({
-    clientID: process.env['MICROSOFT_CLIENT_ID'],
-    clientSecret: process.env['MICROSOFT_CLIENT_SECRET']!,
-    callbackURL: "/api/auth/microsoft/callback",
-    scope: ['user.read']
-  }, async (_at: string, _rt: string, profile: any, done: any) => {
-    done(null, await authService.validateOAuthUser(profile, 'microsoft'));
-  }));
-}
-
-// OAuth Routes Factory
-const authRoutes = ['google', 'facebook', 'twitter', 'github', 'discord', 'microsoft'];
+// OAuth Routes Factory (Filtered for Google only)
+const authRoutes = ['google'];
 authRoutes.forEach(provider => {
-  app.get(`/api/auth/${provider}`, passport.authenticate(provider, provider === 'google' ? { scope: ['profile'] } : {}));
+  app.get(`/api/auth/${provider}`, passport.authenticate(provider, provider === 'google' ? { scope: ['profile', 'email'] } : {}));
   app.get(`/api/auth/${provider}/callback`, passport.authenticate(provider, { failureRedirect: '/login' }), (req, res) => {
     const { token } = req.user as any;
     res.redirect(`${FRONTEND_URL}/login?token=${token}`);
