@@ -3,8 +3,8 @@ import { Injectable, signal } from '@angular/core';
 export interface TrackProfile {
   name: string;
   bpm: number;
-  scale: number[]; // Frequencies or scale ratios
-  pattern: number[]; // Rhythmic pattern (0 for rest, 1 for note, 2 for accent)
+  scale: number[]; 
+  pattern: number[]; 
   type: OscillatorType;
   filterFreq: number;
 }
@@ -21,6 +21,10 @@ export class AudioService {
   playlist: TrackProfile[] = [];
   currentIndex = 0;
 
+  // Internal Audio State (Pushed from GameService to avoid circular dependency)
+  masterVolume = signal(0.5);
+  speechEnabled = signal(true);
+
   constructor() {
     this.generatePlaylist();
   }
@@ -29,10 +33,10 @@ export class AudioService {
     const prefixes = ['NEURAL', 'VOID', 'CYBER', 'MATRIX', 'GHOST', 'DATA', 'SHADOW', 'COBALT', 'NEON', 'HEX'];
     const suffixes = ['BREACH', 'STREAM', 'PULSE', 'LINK', 'DUMP', 'REBOOT', 'PHASE', 'WAVE', 'STATIC', 'CORE'];
     const scales = [
-      [55, 65.41, 73.42, 82.41, 98], // Dark Phrygian
-      [55, 61.74, 65.41, 82.41, 87.31], // Melancholy
-      [41.2, 49, 55, 61.74, 65.41], // Deep Industrial
-      [32.7, 43.65, 49, 55, 65.41] // Sub-Level
+      [55, 65.41, 73.42, 82.41, 98], 
+      [55, 61.74, 65.41, 82.41, 87.31], 
+      [41.2, 49, 55, 61.74, 65.41], 
+      [32.7, 43.65, 49, 55, 65.41] 
     ];
     const patterns = [
       [1, 0, 1, 0, 1, 1, 0, 1],
@@ -43,7 +47,6 @@ export class AudioService {
     ];
     const types: OscillatorType[] = ['sawtooth', 'square', 'triangle'];
 
-    // Generate 50+ unique "Cyber-Profiles"
     for (let i = 0; i < 55; i++) {
       const name = `${prefixes[Math.floor(Math.random() * prefixes.length)]}_${suffixes[Math.floor(Math.random() * suffixes.length)]}_0x${i.toString(16).toUpperCase()}`;
       this.playlist.push({
@@ -63,7 +66,11 @@ export class AudioService {
     const gain = this.ctx.createGain();
     osc.type = type;
     osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+    
+    // Scale local volume by master volume
+    const finalVolume = volume * this.masterVolume();
+    
+    gain.gain.setValueAtTime(finalVolume, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
     osc.connect(gain);
     gain.connect(this.ctx.destination);
@@ -99,7 +106,7 @@ export class AudioService {
     this.currentTrack.set(track.name);
     
     let step = 0;
-    const intervalTime = 60000 / (track.bpm * 2); // 8th notes
+    const intervalTime = 60000 / (track.bpm * 2); 
 
     if (this.musicInterval) clearInterval(this.musicInterval);
 
@@ -119,7 +126,6 @@ export class AudioService {
 
       step++;
 
-      // Change track every 32 bars (256 steps)
       if (step >= 256) {
         this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
         this.playNextTrack();
@@ -139,7 +145,8 @@ export class AudioService {
     filter.frequency.setValueAtTime(filterFreq, this.ctx.currentTime);
     filter.Q.setValueAtTime(5, this.ctx.currentTime);
 
-    gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+    const finalVolume = 0.04 * this.masterVolume();
+    gain.gain.setValueAtTime(finalVolume, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
 
     osc.connect(filter);
@@ -155,8 +162,11 @@ export class AudioService {
     const gain = this.ctx.createGain();
     osc.frequency.setValueAtTime(150, this.ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+    
+    const finalVolume = 0.1 * this.masterVolume();
+    gain.gain.setValueAtTime(finalVolume, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.5);
+    
     osc.connect(gain);
     gain.connect(this.ctx.destination);
     osc.start();
@@ -177,7 +187,8 @@ export class AudioService {
     filter.type = 'highpass';
     filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
 
-    gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+    const finalVolume = 0.03 * this.masterVolume();
+    gain.gain.setValueAtTime(finalVolume, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
 
     source.connect(filter);
@@ -201,7 +212,8 @@ export class AudioService {
     filter.type = 'highpass';
     filter.frequency.setValueAtTime(8000, this.ctx.currentTime);
 
-    gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+    const finalVolume = 0.01 * this.masterVolume();
+    gain.gain.setValueAtTime(finalVolume, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
 
     source.connect(filter);
@@ -211,21 +223,17 @@ export class AudioService {
   }
 
   speakCreepy(text: string) {
+    if (!this.speechEnabled()) return;
     if (!('speechSynthesis' in window)) return;
 
-    // Stop any current speech
     window.speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Find a "creepy" voice if possible (usually a deep male or robotic voice)
     const voices = window.speechSynthesis.getVoices();
-    // Default to first voice but try to find something deep
     utterance.voice = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Microsoft David')) || voices[0];
     
-    utterance.pitch = 0.1; // Very low pitch
-    utterance.rate = 0.7;  // Slow, deliberate speed
-    utterance.volume = 0.6;
+    utterance.pitch = 0.1; 
+    utterance.rate = 0.7;  
+    utterance.volume = 0.6 * this.masterVolume();
 
     window.speechSynthesis.speak(utterance);
   }

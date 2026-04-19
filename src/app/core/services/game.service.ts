@@ -53,6 +53,21 @@ export interface Team {
   _count?: { members: number };
 }
 
+export interface GameSettings {
+  audio: {
+    volume: number;
+    speech: boolean;
+  };
+  video: {
+    matrix: boolean;
+    glitch: boolean;
+    scanlines: boolean;
+  };
+  control: {
+    autocomplete: boolean;
+  };
+}
+
 export interface PlayerData {
   id: string;
   username: string;
@@ -70,6 +85,7 @@ export interface PlayerData {
   activeDebuffs: string;
   artifacts: string;
   publicExploits: string;
+  settings: string; // JSON
   teamId?: string | null;
   team?: Team | null;
 }
@@ -120,6 +136,13 @@ export class GameService {
     { id: 'wiper', name: 'log-wiper', description: 'Adds "wipe" command to purge active trace.', price: 300, type: 'UTIL', installed: false },
     { id: 'bleachbit-core', name: 'bleachbit-core', description: 'Passive trace cleaning daemon.', price: 500, type: 'DAEMON', installed: false }
   ]);
+
+  // Settings State
+  settings = signal<GameSettings>({
+    audio: { volume: 50, speech: true },
+    video: { matrix: false, glitch: true, scanlines: true },
+    control: { autocomplete: true }
+  });
 
   // Core State
   credits = signal(500);
@@ -320,7 +343,6 @@ export class GameService {
     this.botnetSize.set(player.botnetSize);
     this.campaignLevel.set(player.campaignLevel);
     this.reputation.set(player.reputation);
-    
     this.systemIntegrity.set(player.systemIntegrity);
     this.detectionLevel.set(player.detectionLevel);
 
@@ -338,6 +360,12 @@ export class GameService {
     try { this.activeDebuffs.set(JSON.parse(player.activeDebuffs)); } catch(e) {}
     try { this.artifacts.set(JSON.parse(player.artifacts)); } catch(e) {}
     try { this.publicExploits.set(JSON.parse(player.publicExploits)); } catch(e) {}
+    try { 
+        if (player.settings && player.settings !== '{}') {
+            this.settings.set(JSON.parse(player.settings));
+            this.applySettingsToSignals();
+        }
+    } catch(e) {}
     
     this.saveLocalState();
   }
@@ -356,7 +384,8 @@ export class GameService {
       detectionLevel: this.detectionLevel(),
       activeDebuffs: this.activeDebuffs(),
       artifacts: this.artifacts(),
-      publicExploits: this.publicExploits()
+      publicExploits: this.publicExploits(),
+      settings: this.settings()
     };
     localStorage.setItem('VOID_RUNNER_STATE', JSON.stringify(state));
   }
@@ -372,12 +401,15 @@ export class GameService {
       this.reputation.set(state.reputation || 0);
       this.botnetSize.set(state.botnetSize || 0);
       this.campaignLevel.set(state.campaignLevel || 1);
-      
       this.systemIntegrity.set(state.systemIntegrity ?? 100);
       this.detectionLevel.set(state.detectionLevel ?? 0);
       this.activeDebuffs.set(state.activeDebuffs || []);
       this.artifacts.set(state.artifacts || []);
       this.publicExploits.set(state.publicExploits || []);
+      if (state.settings) {
+          this.settings.set(state.settings);
+          this.applySettingsToSignals();
+      }
 
       if (state.inventory) {
         this.inventory.set(AVAILABLE_HARDWARE.filter(h => state.inventory.includes(h.id)));
@@ -386,6 +418,40 @@ export class GameService {
         this.installedSoftware.update(sw => sw.map(s => ({ ...s, installed: state.software.includes(s.id) })));
       }
     } catch(e) {}
+  }
+
+  private applySettingsToSignals() {
+      const s = this.settings();
+      this.matrixMode.set(s.video.matrix);
+      
+      // Push to AudioService
+      this.audioService.masterVolume.set(s.audio.volume / 100);
+      this.audioService.speechEnabled.set(s.audio.speech);
+  }
+
+  updateSetting(path: string, value: string) {
+    const s = { ...this.settings() };
+    const parts = path.split('.');
+    if (parts.length !== 2) return;
+
+    const category = parts[0] as keyof GameSettings;
+    const key = parts[1] as any;
+
+    if (category === 'audio') {
+        if (key === 'volume') s.audio.volume = parseInt(value);
+        if (key === 'speech') s.audio.speech = value === 'on' || value === 'true';
+    } else if (category === 'video') {
+        if (key === 'matrix') s.video.matrix = value === 'on' || value === 'true';
+        if (key === 'glitch') s.video.glitch = value === 'on' || value === 'true';
+        if (key === 'scanlines') s.video.scanlines = value === 'on' || value === 'true';
+    } else if (category === 'control') {
+        if (key === 'autocomplete') s.control.autocomplete = value === 'on' || value === 'true';
+    }
+
+    this.settings.set(s);
+    this.applySettingsToSignals();
+    this.updateRemoteScore();
+    this.log(`SETTINGS: ${path} updated to ${value}`);
   }
 
   private updateRemoteScore() {
@@ -404,7 +470,8 @@ export class GameService {
         detectionLevel: this.detectionLevel(),
         activeDebuffs: JSON.stringify(this.activeDebuffs()),
         artifacts: JSON.stringify(this.artifacts()),
-        publicExploits: JSON.stringify(this.publicExploits())
+        publicExploits: JSON.stringify(this.publicExploits()),
+        settings: JSON.stringify(this.settings())
       });
     }
     this.saveLocalState();
@@ -552,7 +619,9 @@ export class GameService {
     const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
     obs.subscribe(res => {
       this.hijackMessage.set(res.response);
-      this.audioService.speakCreepy(res.response);
+      if (this.settings().audio.speech) {
+          this.audioService.speakCreepy(res.response);
+      }
       if ('vibrate' in navigator) {
         navigator.vibrate([200, 100, 200, 500, 200, 100, 200]);
       }
@@ -674,8 +743,10 @@ export class GameService {
       case 'GLITCH':
         this.activeDebuffs.update(d => [...d, { id, name: 'KERNEL_LOGIC_BOMB', type: 'GLITCH', expiresAt: Date.now() + duration }]);
         this.log('!!! COUNTER-ATTACK: LOGIC BOMB SCRAMBLING SENSORS !!!');
-        this.matrixMode.set(true);
-        setTimeout(() => this.matrixMode.set(false), duration);
+        if (this.settings().video.glitch) {
+            this.matrixMode.set(true);
+            setTimeout(() => this.matrixMode.set(false), duration);
+        }
         break;
       case 'LOCK':
         this.activeDebuffs.update(d => [...d, { id, name: 'HARDWARE_LOCKDOWN', type: 'LOCK', expiresAt: Date.now() + duration }]);
@@ -816,6 +887,7 @@ export class GameService {
       this.log('BREACH SUCCESSFUL. ASSETS STOLEN.');
       this.credits.update(c => Math.max(0, c - 250));
       this.botnetSize.update(b => Math.floor(b * 0.8));
+      this.updateRemoteScore();
     }
   }
 
@@ -824,18 +896,6 @@ export class GameService {
       if (Math.random() > 0.3) this.resolveIntrusion(true);
       else this.intrusionProgress.update(p => Math.min(100, p + 10));
     }
-  }
-
-  buyPublicExploit(type: Mission['type']) {
-    const cost = 100;
-    if (this.credits() >= cost) {
-      this.credits.update(c => c - cost);
-      this.publicExploits.update(ex => [...ex, type]);
-      this.log(`ACQUIRED 1-DAY EXPLOIT FOR ${type.toUpperCase()}.`);
-      this.updateRemoteScore();
-      return true;
-    }
-    return false;
   }
 
   private generateInternalNetwork(origin: string) {
@@ -936,6 +996,18 @@ export class GameService {
       this.botnetSize.update(b => b - 50);
       this.supplyChainActive.set(true);
       this.log('SUPPLY CHAIN COMPROMISED.');
+      this.updateRemoteScore();
+      return true;
+    }
+    return false;
+  }
+
+  buyPublicExploit(type: Mission['type']) {
+    const cost = 100;
+    if (this.credits() >= cost) {
+      this.credits.update(c => c - cost);
+      this.publicExploits.update(ex => [...ex, type]);
+      this.log(`ACQUIRED 1-DAY EXPLOIT FOR ${type.toUpperCase()}.`);
       this.updateRemoteScore();
       return true;
     }

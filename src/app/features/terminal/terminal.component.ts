@@ -2,84 +2,45 @@ import { Component, inject, signal, ViewChild, ElementRef, AfterViewChecked, eff
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { NeuralService } from '../../core/services/neural.service';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-terminal',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   template: `
-    <div class="terminal-container" (click)="focusInput()">
+    <div class="terminal-container">
       <div class="terminal-header">
-        <span class="prefix">SYS_LOG //</span>
-        <span class="os">VOID_OS_KERNEL</span>
-        <span class="ai-mode">LINK: {{ neuralService.aiMode() }}</span>
-        @if (neuralService.isProcessing()) {
-          <span class="status-blink processing">WAITING_FOR_LINK</span>
-        } @else {
-          <span class="status-blink">REC</span>
-        }
+        <span class="title">VOID_RUNNER // BASH_V4.2</span>
+        <span class="status">UPLINK: {{ neuralService.aiMode() }}</span>
       </div>
       <div class="terminal-body" #scrollContainer>
         @for (log of gameService.terminalLogs(); track $index) {
           <div class="log-line">
             <span class="timestamp">[{{ log.timestamp }}]</span>
-            <span class="content" [innerHTML]="log.message"></span>
+            <span class="message" [innerHTML]="log.message"></span>
           </div>
         }
         <div class="input-line">
-          <span class="prompt">root@void_os:~$</span>
+          <span class="prompt">{{ gameService.playerHandle() }}@void:~$</span>
           <input type="text" 
-                 #terminalInput
                  [(ngModel)]="cmdInput" 
+                 (keyup.enter)="handleCmd()"
                  (keydown.arrowUp)="navigateHistory(1)"
                  (keydown.arrowDown)="navigateHistory(-1)"
-                 (keyup.enter)="handleCmd()" 
-                 [disabled]="neuralService.isProcessing()" 
                  autofocus>
         </div>
       </div>
     </div>
   `,
   styles: `
-    .terminal-container { 
-      background: rgba(5, 5, 5, 0.95); 
-      border: 1px solid #111; 
-      min-height: 15rem; 
-      height: 100%;
-      display: flex; 
-      flex-direction: column; 
-      cursor: text; 
-      overflow: hidden;
-    }
-    .terminal-header { 
-      background: #000; 
-      padding: 0.5rem 0.75rem; 
-      border-bottom: 1px solid #1a1a1a; 
-      display: flex; 
-      gap: 0.75rem; 
-      align-items: center; 
-      flex-wrap: wrap;
-    }
-    .prefix { color: #006600; font-size: 0.6rem; font-weight: bold; }
-    .os { color: #00ff00; font-size: 0.7rem; letter-spacing: 2px; flex-grow: 1; }
-    .ai-mode { font-size: 0.5rem; color: #00ffff; border: 1px solid #00ffff; padding: 1px 4px; }
-    .status-blink { color: #ff0000; font-size: 0.5rem; font-weight: bold; animation: blink 1s infinite; white-space: nowrap; }
-    .status-blink.processing { color: #00ffff; }
-    @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
-
-    .terminal-body { 
-      flex-grow: 1; 
-      overflow-y: auto; 
-      padding: 0.75rem; 
-      font-family: 'JetBrains Mono', monospace; 
-      scrollbar-width: thin;
-      scrollbar-color: #004400 #000;
-    }
-    .log-line { font-size: 0.7rem; margin-bottom: 0.25rem; display: flex; gap: 0.5rem; line-height: 1.4; }
-    .timestamp { color: #004400; user-select: none; flex-shrink: 0; }
-    .content { color: #00cc00; white-space: pre-wrap; word-break: break-all; }
-
+    .terminal-container { background: #050505; border: 1px solid #00ff00; height: 100%; display: flex; flex-direction: column; font-family: 'JetBrains Mono', monospace; box-shadow: 0 0 20px rgba(0, 255, 0, 0.05); }
+    .terminal-header { background: #00ff00; color: #000; padding: 4px 10px; display: flex; justify-content: space-between; font-size: 0.6em; font-weight: bold; }
+    .terminal-body { flex-grow: 1; padding: 15px; overflow-y: auto; color: #fff; }
+    .log-line { font-size: 0.7rem; margin-bottom: 0.25rem; display: flex; gap: 10px; }
+    .timestamp { color: #008800; min-width: 70px; }
+    .message { line-height: 1.4; word-break: break-all; }
     .input-line { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
     .prompt { color: #00ff00; font-size: clamp(0.6rem, 2vw, 0.7rem); font-weight: bold; white-space: nowrap; }
     input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: clamp(0.6rem, 2vw, 0.7rem); flex-grow: 1; outline: none; min-width: 100px; }
@@ -94,31 +55,65 @@ export class TerminalComponent implements AfterViewChecked {
   gameService = inject(GameService);
   audioService = inject(AudioService);
   neuralService = inject(NeuralService);
-  
+
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
-  @ViewChild('terminalInput') private terminalInput!: ElementRef;
 
   cmdInput = '';
   commandHistory: string[] = [];
   historyIndex = -1;
 
-  constructor() {
-    // Auto-scroll effect
-    effect(() => {
-      this.gameService.terminalLogs();
-      setTimeout(() => this.scrollToBottom(), 10);
-    });
-  }
+  private manPages: Record<string, string[]> = {
+    'ls': [
+        'NAME: ls - list active missions',
+        'SYNOPSIS: ls [target]',
+        'DESCRIPTION: Displays all currently available contracts on the grid.',
+        'If target is specified, filters by network node.'
+    ],
+    'vpm': [
+        'NAME: vpm - Void Package Manager',
+        'SYNOPSIS: vpm [list|install] [package_id]',
+        'DESCRIPTION: Official repository manager for neural software.',
+        'list: Show all available and installed packages.',
+        'install <id>: Authenticate and deploy software to local workstation.'
+    ],
+    'set': [
+        'NAME: set - configure workstation parameters',
+        'SYNOPSIS: set [category.parameter] [value]',
+        'CATEGORIES:',
+        '  audio.volume [0-100]',
+        '  audio.speech [on|off]',
+        '  video.matrix [on|off]',
+        '  video.glitch [on|off]',
+        '  video.scanlines [on|off]',
+        '  control.autocomplete [on|off]',
+        'EXAMPLE: set audio.volume 80'
+    ],
+    'wipe': [
+        'NAME: wipe - purge local trace logs',
+        'SYNOPSIS: wipe',
+        'DESCRIPTION: Emergency protocol to flush workstation telemetry.',
+        'COST: 50cr per execution.',
+        'REQUIRES: log-wiper software binary.'
+    ],
+    'whoami': [
+        'NAME: whoami - display identity profile',
+        'DESCRIPTION: Prints current operative handle, underworld reputation, and syndicate affiliation.'
+    ],
+    'matrix': [
+        'NAME: matrix - toggle neural visualization',
+        'DESCRIPTION: Synchronizes visual cortex with the grid stream. Experimental.'
+    ],
+    'netstat': [
+        'NAME: netstat - network status diagnostic',
+        'DESCRIPTION: Displays current routing mode (VPN/Onion), active trace level, and backend uplink status.'
+    ]
+  };
 
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
 
-  focusInput() {
-    this.terminalInput.nativeElement.focus();
-  }
-
-  scrollToBottom(): void {
+  private scrollToBottom(): void {
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
@@ -126,7 +121,6 @@ export class TerminalComponent implements AfterViewChecked {
 
   navigateHistory(direction: number) {
     if (this.commandHistory.length === 0) return;
-    
     this.historyIndex += direction;
     if (this.historyIndex >= this.commandHistory.length) this.historyIndex = this.commandHistory.length - 1;
     if (this.historyIndex < -1) this.historyIndex = -1;
@@ -162,6 +156,33 @@ export class TerminalComponent implements AfterViewChecked {
       return;
     }
 
+    // MAN command
+    if (cmd.startsWith('man ')) {
+      const page = cmd.substring(4);
+      if (this.manPages[page]) {
+          this.gameService.log('--- SYSTEM MANUAL ---');
+          this.manPages[page].forEach(line => this.gameService.log(line));
+          this.audioService.playClick();
+      } else {
+          this.gameService.log(`man: no manual entry for ${page}`);
+          this.audioService.playError();
+      }
+      return;
+    }
+
+    // SET command
+    if (cmd.startsWith('set ')) {
+        const parts = cmd.split(' ');
+        if (parts.length === 3) {
+            this.gameService.updateSetting(parts[1], parts[2]);
+            this.audioService.playSuccess();
+        } else {
+            this.gameService.log('Usage: set [category.key] [value]');
+            this.audioService.playError();
+        }
+        return;
+    }
+
     // VPM Install handler
     if (cmd.startsWith('vpm install ')) {
       const pkgId = cmd.substring(12);
@@ -191,6 +212,8 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('clear       - Flush terminal buffer');
         this.gameService.log('ask [msg]   - Uplink to Neural AI');
         this.gameService.log('matrix      - Toggle visual neural-sync');
+        this.gameService.log('set         - Configure workstation settings');
+        this.gameService.log('man [cmd]   - Detailed manual for command');
         break;
 
       case 'vpm':
@@ -268,21 +291,18 @@ export class TerminalComponent implements AfterViewChecked {
         this.audioService.playGlitch();
         break;
 
-      case 'diagnostics':
-      case 'sys':
-        this.gameService.log('--- SYSTEM DIAGNOSTICS ---');
-        this.gameService.log(`AI_CORE:   ${this.neuralService.aiMode()}`);
-        this.gameService.log(`WINDOW_AI: ${typeof (window as any).ai !== 'undefined' ? 'PRESENT' : 'MISSING'}`);
-        this.gameService.log(`CREDITS:   ${this.gameService.credits()}cr`);
-        this.gameService.log(`DATA:      ${this.gameService.experience()} fragments`);
-        this.gameService.log('--- END DIAGNOSTICS ---');
-        break;
-
-      case 'hack the planet':
-        this.gameService.log('!!! HACK THE PLANET !!!');
-        this.audioService.playGlitch();
-        this.gameService.credits.update(c => c + 1337);
-        break;
+      case 'set':
+          this.gameService.log('Usage: set [category.key] [value]');
+          this.gameService.log('Example: set audio.volume 50');
+          this.gameService.log('Values: current state');
+          const s = this.gameService.settings();
+          this.gameService.log(`audio.volume: ${s.audio.volume}`);
+          this.gameService.log(`audio.speech: ${s.audio.speech ? 'on' : 'off'}`);
+          this.gameService.log(`video.matrix: ${s.video.matrix ? 'on' : 'off'}`);
+          this.gameService.log(`video.glitch: ${s.video.glitch ? 'on' : 'off'}`);
+          this.gameService.log(`video.scanlines: ${s.video.scanlines ? 'on' : 'off'}`);
+          this.gameService.log(`control.autocomplete: ${s.control.autocomplete ? 'on' : 'off'}`);
+          break;
 
       default:
         this.gameService.log(`ERR: command not found: ${cmd}`);

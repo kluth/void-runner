@@ -64,7 +64,10 @@ import { ConfigWizardComponent } from './features/system/config-wizard.component
     <app-hijack-overlay />
     <app-calibration-overlay />
     
-    <div class="game-wrapper scanline" [class.matrix]="gameService.matrixMode()" [class.distorted]="gameService.isDistorted()">
+    <div class="game-wrapper" 
+         [class.scanline]="gameService.settings().video.scanlines" 
+         [class.matrix]="gameService.matrixMode()" 
+         [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()">
       <header>
         <div class="logo-group">
           <div class="logo glitch" data-text="VOID_RUNNER">VOID_RUNNER</div>

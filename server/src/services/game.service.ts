@@ -137,7 +137,13 @@ export class GameService {
           botnetSize?: number,
           campaignLevel?: number,
           inventory?: string,
-          software?: string
+          software?: string,
+          systemIntegrity?: number,
+          detectionLevel?: number,
+          activeDebuffs?: string,
+          artifacts?: string,
+          publicExploits?: string,
+          settings?: string
       }) => {
         const decoded = await this.verifyToken(data.token);
         if (!decoded) return;
@@ -152,7 +158,13 @@ export class GameService {
               botnetSize: data.botnetSize ?? undefined,
               campaignLevel: data.campaignLevel ?? undefined,
               inventory: data.inventory ?? undefined,
-              software: data.software ?? undefined
+              software: data.software ?? undefined,
+              systemIntegrity: data.systemIntegrity ?? undefined,
+              detectionLevel: data.detectionLevel ?? undefined,
+              activeDebuffs: data.activeDebuffs ?? undefined,
+              artifacts: data.artifacts ?? undefined,
+              publicExploits: data.publicExploits ?? undefined,
+              settings: data.settings ?? undefined
           }
         });
         this.io.emit('leaderboard_update', await this.getLeaderboard());
