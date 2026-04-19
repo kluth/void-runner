@@ -173,16 +173,22 @@ export class TerminalComponent implements AfterViewChecked {
         'SYNOPSIS: faction [join|leave] [fixers|anarchists]',
         'DESCRIPTION: Align with underworld factions for unique perks.'
     ],
-
-    'help': [
-        'NAME: help - list grid binaries',
-        'DESCRIPTION: Prints a summary of all standard workstation commands.'
-    ],
-    'tutorial': [
-        'NAME: tutorial - initiate neural walkthrough',
-        'DESCRIPTION: Triggers the onboard AI guide to explain workstation interfaces.'
-    ]
-  };
+'help': [
+    'NAME: help - list grid binaries',
+    'DESCRIPTION: Prints a summary of all standard workstation commands.'
+],
+'hijack': [
+    'NAME: hijack - Neural Override Protocol',
+    'SYNOPSIS: Neural Event (Automatic)',
+    'DESCRIPTION: Occurs when system integrity is low or an advanced adversary triggers an override.',
+    'PURGE_METHOD: To regain control, you must SOLVE the riddle or math puzzle provided by the AI.',
+    'The answer to the riddle is your SYNC_CODE. Enter it into the overlay to purge the entity.'
+],
+'tutorial': [
+    'NAME: tutorial - initiate neural walkthrough',
+    'DESCRIPTION: Triggers the onboard AI guide to explain workstation interfaces.'
+]
+};
 
   ngAfterViewChecked() {
     this.scrollToBottom();

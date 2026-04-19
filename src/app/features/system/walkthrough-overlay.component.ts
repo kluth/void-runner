@@ -160,6 +160,11 @@ export class WalkthroughOverlayComponent {
       selector: 'TERMINAL'
     },
     {
+      title: 'RETALIATION & HIJACKS',
+      content: 'Keep your TRACE low. If it reaches 100%, expect retaliation. Beware of <b>Unknown Overrides</b> (Hijacks). If hijacked, listen to the AI: it will pose a <b>riddle or math puzzle</b>. The solution is your purge key.',
+      selector: 'STATS'
+    },
+    {
       title: 'GLOBAL GRID & GEOLOCATION',
       content: 'Monitor global events and coordinate attacks on the 3D globe. Your physical location is being spoofed in real-time.',
       selector: 'GLOBE'

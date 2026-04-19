@@ -20,17 +20,22 @@ import { FormsModule } from '@angular/forms';
           <div class="warning-text">NEURAL_OVERRIDE_ACTIVE // SOURCE: UNKNOWN</div>
           <div class="anonymous-header">WE ARE THE VOID. WE DO NOT FORGET.</div>
           
+          <div class="system-guide">
+            <span class="pulse">!</span> SYSTEM_ERROR: Neural sync lost. The entity below holds the decryption key. 
+            Solve its riddle to regain control.
+          </div>
+
           <div class="message-stream">
-            <span class="cursor">></span> {{ gameService.hijackMessage() }}
+            <span class="cursor">></span> {{ gameService.hijackMessage() || 'ESTABLISHING_NEURAL_UPLINK...' }}
           </div>
           
           <div class="challenge-box">
-             <label>DECRYPT_CHALLENGE:</label>
+             <label>INPUT_RIDDLE_SOLUTION:</label>
              <input type="text" 
                     [(ngModel)]="solveInput" 
-                    placeholder="PROVIDE_SOLUTION..." 
+                    placeholder="ENTER_KEY_HERE..." 
                     (keyup.enter)="release()">
-             <div class="hint">The Void demands an answer. Listen to its pulse.</div>
+             <div class="hint">Listen to the Void. It mocks you with the answer.</div>
           </div>
 
           <div class="actions">
@@ -90,6 +95,30 @@ import { FormsModule } from '@angular/forms';
       font-size: 1.8em; font-weight: 900; margin-bottom: 35px; 
       text-transform: uppercase; letter-spacing: -2px;
       text-shadow: 0 0 15px #f00, 0 0 30px #f00;
+    }
+
+    .system-guide {
+      border: 1px solid #f00;
+      background: rgba(255, 0, 0, 0.1);
+      padding: 10px;
+      font-size: 0.7em;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+
+    .system-guide .pulse {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #f00;
+      border-radius: 50%;
+      margin-right: 10px;
+      animation: guide-pulse 0.8s infinite;
+    }
+
+    @keyframes guide-pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
     }
 
     .message-stream { font-size: 1.3em; line-height: 1.5; margin-bottom: 50px; min-height: 120px; color: #fff; }
