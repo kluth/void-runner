@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed, effect } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { CommonModule } from '@angular/common';
@@ -21,9 +21,21 @@ import { FormsModule } from '@angular/forms';
           <div class="anonymous-header">WE ARE THE VOID. WE DO NOT FORGET.</div>
           
           <div class="system-guide">
-            <span class="pulse">!</span> SYSTEM_ERROR: Neural sync lost. The entity below holds the decryption key. 
-            Solve its riddle to regain control.
+            <span class="pulse">!</span> SYSTEM_ERROR: Neural sync lost. 
+            @if (gameService.campaignLevel() <= 3) {
+                <div class="initiate-help">
+                    HINT: The AI wants you to solve this: <b>{{ gameService.hijackUnlockCode() }}</b>
+                </div>
+            } @else {
+                Solve the AI's riddle to regain control.
+            }
           </div>
+
+          @if (showHint()) {
+              <div class="debugger-hint">
+                  <span class="tag">NEURAL_DEBUGGER:</span> {{ getHintMessage() }}
+              </div>
+          }
 
           <div class="message-stream">
             <span class="cursor">></span> {{ gameService.hijackMessage() || 'ESTABLISHING_NEURAL_UPLINK...' }}
@@ -35,18 +47,22 @@ import { FormsModule } from '@angular/forms';
                     [(ngModel)]="solveInput" 
                     placeholder="ENTER_KEY_HERE..." 
                     (keyup.enter)="release()">
-             <div class="hint">Listen to the Void. It mocks you with the answer.</div>
+             <div class="hint">Listen to the Void. The solution is the answer to its question.</div>
           </div>
 
           <div class="actions">
             <button class="release-btn" [disabled]="!solveInput" (click)="release()">PURGE_SESSION</button>
             <button class="replay-btn" (click)="replay()">RECAPTURE_SIGNAL</button>
+            
+            @if (showForcePurge()) {
+                <button class="force-btn" (click)="forcePurge()">FORCE_PURGE (250cr)</button>
+            }
           </div>
         </div>
 
         <div class="status-bars">
-           <div class="bar left">TRACING_LOCATION... 94%</div>
-           <div class="bar right">UPLINK_STABILITY: CRITICAL</div>
+           <div class="bar left">TRACING_LOCATION... {{ 94 + (timeElapsed() / 10) | number:'1.0-0' }}%</div>
+           <div class="bar right">UPLINK_STABILITY: {{ 100 - timeElapsed() }}%</div>
         </div>
       </div>
     }
@@ -75,6 +91,19 @@ import { FormsModule } from '@angular/forms';
       100% { opacity: 0.25; transform: skewX(0); }
     }
 
+    .debugger-hint {
+        background: rgba(0, 255, 255, 0.1);
+        border: 1px solid #0ff;
+        color: #0ff;
+        padding: 10px;
+        font-size: 0.7em;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    .debugger-hint .tag { font-weight: bold; margin-right: 5px; }
+
+    .initiate-help { color: #0f0; margin-top: 5px; font-size: 1.1em; }
+
     .glitch-overlay {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: repeating-linear-gradient(0deg, rgba(255,0,0,0.08) 0px, rgba(255,0,0,0.08) 1px, transparent 2px, transparent 4px);
@@ -83,26 +112,18 @@ import { FormsModule } from '@angular/forms';
 
     .hijack-content { 
       position: relative; z-index: 10;
-      text-align: center; max-width: 800px; padding: 60px; 
+      text-align: center; max-width: 800px; padding: 40px; 
       border: 2px solid #f00; box-shadow: 0 0 120px rgba(255,0,0,0.4); 
       background: rgba(0,0,0,0.92);
       backdrop-filter: blur(8px);
-      transform: perspective(1000px) rotateX(2deg);
     }
     
-    .warning-text { font-size: 0.8em; letter-spacing: 4px; margin-bottom: 25px; color: #800; font-weight: bold; }
-    .anonymous-header { 
-      font-size: 1.8em; font-weight: 900; margin-bottom: 35px; 
-      text-transform: uppercase; letter-spacing: -2px;
-      text-shadow: 0 0 15px #f00, 0 0 30px #f00;
-    }
-
     .system-guide {
       border: 1px solid #f00;
       background: rgba(255, 0, 0, 0.1);
       padding: 10px;
       font-size: 0.7em;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       line-height: 1.4;
     }
 
@@ -121,36 +142,44 @@ import { FormsModule } from '@angular/forms';
       100% { transform: scale(2.5); opacity: 0; }
     }
 
-    .message-stream { font-size: 1.3em; line-height: 1.5; margin-bottom: 50px; min-height: 120px; color: #fff; }
+    .warning-text { font-size: 0.8em; letter-spacing: 4px; margin-bottom: 20px; color: #800; font-weight: bold; }
+    .anonymous-header { 
+      font-size: 1.8em; font-weight: 900; margin-bottom: 30px; 
+      text-transform: uppercase; letter-spacing: -2px;
+      text-shadow: 0 0 15px #f00, 0 0 30px #f00;
+    }
+
+    .message-stream { font-size: 1.2em; line-height: 1.5; margin-bottom: 40px; min-height: 100px; color: #fff; }
     .cursor { animation: blink 0.5s infinite; color: #f00; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
-    .challenge-box { margin-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .challenge-box { margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
     .challenge-box label { font-size: 0.7em; color: #800; font-weight: bold; letter-spacing: 2px; }
     .challenge-box input { 
-        background: rgba(40,0,0,0.3); border: 2px solid #800; color: #f00; padding: 20px; 
-        font-family: inherit; font-size: 1.5em; text-align: center; width: 100%;
-        outline: none; text-transform: uppercase; box-shadow: inset 0 0 10px #000;
+        background: rgba(40,0,0,0.3); border: 2px solid #800; color: #f00; padding: 15px; 
+        font-family: inherit; font-size: 1.4em; text-align: center; width: 100%;
+        outline: none; text-transform: uppercase;
     }
-    .challenge-box input:focus { border-color: #f00; box-shadow: 0 0 20px #f00, inset 0 0 10px #000; }
-    .challenge-box .hint { font-size: 0.6em; color: #800; font-style: italic; margin-top: 5px; }
+    .challenge-box input:focus { border-color: #f00; box-shadow: 0 0 20px #f00; }
+    .challenge-box .hint { font-size: 0.6em; color: #800; font-style: italic; }
 
-    .actions { display: flex; gap: 20px; justify-content: center; }
+    .actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 
-    .release-btn, .replay-btn {
+    .release-btn, .replay-btn, .force-btn {
       background: transparent; border: 2px solid #f00; color: #f00;
-      padding: 15px 50px; cursor: pointer; font-family: inherit; font-size: 0.9em;
+      padding: 12px 30px; cursor: pointer; font-family: inherit; font-size: 0.8em;
       transition: all 0.3s; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 2px;
     }
-    .release-btn:hover:not(:disabled), .replay-btn:hover { background: #f00; color: #000; box-shadow: 0 0 40px #f00; }
+    .release-btn:hover:not(:disabled), .replay-btn:hover { background: #f00; color: #000; box-shadow: 0 0 30px #f00; }
     .release-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .replay-btn { border-color: #800; color: #800; }
+    
+    .force-btn { border-color: #ffaa00; color: #ffaa00; }
+    .force-btn:hover { background: #ffaa00; color: #000; box-shadow: 0 0 30px #ffaa00; }
 
     .status-bars {
       position: absolute; bottom: 0; left: 0; width: 100%; 
-      display: flex; justify-content: space-between; padding: 30px;
-      font-size: 0.7em; color: #600; font-weight: bold; letter-spacing: 3px;
+      display: flex; justify-content: space-between; padding: 25px;
+      font-size: 0.7em; color: #600; font-weight: bold;
     }
   `
 })
@@ -158,13 +187,17 @@ export class HijackOverlayComponent implements OnInit, OnDestroy {
   gameService = inject(GameService);
   audioService = inject(AudioService);
   solveInput = '';
+  
+  timeElapsed = signal(0);
+  private timer: ReturnType<typeof setInterval> | null = null;
   private repeatInterval: ReturnType<typeof setInterval> | null = null;
   private asciiTimer: ReturnType<typeof setInterval> | null = null;
   
   currentAsciiIndex = signal(0);
+  showHint = computed(() => this.timeElapsed() >= 25);
+  showForcePurge = computed(() => this.timeElapsed() >= 50);
 
   private asciiArts = [
-    // 1. Detailed fsociety Mask
     `
                  MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
              MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -190,7 +223,6 @@ export class HijackOverlayComponent implements OnInit, OnDestroy {
                   MMWl      ......      lWM
                    NKd.                .dKN
     `,
-    // 2. High-Density Binary Skull
     `
                 00000000000000000000000000
              00000000000000000000000000000000
@@ -207,38 +239,22 @@ export class HijackOverlayComponent implements OnInit, OnDestroy {
                0000000011 11 11 1100000000
                  00000011 11 11 11000000
                     0001111111111000
-    `,
-    // 3. Detailed Void Eye
-    `
-                         .::::::::.
-                     .::::::::::::::::.
-                  .::::::::::::::::::::::.
-                .::::::::::::::::::::::::::.
-               ::::::::::::::::::::::::::::::
-              ::::::::::::::::::::::::::::::::
-             :::::::     ::::::::::     :::::::
-            :::::::  ****  ::::::  ****  :::::::
-            :::::::  ****  ::::::  ****  :::::::
-             :::::::     ::::::::::     :::::::
-              ::::::::::::::::::::::::::::::::
-               ::::::::::::::::::::::::::::::
-                '::::::::::::::::::::::::::'
-                  '::::::::::::::::::::::'
-                     '::::::::::::::::'
-                         '::::::::'
-    `,
-    // 4. fsociety Stylized Logo
-    `
-        __________                 .__         __          
-        \\______   \\__ __  ____   __|  |   ____/  |_ ___.__.
-         |       _/  |  \\/    \\ /  _  | _/ __ \\   __<   |  |
-         |    |   \\  |  /   |  \\  <_>  |\\  ___/|  |  \\___  |
-         |____|_  /____/|___|  /\\_____  / \\___  >__|  / ____|
-                \\/           \\/       \\/      \\/      \\/     
     `
   ];
 
   currentAscii = computed(() => this.asciiArts[this.currentAsciiIndex()]);
+
+  constructor() {
+      // Reset timer when a new hijack starts
+      effect(() => {
+          if (this.gameService.isHijacked()) {
+              this.timeElapsed.set(0);
+              this.startTimer();
+          } else {
+              this.stopTimer();
+          }
+      });
+  }
 
   ngOnInit() {
     this.startRepeatLoop();
@@ -248,6 +264,26 @@ export class HijackOverlayComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.stopRepeatLoop();
     this.stopAsciiLoop();
+    this.stopTimer();
+  }
+
+  private startTimer() {
+      if (this.timer) clearInterval(this.timer);
+      this.timer = setInterval(() => {
+          this.timeElapsed.update(t => t + 1);
+      }, 1000);
+  }
+
+  private stopTimer() {
+      if (this.timer) clearInterval(this.timer);
+  }
+
+  getHintMessage() {
+      const code = this.gameService.hijackUnlockCode();
+      if (!isNaN(Number(code))) return "The answer is a simple INTEGER. Calculate the sum the AI posed.";
+      if (code.length <= 4 && /^[0-9A-F]+$/.test(code)) return "The answer is a short HEXADECIMAL byte.";
+      if (/^[01]+$/.test(code)) return "The answer is a BINARY string (0 and 1 only).";
+      return "The answer is a specific WORD spelled backwards. Listen carefully.";
   }
 
   private startRepeatLoop() {
@@ -276,13 +312,30 @@ export class HijackOverlayComponent implements OnInit, OnDestroy {
     this.audioService.speakCreepy(this.gameService.hijackMessage());
   }
 
+  forcePurge() {
+      if (this.gameService.credits() >= 250) {
+          this.gameService.credits.update(c => c - 250);
+          this.gameService.log('SYSTEM_FORCE_PURGE: 250cr expended to bypass override.');
+          this.terminateHijack();
+      } else {
+          this.gameService.reputation.update(r => Math.max(0, r - 50));
+          this.gameService.log('SYSTEM_FORCE_PURGE: Insufficient credits. Reputation burned to bypass override.');
+          this.terminateHijack();
+      }
+  }
+
+  private terminateHijack() {
+      this.gameService.isHijacked.set(false);
+      this.gameService.hijackMessage.set('');
+      this.gameService.hijackUnlockCode.set('');
+      this.solveInput = '';
+      this.stopRepeatLoop();
+      this.audioService.playSuccess();
+  }
+
   release() {
     if (this.solveInput.trim().toUpperCase() === this.gameService.hijackUnlockCode().toUpperCase()) {
-        this.gameService.isHijacked.set(false);
-        this.gameService.hijackMessage.set('');
-        this.gameService.hijackUnlockCode.set('');
-        this.solveInput = '';
-        this.stopRepeatLoop();
+        this.terminateHijack();
         this.gameService.log('SYSTEM_PURGE: Session regained. Neural link stabilized.');
     } else {
         this.gameService.log('ERR: SYNC_CODE_MISMATCH. The machine laughs.');
