@@ -371,7 +371,6 @@ export class GameService {
     this.botnetSize.set(player.botnetSize);
     this.campaignLevel.set(player.campaignLevel);
     this.reputation.set(player.reputation);
-    
     this.systemIntegrity.set(player.systemIntegrity);
     this.detectionLevel.set(player.detectionLevel);
 
@@ -431,7 +430,6 @@ export class GameService {
       this.reputation.set(state.reputation || 0);
       this.botnetSize.set(state.botnetSize || 0);
       this.campaignLevel.set(state.campaignLevel || 1);
-      
       this.systemIntegrity.set(state.systemIntegrity ?? 100);
       this.detectionLevel.set(state.detectionLevel ?? 0);
       this.activeDebuffs.set(state.activeDebuffs || []);
@@ -456,8 +454,6 @@ export class GameService {
       this.matrixMode.set(s.video.matrix);
       this.audioService.masterVolume.set(s.audio.volume / 100);
       this.audioService.speechEnabled.set(s.audio.speech);
-      
-      // Update global CSS variables for font size and brightness
       document.documentElement.style.setProperty('--global-brightness', `${s.video.brightness}%`);
       document.documentElement.style.setProperty('--terminal-font-size', `${s.video.font_size}px`);
   }
@@ -623,7 +619,6 @@ export class GameService {
       }
     }
 
-    // Auto-Wipe Logic
     if (this.settings().general.auto_wipe && this.detectionLevel() >= 90) {
         const wiper = this.installedSoftware().find(s => s.id === 'wiper' && s.installed);
         if (wiper && this.credits() >= 50) {
@@ -1077,6 +1072,36 @@ export class GameService {
       return true;
     }
     return false;
+  }
+
+  setRouting(mode: RoutingMode) {
+    const cost = mode === 'ONION' ? 50 : mode === 'VPN' ? 20 : 0;
+    if (this.credits() >= cost) {
+      if (cost > 0) this.credits.update(c => c - cost);
+      this.routingMode.set(mode);
+      this.log(`ROUTING: ${mode}`);
+      this.updateRemoteScore();
+    }
+  }
+
+  compromiseInternal(targetId: string) {
+    const target = this.internalNetwork().find(t => t.id === targetId);
+    if (!target || target.status === 'COMPROMISED') return;
+    if (Math.random() > 0.4) {
+      this.internalNetwork.update(nets => nets.map(n => n.id === targetId ? { ...n, status: 'COMPROMISED' } : n));
+      this.credits.update(c => c + target.reward);
+      this.log(`PIVOT SUCCESSFUL: EXFILTRATED ${target.reward}cr.`);
+      if (target.type === 'ADMIN_CONTROLLER') {
+        this.log(`SYSTEM BREACHED: ${this.activeInternalOrigin()} TOTALLY COMPROMISED.`);
+        this.reputation.update(r => r + 50);
+        this.activeInternalOrigin.set(null);
+        this.internalNetwork.set([]);
+        this.updateRemoteScore();
+      }
+    } else {
+      this.log(`PIVOT FAILED. INCIDENT RESPONSE TRIGGERED.`);
+      this.increaseDetection(20);
+    }
   }
 
   private triggerFakedSystemAlert() {
