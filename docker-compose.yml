@@ -12,6 +12,11 @@ services:
       - ./server/prisma:/app/prisma
       - .env:/app/.env
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/config/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   frontend:
     build: .
@@ -19,7 +24,8 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: always
 
   chroma:

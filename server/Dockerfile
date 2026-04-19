@@ -14,28 +14,33 @@ COPY package.json .
 COPY pnpm-lock.yaml .
 
 # Install dependencies
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN pnpm install
 
 # Copy application files
 COPY . .
 
-# Generate Prisma client with correct binary targets for OpenSSL 3
-RUN pnpm prisma generate --binary-targets=native
+# Generate Prisma client
+RUN pnpm prisma generate
 
 # Runtime stage
 FROM node:20-bookworm-slim AS runtime
 
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y openssl curl && rm -rf /var/lib/apt/lists/*
+RUN npm install -g pnpm
+
 # Create app directory
 WORKDIR /app
 
-# Copy only necessary files from build stage
+# Copy application files
 COPY --from=build /app .
 
 # Expose port
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:3000/api/config/status || exit 1
 
 # Command to run the application
-CMD ["pnpm", "start"]
+CMD ["node", "dist/index.js"]
