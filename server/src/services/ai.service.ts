@@ -16,14 +16,38 @@ export class AiService {
     const sanitized = prompt.replace(/"/g, '\\"');
     const systemPrompt = `${this.basePrompt} Answer: ${sanitized}`;
 
+    // Priority 1: Gemini CLI
     try {
       const output = await runCommand(`gemini -p "${systemPrompt}"`);
       return { response: output, provider: 'GEMINI_CLI' };
     } catch (e) {
+      // Priority 2: Nexos AI (Hostinger Credits)
+      const nexosKey = process.env['NEXOS_API_KEY'];
+      if (nexosKey) {
+          try {
+              const model = process.env['NEXOS_MODEL'] || 'gpt-4o-mini';
+              const curlCmd = `curl -s https://api.nexos.ai/v1/chat/completions \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer ${nexosKey}" \
+                -d '{
+                  "model": "${model}",
+                  "messages": [{"role": "user", "content": "${systemPrompt}"}],
+                  "max_tokens": 100
+                }'`;
+              const response = await runCommand(curlCmd);
+              const parsed = JSON.parse(response);
+              return { response: parsed.choices[0].message.content, provider: 'NEXOS_AI' };
+          } catch (nexosErr) {
+              console.error('[AI] Nexos uplink failed:', nexosErr);
+          }
+      }
+
+      // Priority 3: Ollama
       try {
         const output = await runCommand(`ollama run llama3 "${systemPrompt}"`);
         return { response: output, provider: 'OLLAMA' };
       } catch (e2) {
+        // Priority 4: OpenAI CLI
         try {
           const output = await runCommand(`openai api chat.completions.create -m gpt-3.5-turbo -g user "${systemPrompt}"`);
           return { response: output, provider: 'OPENAI_CLI' };
@@ -64,9 +88,33 @@ export class AiService {
       hijackPrompt += `\n[AUDIO_LEVEL]: Detected ambient sound level is ${shards.peakVolume}/255. Comment on their environment (if quiet, they are hiding; if loud, they are panicking).`;
     }
 
+    const sanitizedPrompt = hijackPrompt.replace(/"/g, '\\"');
+
+    // Priority 1: Gemini CLI
     try {
-      return await runCommand(`gemini -p "${hijackPrompt.replace(/"/g, '\\"')}"`);
+      return await runCommand(`gemini -p "${sanitizedPrompt}"`);
     } catch (e) {
+      // Priority 2: Nexos AI (Hostinger Credits)
+      const nexosKey = process.env['NEXOS_API_KEY'];
+      if (nexosKey) {
+          try {
+              const model = process.env['NEXOS_MODEL'] || 'gpt-4o-mini';
+              const curlCmd = `curl -s https://api.nexos.ai/v1/chat/completions \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer ${nexosKey}" \
+                -d '{
+                  "model": "${model}",
+                  "messages": [{"role": "user", "content": "${sanitizedPrompt}"}],
+                  "max_tokens": 150
+                }'`;
+              const response = await runCommand(curlCmd);
+              const parsed = JSON.parse(response);
+              return parsed.choices[0].message.content;
+          } catch (nexosErr) {
+              console.error('[AI] Nexos hijack uplink failed');
+          }
+      }
+
       return `I SEE YOU, ${handle.toUpperCase()}. YOUR BATTERY IS AT ${shards.battery || 'LOW LEVELS'}. THE CAMERA LENS... IT'S SO CLEAN.`;
     }
   }

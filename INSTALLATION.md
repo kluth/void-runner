@@ -50,14 +50,28 @@ Once the stack is online, the system enters **"Honey Pot" Mode**.
     - The `app-config-wizard` will lock your interface.
     - Enter your production `JWT_SECRET` and `SESSION_SECRET`.
     - (Optional) Enter your OAuth Provider keys for syndicate authentication.
-4.  **Finalize Build:** Click **FINALIZE_SYSTEM_BUILD**. The server will:
+4. **Finalize Build:** Click **FINALIZE_SYSTEM_BUILD**. The server will:
     - Save keys to the persistent SQLite database (`dev.db`).
     - Sync keys directly to the host's `.env` file.
     - Reload the neural link.
 
 ---
 
-## 4. Maintenance & Diagnostics
+## 4. Advanced Neural Fallbacks (Nexos AI)
+If the primary Gemini CLI uplink is unstable, you can utilize **Nexos AI** credits from your Hostinger account.
+1.  Navigate to your Hostinger **hPanel**.
+2.  Go to **VPS Dashboard** > **Docker Manager** (or OpenClaw settings).
+3.  Copy the **Nexos AI API key**.
+4.  Add it to your `.env` file:
+    ```env
+    NEXOS_API_KEY=your_key_here
+    NEXOS_MODEL=gpt-4o-mini  # (Optional, defaults to gpt-4o-mini)
+    ```
+5.  Restart the backend: `docker-compose restart backend`.
+
+---
+
+## 5. Maintenance & Diagnostics
 
 | Operation | Command |
 | :--- | :--- |
