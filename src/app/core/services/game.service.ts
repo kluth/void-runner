@@ -278,6 +278,7 @@ export class GameService {
 
   // Authentication State
   authToken = signal<string | null>(localStorage.getItem('VOID_RUNNER_TOKEN'));
+  isAuthenticated = computed(() => !!this.authToken());
   playerData = signal<PlayerData | null>(null);
   qrCode = signal<string | null>(null);
   authRequired = signal(false); 
@@ -705,7 +706,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     localStorage.setItem('VOID_RUNNER_TOKEN', token);
     this.authToken.set(token);
     this.authRequired.set(false);
+    
     this.socket.emit('session_resume', { token });
+    this.log('NEURAL_SYNC: Identity verified. Restoration protocol active.');
+    
     window.history.replaceState({}, document.title, "/");
   }
 
@@ -1189,7 +1193,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   buyHardware(item: HardwareItem) {
-    if (!this.authToken()) {
+    if (!this.isAuthenticated()) {
       this.authRequired.set(true);
       this.log('<span style="color: #ffaa00">HARDWARE_LINK: Identity verification required for physical module installation.</span>');
       return;
@@ -1203,7 +1207,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   unlockHardware(id: string, cost: number) {
-    if (!this.authToken()) {
+    if (!this.isAuthenticated()) {
       this.authRequired.set(true);
       this.log('<span style="color: #ffaa00">RESEARCH_DB: Access restricted to verified operatives. Authenticate to decrypt.</span>');
       return false;
@@ -1307,7 +1311,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   researchZeroDay() {
-    if (!this.authToken()) {
+    if (!this.isAuthenticated()) {
       this.authRequired.set(true);
       this.log('<span style="color: #ffaa00">VULN_EXCHANGE: Darknet authentication required for 0-day research.</span>');
       return false;
