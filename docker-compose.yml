@@ -12,6 +12,7 @@ services:
     environment:
       - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - PRISMA_CLIENT_ENGINE_TYPE=binary
+      - DATABASE_URL=file:/app/prisma/dev.db
       - FRONTEND_URL=http://72.61.80.234:8081
     restart: always
     healthcheck:
