@@ -10,7 +10,7 @@ const { authenticator } = require('otplib');
 import * as qrcode from 'qrcode';
 import { firstNames, lastNames } from './names.data';
 
-const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC', 'SINGULARITY'] as const;
+const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC', 'SINGULARITY', 'WEEKEND_OVERLOAD'] as const;
 type EventType = typeof EVENT_TYPES[number] | 'NONE';
 
 class GameState {
@@ -346,9 +346,22 @@ export class GameService {
   }
 
   private startRandomEvent() {
-    this.state.globalEvent = EVENT_TYPES[Math.floor(Math.random() * EVENT_TYPES.length)];
+    const now = new Date();
+    const day = now.getUTCDay(); // 0=Sun, 2=Tue, 6=Sat
+    
+    let possibleEvents: EventType[] = ['CTF_ACTIVE', 'ZERO_DAY_PANIC', 'SINGULARITY'];
+    
+    // Temporal Logic
+    if (day === 2) possibleEvents.push('PATCH_TUESDAY');
+    if (day === 0 || day === 6) possibleEvents.push('WEEKEND_OVERLOAD');
+
+    this.state.globalEvent = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
     this.state.eventTimer = 120;
-    this.io.emit('event_update', { event: this.state.globalEvent, timer: this.state.eventTimer });
+    
+    if (this.io) {
+        this.io.emit('event_update', { event: this.state.globalEvent, timer: this.state.eventTimer });
+        console.log(`[EVENT] Temporal trigger activated: ${this.state.globalEvent}`);
+    }
   }
 
   private startEventLoop() {
