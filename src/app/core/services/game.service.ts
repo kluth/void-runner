@@ -63,6 +63,20 @@ export interface GameSettings {
     glitch: boolean;
     scanlines: boolean;
   };
+  social: {
+    notifications: boolean;
+    public_profile: boolean;
+    status: 'ONLINE' | 'AWAY' | 'DND';
+  };
+  beta: {
+    neural_vibration: boolean;
+    ai_emotions: boolean;
+    high_res_globe: boolean;
+  };
+  general: {
+    auto_wipe: boolean;
+    theme: 'CLASSIC' | 'OMEGA';
+  };
   control: {
     autocomplete: boolean;
   };
@@ -141,6 +155,9 @@ export class GameService {
   settings = signal<GameSettings>({
     audio: { volume: 50, speech: true },
     video: { matrix: false, glitch: true, scanlines: true },
+    social: { notifications: true, public_profile: true, status: 'ONLINE' },
+    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false },
+    general: { auto_wipe: false, theme: 'CLASSIC' },
     control: { autocomplete: true }
   });
 
@@ -304,6 +321,10 @@ export class GameService {
       this.privateMessages.update(msgs => [pm, ...msgs].slice(0, 50));
       this.log(`[SECURE_DM] Incoming message from ${pm.senderName}. Check Darknet Node.`);
       this.audioService.playClick();
+      
+      if (this.settings().social.notifications && Notification.permission === 'granted') {
+          new Notification('VOID_RUNNER: Incoming DM', { body: `${pm.senderName}: ${pm.text}` });
+      }
     });
 
     this.socket.on('teams_update', (teams: Team[]) => {
@@ -362,7 +383,9 @@ export class GameService {
     try { this.publicExploits.set(JSON.parse(player.publicExploits)); } catch(e) {}
     try { 
         if (player.settings && player.settings !== '{}') {
-            this.settings.set(JSON.parse(player.settings));
+            const parsed = JSON.parse(player.settings);
+            // Deep merge defaults to avoid broken state on schema updates
+            this.settings.set({ ...this.settings(), ...parsed });
             this.applySettingsToSignals();
         }
     } catch(e) {}
@@ -407,7 +430,7 @@ export class GameService {
       this.artifacts.set(state.artifacts || []);
       this.publicExploits.set(state.publicExploits || []);
       if (state.settings) {
-          this.settings.set(state.settings);
+          this.settings.set({ ...this.settings(), ...state.settings });
           this.applySettingsToSignals();
       }
 
@@ -436,16 +459,29 @@ export class GameService {
 
     const category = parts[0] as keyof GameSettings;
     const key = parts[1] as any;
+    const isBool = value === 'on' || value === 'off' || value === 'true' || value === 'false';
+    const boolVal = value === 'on' || value === 'true';
 
     if (category === 'audio') {
         if (key === 'volume') s.audio.volume = parseInt(value);
-        if (key === 'speech') s.audio.speech = value === 'on' || value === 'true';
+        if (key === 'speech') s.audio.speech = boolVal;
     } else if (category === 'video') {
-        if (key === 'matrix') s.video.matrix = value === 'on' || value === 'true';
-        if (key === 'glitch') s.video.glitch = value === 'on' || value === 'true';
-        if (key === 'scanlines') s.video.scanlines = value === 'on' || value === 'true';
+        if (key === 'matrix') s.video.matrix = boolVal;
+        if (key === 'glitch') s.video.glitch = boolVal;
+        if (key === 'scanlines') s.video.scanlines = boolVal;
+    } else if (category === 'social') {
+        if (key === 'notifications') s.social.notifications = boolVal;
+        if (key === 'public_profile') s.social.public_profile = boolVal;
+        if (key === 'status') s.social.status = value.toUpperCase() as any;
+    } else if (category === 'beta') {
+        if (key === 'neural_vibration') s.beta.neural_vibration = boolVal;
+        if (key === 'ai_emotions') s.beta.ai_emotions = boolVal;
+        if (key === 'high_res_globe') s.beta.high_res_globe = boolVal;
+    } else if (category === 'general') {
+        if (key === 'auto_wipe') s.general.auto_wipe = boolVal;
+        if (key === 'theme') s.general.theme = value.toUpperCase() as any;
     } else if (category === 'control') {
-        if (key === 'autocomplete') s.control.autocomplete = value === 'on' || value === 'true';
+        if (key === 'autocomplete') s.control.autocomplete = boolVal;
     }
 
     this.settings.set(s);
@@ -571,6 +607,18 @@ export class GameService {
       }
     }
 
+    // Auto-Wipe Logic
+    if (this.settings().general.auto_wipe && this.detectionLevel() >= 90) {
+        const wiper = this.installedSoftware().find(s => s.id === 'wiper' && s.installed);
+        if (wiper && this.credits() >= 50) {
+            this.credits.update(c => c - 50);
+            this.detectionLevel.set(0);
+            this.log('AUTO_WIPE: Emergency log purge executed.');
+            this.audioService.playSuccess();
+            this.updateRemoteScore();
+        }
+    }
+
     this.artifacts.update(arts => arts.map(a => {
       if (!a.analyzed && a.analysisProgress < 100) {
         return { ...a, analysisProgress: Math.min(100, a.analysisProgress + 1.5) };
@@ -612,17 +660,20 @@ export class GameService {
   async triggerHijack() {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
+
     const code = '0x' + Math.random().toString(16).substring(2, 10).toUpperCase();
     this.hijackUnlockCode.set(code);
+
     const history = this.teamMessages().map(m => m.text).join(' ');
     const augmentedHistory = `${history} [SYSTEM_SECURITY_CODE: ${code}]`;
+    
     const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
     obs.subscribe(res => {
       this.hijackMessage.set(res.response);
       if (this.settings().audio.speech) {
           this.audioService.speakCreepy(res.response);
       }
-      if ('vibrate' in navigator) {
+      if (this.settings().beta.neural_vibration && 'vibrate' in navigator) {
         navigator.vibrate([200, 100, 200, 500, 200, 100, 200]);
       }
     });

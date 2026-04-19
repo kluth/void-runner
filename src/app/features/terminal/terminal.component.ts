@@ -80,13 +80,13 @@ export class TerminalComponent implements AfterViewChecked {
         'NAME: set - configure workstation parameters',
         'SYNOPSIS: set [category.parameter] [value]',
         'CATEGORIES:',
-        '  audio.volume [0-100]',
-        '  audio.speech [on|off]',
-        '  video.matrix [on|off]',
-        '  video.glitch [on|off]',
-        '  video.scanlines [on|off]',
-        '  control.autocomplete [on|off]',
-        'EXAMPLE: set audio.volume 80'
+        '  audio: volume [0-100], speech [on|off]',
+        '  video: matrix [on|off], glitch [on|off], scanlines [on|off]',
+        '  social: notifications [on|off], public_profile [on|off], status [ONLINE|AWAY|DND]',
+        '  beta: neural_vibration [on|off], ai_emotions [on|off], high_res_globe [on|off]',
+        '  general: auto_wipe [on|off], theme [CLASSIC|OMEGA]',
+        '  control: autocomplete [on|off]',
+        'EXAMPLE: set social.notifications off'
     ],
     'wipe': [
         'NAME: wipe - purge local trace logs',
@@ -103,9 +103,27 @@ export class TerminalComponent implements AfterViewChecked {
         'NAME: matrix - toggle neural visualization',
         'DESCRIPTION: Synchronizes visual cortex with the grid stream. Experimental.'
     ],
-    'netstat': [
-        'NAME: netstat - network status diagnostic',
-        'DESCRIPTION: Displays current routing mode (VPN/Onion), active trace level, and backend uplink status.'
+    'man': [
+        'NAME: man - display command manual',
+        'SYNOPSIS: man [command]',
+        'DESCRIPTION: Interface for workstation technical documentation.',
+        'Displays name, synopsis, and detailed usage for any grid binary.'
+    ],
+    'clear': [
+        'NAME: clear - flush terminal buffer',
+        'DESCRIPTION: Resets the workstation interface and clears log history.'
+    ],
+    'top': [
+        'NAME: top - system resource monitor',
+        'DESCRIPTION: Real-time telemetry for CPU load, system integrity, and botnet saturation.'
+    ],
+    'diagnostics': [
+        'NAME: diagnostics - system integrity check',
+        'DESCRIPTION: Comprehensive hardware and software audit to detect logic bombs or memory leaks.'
+    ],
+    'help': [
+        'NAME: help - list grid binaries',
+        'DESCRIPTION: Prints a summary of all standard workstation commands.'
     ]
   };
 
@@ -296,12 +314,12 @@ export class TerminalComponent implements AfterViewChecked {
           this.gameService.log('Example: set audio.volume 50');
           this.gameService.log('Values: current state');
           const s = this.gameService.settings();
-          this.gameService.log(`audio.volume: ${s.audio.volume}`);
-          this.gameService.log(`audio.speech: ${s.audio.speech ? 'on' : 'off'}`);
-          this.gameService.log(`video.matrix: ${s.video.matrix ? 'on' : 'off'}`);
-          this.gameService.log(`video.glitch: ${s.video.glitch ? 'on' : 'off'}`);
-          this.gameService.log(`video.scanlines: ${s.video.scanlines ? 'on' : 'off'}`);
-          this.gameService.log(`control.autocomplete: ${s.control.autocomplete ? 'on' : 'off'}`);
+          this.gameService.log(`audio: volume=${s.audio.volume} speech=${s.audio.speech ? 'on' : 'off'}`);
+          this.gameService.log(`video: matrix=${s.video.matrix ? 'on' : 'off'} glitch=${s.video.glitch ? 'on' : 'off'} scanlines=${s.video.scanlines ? 'on' : 'off'}`);
+          this.gameService.log(`social: notifications=${s.social.notifications ? 'on' : 'off'} public=${s.social.public_profile ? 'on' : 'off'} status=${s.social.status}`);
+          this.gameService.log(`beta: vibe=${s.beta.neural_vibration ? 'on' : 'off'} emotions=${s.beta.ai_emotions ? 'on' : 'off'} globe=${s.beta.high_res_globe ? 'on' : 'off'}`);
+          this.gameService.log(`general: auto_wipe=${s.general.auto_wipe ? 'on' : 'off'} theme=${s.general.theme}`);
+          this.gameService.log(`control: autocomplete=${s.control.autocomplete ? 'on' : 'off'}`);
           break;
 
       default:
