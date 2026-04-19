@@ -108,8 +108,9 @@ export class GameService {
         });
         if (!player) return;
 
-        // Ensure we are in our syndicate room and global comms
+        // Ensure we are in our syndicate room, global comms, and user-specific room
         socket.join('global_comms');
+        socket.join(`user_${player.id}`);
         if (player.teamId) {
             console.log(`[SOCKET] Operative ${player.username} joining room ${player.teamId}`);
             socket.join(player.teamId);
@@ -197,6 +198,10 @@ export class GameService {
               settings: data.settings ?? undefined
           }
         });
+        
+        // Mirror updated state to ALL devices owned by this user
+        this.io.to(`user_${decoded.id}`).emit('state_mirror', data);
+        
         this.io.emit('leaderboard_update', await this.getLeaderboard());
       });
 
@@ -306,7 +311,8 @@ export class GameService {
   }
 
   private startEventLoop() {
-    setInterval(() => {
+    setInterval(async () => {
+      // Global Event Logic
       if (this.state.eventTimer > 0) {
         this.state.eventTimer--;
         if (this.state.eventTimer === 0) {
@@ -315,6 +321,19 @@ export class GameService {
         }
       } else if (Math.random() > 0.99) {
         this.startRandomEvent();
+      }
+
+      // Attack Sync Logic: Randomly trigger attacks for active players
+      if (Math.random() > 0.98) {
+          const players = await prisma.player.findMany({ take: 5 }); // Only check a subset for performance
+          for (const player of players) {
+              // Only trigger if player has some reputation and is likely "active"
+              if (player.reputation > 10 && Math.random() > 0.95) {
+                  const attackType = Math.random() > 0.5 ? 'HIJACK' : 'INTRUSION';
+                  this.io.to(`user_${player.id}`).emit('server_attack', { type: attackType });
+                  console.log(`[EVENT] Server-driven ${attackType} triggered for ${player.username}`);
+              }
+          }
       }
     }, 1000);
   }

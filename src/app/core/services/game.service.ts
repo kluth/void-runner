@@ -447,6 +447,23 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.socket.on('disconnect', () => {
       this.log('[NETWORK] UPLINK LOST. RECONNECTING...');
     });
+
+    // Neural Mirror: Cross-Device State Synchronization
+    this.socket.on('state_mirror', (data: any) => {
+        console.log('[MIRROR] State packet received from other device.');
+        // We reuse restoreFullState as it handles mapping from DB-style objects
+        // and we ensure local storage is updated too.
+        this.restoreFullState(data);
+    });
+
+    // Attack Sync: Server-driven high-stress events
+    this.socket.on('server_attack', (data: { type: 'HIJACK' | 'INTRUSION' }) => {
+        if (data.type === 'HIJACK') {
+            this.triggerHijack();
+        } else {
+            this.startIntrusion();
+        }
+    });
   }
 
   private async handleWakeLock(enable: boolean) {
@@ -839,12 +856,13 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.intrusionProgress.update(p => p + progressGain);
       if (this.intrusionProgress() >= 100) this.resolveIntrusion(false);
     } else {
-      if (Math.random() > 0.999 && this.reputation() > 200) this.startIntrusion();
+      // Local fallback trigger (much lower chance, server usually drives this now)
+      if (Math.random() > 0.9995 && this.reputation() > 500) this.startIntrusion();
     }
 
-    const hijackBaseChance = 0.0005;
+    const hijackBaseChance = 0.0001; // Reduced from 0.0005
     const integrityFactor = (100 - this.systemIntegrity()) / 100;
-    const finalHijackChance = hijackBaseChance + (integrityFactor * 0.05); 
+    const finalHijackChance = hijackBaseChance + (integrityFactor * 0.01); 
 
     if (!this.isHijacked() && Math.random() < finalHijackChance) {
       this.triggerHijack();
