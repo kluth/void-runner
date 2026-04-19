@@ -9,35 +9,51 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
-const passport_facebook_1 = require("passport-facebook");
-const passport_twitter_1 = require("passport-twitter");
-const passport_github2_1 = require("passport-github2");
-const passport_discord_1 = require("passport-discord");
-const passport_microsoft_1 = require("passport-microsoft");
+// Deactivated for lockdown: import { Strategy as FacebookStrategy } from 'passport-facebook';
+// Deactivated for lockdown: import { Strategy as TwitterStrategy } from 'passport-twitter';
+// Deactivated for lockdown: import { Strategy as GithubStrategy } from 'passport-github2';
+// Deactivated for lockdown: import { Strategy as DiscordStrategy } from 'passport-discord';
+// Deactivated for lockdown: import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const ai_service_1 = require("./services/ai.service");
 const game_service_1 = require("./services/game.service");
 const auth_service_1 = require("./services/auth.service");
 const config_service_1 = require("./services/config.service");
+const FRONTEND_URL = process.env['FRONTEND_URL'] || 'http://localhost:4200';
 const app = (0, express_1.default)();
+// --- PROXY HARDENING ---
+// Enable trust proxy to handle Traefik's X-Forwarded-* headers
+app.set('trust proxy', 1);
 const server = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: "http://localhost:4200",
+        origin: (origin, callback) => {
+            if (!origin || origin === FRONTEND_URL || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+                callback(null, true);
+            }
+            else {
+                callback(null, true);
+            }
+        },
         methods: ["GET", "POST"]
     }
 });
 const port = process.env['PORT'] || 3000;
 app.use((0, cors_1.default)({
-    origin: "http://localhost:4200",
+    origin: true,
     credentials: true
 }));
 app.use(body_parser_1.default.json());
 app.use((0, express_session_1.default)({
     secret: process.env['SESSION_SECRET'] || 'DARKNET_SESSION',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    proxy: true, // Required for secure cookies behind proxy
+    cookie: {
+        secure: FRONTEND_URL.startsWith('https'),
+        sameSite: 'lax'
+    }
 }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
@@ -56,75 +72,26 @@ app.post('/api/config/skip', async (req, res) => {
 });
 passport_1.default.serializeUser((user, done) => done(null, user));
 passport_1.default.deserializeUser((user, done) => done(null, user));
-// --- Google ---
+// --- Google (PRIMARY UPLINK) ---
 if (process.env['GOOGLE_CLIENT_ID']) {
+    // We use the absolute FRONTEND_URL to ensure exact redirect_uri match with Google Console
+    const absoluteCallbackURL = `${FRONTEND_URL}/api/auth/google/callback`;
     passport_1.default.use(new passport_google_oauth20_1.Strategy({
         clientID: process.env['GOOGLE_CLIENT_ID'],
         clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-        callbackURL: "/api/auth/google/callback"
+        callbackURL: absoluteCallbackURL,
+        proxy: true // Tells passport to trust the X-Forwarded-Proto header
     }, async (_at, _rt, profile, done) => {
         done(null, await auth_service_1.authService.validateOAuthUser(profile, 'google'));
     }));
 }
-// --- Facebook ---
-if (process.env['FACEBOOK_APP_ID']) {
-    passport_1.default.use(new passport_facebook_1.Strategy({
-        clientID: process.env['FACEBOOK_APP_ID'],
-        clientSecret: process.env['FACEBOOK_APP_SECRET'],
-        callbackURL: "/api/auth/facebook/callback"
-    }, async (_at, _rt, profile, done) => {
-        done(null, await auth_service_1.authService.validateOAuthUser(profile, 'facebook'));
-    }));
-}
-// --- Twitter ---
-if (process.env['TWITTER_CONSUMER_KEY']) {
-    passport_1.default.use(new passport_twitter_1.Strategy({
-        consumerKey: process.env['TWITTER_CONSUMER_KEY'],
-        consumerSecret: process.env['TWITTER_CONSUMER_SECRET'],
-        callbackURL: "/api/auth/twitter/callback"
-    }, async (_t, _ts, profile, done) => {
-        done(null, await auth_service_1.authService.validateOAuthUser(profile, 'twitter'));
-    }));
-}
-// --- GitHub ---
-if (process.env['GITHUB_CLIENT_ID']) {
-    passport_1.default.use(new passport_github2_1.Strategy({
-        clientID: process.env['GITHUB_CLIENT_ID'],
-        clientSecret: process.env['GITHUB_CLIENT_SECRET'],
-        callbackURL: "/api/auth/github/callback"
-    }, async (_at, _rt, profile, done) => {
-        done(null, await auth_service_1.authService.validateOAuthUser(profile, 'github'));
-    }));
-}
-// --- Discord ---
-if (process.env['DISCORD_CLIENT_ID']) {
-    passport_1.default.use(new passport_discord_1.Strategy({
-        clientID: process.env['DISCORD_CLIENT_ID'],
-        clientSecret: process.env['DISCORD_CLIENT_SECRET'],
-        callbackURL: "/api/auth/discord/callback",
-        scope: ['identify']
-    }, async (_at, _rt, profile, done) => {
-        done(null, await auth_service_1.authService.validateOAuthUser(profile, 'discord'));
-    }));
-}
-// --- Microsoft ---
-if (process.env['MICROSOFT_CLIENT_ID']) {
-    passport_1.default.use(new passport_microsoft_1.Strategy({
-        clientID: process.env['MICROSOFT_CLIENT_ID'],
-        clientSecret: process.env['MICROSOFT_CLIENT_SECRET'],
-        callbackURL: "/api/auth/microsoft/callback",
-        scope: ['user.read']
-    }, async (_at, _rt, profile, done) => {
-        done(null, await auth_service_1.authService.validateOAuthUser(profile, 'microsoft'));
-    }));
-}
-// OAuth Routes Factory
-const authRoutes = ['google', 'facebook', 'twitter', 'github', 'discord', 'microsoft'];
+// OAuth Routes Factory (Filtered for Google only)
+const authRoutes = ['google'];
 authRoutes.forEach(provider => {
-    app.get(`/api/auth/${provider}`, passport_1.default.authenticate(provider, provider === 'google' ? { scope: ['profile'] } : {}));
-    app.get(`/api/auth/${provider}/callback`, passport_1.default.authenticate(provider, { failureRedirect: '/login' }), (req, res) => {
+    app.get(`/api/auth/${provider}`, passport_1.default.authenticate(provider, provider === 'google' ? { scope: ['profile', 'email'] } : {}));
+    app.get(`/api/auth/${provider}/callback`, passport_1.default.authenticate(provider, { failureRedirect: '/' }), (req, res) => {
         const { token } = req.user;
-        res.redirect(`http://localhost:4200/login?token=${token}`);
+        res.redirect(`${FRONTEND_URL}/?token=${token}`);
     });
 });
 // Initialize Game Logic
@@ -142,6 +109,7 @@ app.post('/api/hijack', async (req, res) => {
     const result = await ai_service_1.aiService.processHijack(handle, chatHistory, shards);
     return res.json({ response: result });
 });
+app.get('/health', (req, res) => res.json({ status: 'UP' }));
 server.listen(port, () => {
-    console.log(`VOID_RUNNER Backend listening at http://localhost:${port}`);
+    console.log(`VOID_RUNNER Backend listening on port ${port}`);
 });

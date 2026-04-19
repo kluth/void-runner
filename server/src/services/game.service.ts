@@ -28,6 +28,7 @@ export class GameService {
     io.on('connection', (socket) => {
       console.log(`[SOCKET] Handshake: ${socket.id}`);
       this.broadcastOperativeCount();
+      socket.join('global_comms');
 
       // --- AUTHENTICATION ---
       socket.on('auth_register', async (data) => {
@@ -107,7 +108,12 @@ export class GameService {
         });
         if (!player) return;
 
-        if (player.teamId) socket.join(player.teamId);
+        // Ensure we are in our syndicate room and global comms
+        socket.join('global_comms');
+        if (player.teamId) {
+            console.log(`[SOCKET] Operative ${player.username} joining room ${player.teamId}`);
+            socket.join(player.teamId);
+        }
 
         socket.emit('init_state', {
           globalEvent: this.state.globalEvent,
@@ -148,7 +154,7 @@ export class GameService {
         if (data.teamId) {
             this.io.to(data.teamId).emit('new_message', msg);
         } else {
-            this.io.emit('new_message', msg);
+            this.io.to('global_comms').emit('new_message', msg);
         }
       });
 

@@ -433,13 +433,14 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     });
 
     this.socket.on('new_message', (msg: any) => {
+      // Don't add if it's our own message (already handled by local echo)
+      if (msg.sender === this.playerHandle()) return;
+
       this.teamMessages.update(msgs => [msg, ...msgs].slice(0, 20));
-      if (msg.sender !== this.playerHandle()) {
-        this.log(`[COMMS] ${msg.sender}: ${msg.text}`);
-        this.incrementTabNotification('SOCIAL');
-        if (Math.random() > 0.8) {
-          this.audioService.speakCreepy(`${msg.sender} says: ${msg.text}`);
-        }
+      this.log(`[COMMS] ${msg.sender}: ${msg.text}`);
+      this.incrementTabNotification('SOCIAL');
+      if (Math.random() > 0.8) {
+        this.audioService.speakCreepy(`${msg.sender} says: ${msg.text}`);
       }
     });
 
@@ -680,6 +681,9 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         text,
         teamId: this.activeTeam()?.id
       });
+      // Local Echo for immediate feedback
+      this.teamMessages.update(msgs => [{ sender: this.playerHandle(), text, teamId: this.activeTeam()?.id }, ...msgs].slice(0, 20));
+      this.incrementTabNotification('SOCIAL');
     }
   }
 

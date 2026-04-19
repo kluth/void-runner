@@ -5,30 +5,41 @@ const chromadb_1 = require("chromadb");
 class VectorService {
     client;
     constructor() {
-        this.client = new chromadb_1.ChromaClient();
+        const host = process.env['CHROMA_HOST'] || 'http://chroma:8000';
+        this.client = new chromadb_1.ChromaClient({ path: host });
         this.init();
     }
     async init() {
         try {
-            // Create a collection for future game memory / RAG extensions
-            await this.client.getOrCreateCollection({ name: 'neural_memories' });
-            console.log('[VECTOR] ChromaDB initialized: neural_memories collection ready.');
+            await this.client.getOrCreateCollection({ name: 'operative_dossiers' });
+            console.log('[VECTOR] ChromaDB initialized: operative_dossiers collection ready.');
         }
         catch (e) {
-            console.warn('[VECTOR] Warning: Could not connect to ChromaDB. Ensure vector server is running if features are needed.');
+            console.warn('[VECTOR] Warning: Could not connect to ChromaDB.');
         }
     }
-    async storeEmbedding(id, text) {
-        // Stub for later expansion
+    async storeCaseFile(playerId, dossier, metadata) {
         try {
-            const collection = await this.client.getCollection({ name: 'neural_memories' });
-            await collection.add({
-                ids: [id],
-                documents: [text],
+            const collection = await this.client.getCollection({ name: 'operative_dossiers' });
+            await collection.upsert({
+                ids: [playerId],
+                documents: [dossier],
+                metadatas: [metadata]
             });
+            console.log(`[VECTOR] Case File archived for Operative ${playerId}`);
         }
         catch (e) {
-            console.error('[VECTOR] Failed to store embedding:', e);
+            console.error('[VECTOR] Archive failure:', e);
+        }
+    }
+    async getCaseFile(playerId) {
+        try {
+            const collection = await this.client.getCollection({ name: 'operative_dossiers' });
+            const result = await collection.get({ ids: [playerId] });
+            return result.documents.length > 0 ? result.documents[0] : null;
+        }
+        catch (e) {
+            return null;
         }
     }
 }

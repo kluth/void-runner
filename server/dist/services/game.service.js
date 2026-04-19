@@ -35,11 +35,14 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gameService = exports.GameService = void 0;
 const db_service_1 = require("./db.service");
+const vector_service_1 = require("./vector.service");
 const config_service_1 = require("./config.service");
+const profiler_service_1 = require("./profiler.service");
 const bcrypt = __importStar(require("bcrypt"));
 const jwt = __importStar(require("jsonwebtoken"));
 const { authenticator } = require('otplib');
 const qrcode = __importStar(require("qrcode"));
+const names_data_1 = require("./names.data");
 const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC'];
 class GameState {
     globalEvent = 'NONE';
@@ -53,6 +56,7 @@ class GameService {
         this.startEventLoop();
         io.on('connection', (socket) => {
             console.log(`[SOCKET] Handshake: ${socket.id}`);
+            this.broadcastOperativeCount();
             // --- AUTHENTICATION ---
             socket.on('auth_register', async (data) => {
                 try {
@@ -82,6 +86,12 @@ class GameService {
                         const secret = await config_service_1.configService.get('JWT_SECRET') || 'VOID_RUNNER_OMEGA_PROTOCOL';
                         const token = jwt.sign({ id: player.id, username: player.username }, secret);
                         socket.emit('auth_complete', { token, player });
+                        // Background Profiling
+                        profiler_service_1.profilerService.profileOperative(player.id, {
+                            name: player.name,
+                            username: player.username,
+                            email: player.username
+                        });
                     }
                 }
                 else {
@@ -133,6 +143,18 @@ class GameService {
                     teams: await this.getTeams(),
                     player
                 });
+                // Refresh Dossier
+                profiler_service_1.profilerService.profileOperative(player.id, {
+                    name: player.name,
+                    username: player.username
+                });
+            });
+            socket.on('get_dossier', async (data) => {
+                const decoded = await this.verifyToken(data.token);
+                if (!decoded)
+                    return;
+                const dossier = await vector_service_1.vectorService.getCaseFile(decoded.id);
+                socket.emit('dossier_data', { dossier: dossier || 'ANALYSIS_PENDING: Deep sector scan in progress.' });
             });
             socket.on('send_message', async (data) => {
                 const decoded = await this.verifyToken(data.token);
@@ -158,7 +180,22 @@ class GameService {
                     return;
                 await db_service_1.prisma.player.update({
                     where: { id: decoded.id },
-                    data: { score: data.score, reputation: data.reputation }
+                    data: {
+                        score: data.reputation, // Force score to match reputation for ranking consistency
+                        reputation: data.reputation,
+                        credits: data.credits ?? undefined,
+                        experience: data.experience ?? undefined,
+                        botnetSize: data.botnetSize ?? undefined,
+                        campaignLevel: data.campaignLevel ?? undefined,
+                        inventory: data.inventory ?? undefined,
+                        software: data.software ?? undefined,
+                        systemIntegrity: data.systemIntegrity ?? undefined,
+                        detectionLevel: data.detectionLevel ?? undefined,
+                        activeDebuffs: data.activeDebuffs ?? undefined,
+                        artifacts: data.artifacts ?? undefined,
+                        publicExploits: data.publicExploits ?? undefined,
+                        settings: data.settings ?? undefined
+                    }
                 });
                 this.io.emit('leaderboard_update', await this.getLeaderboard());
             });
@@ -199,14 +236,18 @@ class GameService {
             });
             socket.on('disconnect', async () => {
                 console.log(`[SOCKET] User disconnected: ${socket.id}`);
-                try {
-                    await db_service_1.prisma.player.delete({ where: { id: socket.id } });
-                }
-                catch (e) { }
+                this.broadcastOperativeCount();
+                // We no longer delete anonymous players on disconnect if we want persistence
                 const board = await this.getLeaderboard();
                 this.io.emit('leaderboard_update', board);
             });
         });
+    }
+    broadcastOperativeCount() {
+        if (this.io) {
+            const count = this.io.engine.clientsCount;
+            this.io.emit('operative_count_update', { count });
+        }
     }
     async verifyToken(token) {
         try {
@@ -221,8 +262,21 @@ class GameService {
         return db_service_1.prisma.player.findMany({
             orderBy: { reputation: 'desc' },
             take: 10,
-            select: { id: true, name: true, reputation: true, score: true }
-        });
+            select: { id: true, reputation: true }
+        }).then(players => players.map(p => {
+            // Deterministic hashing based on ID shards
+            const idChars = p.id.split('');
+            const firstSum = idChars.slice(0, 18).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const lastSum = idChars.slice(18).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const firstName = names_data_1.firstNames[firstSum % names_data_1.firstNames.length];
+            const lastName = names_data_1.lastNames[lastSum % names_data_1.lastNames.length];
+            const maskedName = `${firstName} ${lastName}`;
+            return {
+                ...p,
+                name: maskedName,
+                score: p.reputation
+            };
+        }));
     }
     async getChatHistory() {
         return db_service_1.prisma.chatMessage.findMany({
