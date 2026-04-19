@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
         <span class="title">VOID_RUNNER // BASH_V4.2</span>
         <span class="status">UPLINK: {{ neuralService.aiMode() }}</span>
       </div>
-      <div class="terminal-body" #scrollContainer>
+      <div class="terminal-body" #scrollContainer (scroll)="handleScroll()">
         @for (log of gameService.terminalLogs(); track $index) {
           <div class="log-line">
             <span class="timestamp">[{{ log.timestamp }}]</span>
@@ -82,6 +82,7 @@ export class TerminalComponent implements AfterViewChecked {
   cmdInput = '';
   commandHistory: string[] = [];
   historyIndex = -1;
+  private isNearBottom = true;
 
   private manPages: Record<string, string[]> = {
     'ls': [
@@ -226,7 +227,15 @@ export class TerminalComponent implements AfterViewChecked {
   }
 
   ngAfterViewChecked() {
-    this.scrollToBottom();
+    if (this.isNearBottom) {
+        this.scrollToBottom();
+    }
+  }
+
+  handleScroll() {
+    const el = this.scrollContainer.nativeElement;
+    // Threshold of 50px to detect if near bottom
+    this.isNearBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) < 50;
   }
 
   private scrollToBottom(): void {

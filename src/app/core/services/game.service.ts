@@ -1108,7 +1108,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   log(message: string) {
     const now = new Date();
     const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-    this.terminalLogs.update(logs => [...logs, { timestamp, message: `> ${message}` }].slice(-20));
+    this.terminalLogs.update(logs => [...logs, { timestamp, message: `> ${message}` }].slice(-500));
   }
 
   addRandomMission() {
