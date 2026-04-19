@@ -96,9 +96,9 @@ if (process.env['GOOGLE_CLIENT_ID']) {
 const authRoutes = ['google'];
 authRoutes.forEach(provider => {
   app.get(`/api/auth/${provider}`, passport.authenticate(provider, provider === 'google' ? { scope: ['profile', 'email'] } : {}));
-  app.get(`/api/auth/${provider}/callback`, passport.authenticate(provider, { failureRedirect: '/login' }), (req, res) => {
+  app.get(`/api/auth/${provider}/callback`, passport.authenticate(provider, { failureRedirect: '/' }), (req, res) => {
     const { token } = req.user as any;
-    res.redirect(`${FRONTEND_URL}/login?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/?token=${token}`);
   });
 });
 
