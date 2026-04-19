@@ -174,7 +174,7 @@ export class GameService {
         await prisma.player.update({
           where: { id: decoded.id },
           data: { 
-              score: data.score, 
+              score: data.reputation, // Force score to match reputation for ranking consistency
               reputation: data.reputation,
               credits: data.credits ?? undefined,
               experience: data.experience ?? undefined,
@@ -259,10 +259,11 @@ export class GameService {
     return prisma.player.findMany({
       orderBy: { reputation: 'desc' },
       take: 10,
-      select: { id: true, username: true, reputation: true, score: true }
+      select: { id: true, username: true, reputation: true }
     }).then(players => players.map(p => ({
         ...p,
-        name: p.username // Force UI to use username as the display name
+        name: p.username, // Force identity masking
+        score: p.reputation // Use reputation as the display score
     })));
   }
 
