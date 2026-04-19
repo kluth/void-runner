@@ -19,6 +19,11 @@ import { configService } from './services/config.service';
 const FRONTEND_URL = process.env['FRONTEND_URL'] || 'http://localhost:4200';
 
 const app = express();
+
+// --- PROXY HARDENING ---
+// Enable trust proxy to handle Traefik's X-Forwarded-* headers
+app.set('trust proxy', 1);
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -43,7 +48,12 @@ app.use(bodyParser.json());
 app.use(session({
     secret: process.env['SESSION_SECRET'] || 'DARKNET_SESSION',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    proxy: true, // Required for secure cookies behind proxy
+    cookie: {
+        secure: FRONTEND_URL.startsWith('https'),
+        sameSite: 'lax'
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -69,29 +79,18 @@ passport.deserializeUser((user: any, done) => done(null, user));
 
 // --- Google (PRIMARY UPLINK) ---
 if (process.env['GOOGLE_CLIENT_ID']) {
+  // We use the absolute FRONTEND_URL to ensure exact redirect_uri match with Google Console
+  const absoluteCallbackURL = `${FRONTEND_URL}/api/auth/google/callback`;
+  
   passport.use(new GoogleStrategy({
     clientID: process.env['GOOGLE_CLIENT_ID'],
     clientSecret: process.env['GOOGLE_CLIENT_SECRET']!,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: absoluteCallbackURL,
+    proxy: true // Tells passport to trust the X-Forwarded-Proto header
   }, async (_at: string, _rt: string, profile: any, done: any) => {
     done(null, await authService.validateOAuthUser(profile, 'google'));
   }));
 }
-
-/* 
-DEACTIVATED: STRATEGIC LOCKDOWN ACTIVE
-// --- Facebook ---
-if (process.env['FACEBOOK_APP_ID']) {
-  passport.use(new FacebookStrategy({
-    clientID: process.env['FACEBOOK_APP_ID'],
-    clientSecret: process.env['FACEBOOK_APP_SECRET']!,
-    callbackURL: "/api/auth/facebook/callback"
-  }, async (_at: string, _rt: string, profile: any, done: any) => {
-    done(null, await authService.validateOAuthUser(profile, 'facebook'));
-  }));
-}
-... other providers ...
-*/
 
 // OAuth Routes Factory (Filtered for Google only)
 const authRoutes = ['google'];
