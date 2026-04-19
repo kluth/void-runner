@@ -154,7 +154,7 @@ import { FormsModule } from '@angular/forms';
                 <div class="social-feed">
                   <div class="feed-header"><span style="color: #0ff">@{{ targetHandle }}</span> // BLEETER_PROFILE</div>
                   <div class="posts-container">
-                    @for (post of socialPosts; track $index) {
+                    @for (post of socialPosts(); track $index) {
                       <div class="social-post">
                         <div class="post-meta">{{ post.date }}</div>
                         <div class="post-content">{{ post.text }}</div>
@@ -192,10 +192,10 @@ import { FormsModule } from '@angular/forms';
                     </div>
                   </div>
                   <div class="e-body">
-                    <textarea readonly [value]="phishPreviewText"></textarea>
+                    <textarea readonly [value]="phishPreviewText()"></textarea>
                   </div>
                   <div class="e-footer">
-                     <span class="spam-score" [class.high-score]="spamScore > 70">SPAM_FILTER_EVASION: {{ spamScore }}%</span>
+                     <span class="spam-score" [class.high-score]="spamScore() > 70">SPAM_FILTER_EVASION: {{ spamScore() }}%</span>
                      <button class="launch-btn" (click)="launchPhishing()">TRANSMIT_PAYLOAD</button>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ import { FormsModule } from '@angular/forms';
               <div class="mitm-game">
                 <div class="game-info">PACKET_SNIFFER_ACTIVE</div>
                 <div class="packet-stream">
-                  @for (packet of activePackets; track packet.id) {
+                  @for (packet of activePackets(); track packet.id) {
                     <div class="packet" 
                          [style.left.%]="packet.x" 
                          [style.top.%]="packet.y" 
@@ -217,7 +217,113 @@ import { FormsModule } from '@angular/forms';
                     </div>
                   }
                 </div>
-                <div class="progress-info">INTERCEPTED: {{ mitmCaptured }}/3</div>
+                <div class="progress-info">INTERCEPTED: {{ mitmCaptured() }}/3</div>
+              </div>
+            }
+
+            <!-- Crypto Heist -->
+            @else if (activeMission()?.type === 'crypto-heist') {
+              <div class="crypto-game">
+                <div class="game-info">BLOCKCHAIN_HASH_COLLISION</div>
+                <div class="hash-grid">
+                  @for (block of hashBlocks(); track $index) {
+                    <div class="hash-block" 
+                         [class.target]="block.isTarget" 
+                         [class.matched]="block.matched"
+                         (click)="matchHash(block)">
+                      {{ block.hash }}
+                    </div>
+                  }
+                </div>
+                <div class="progress-info">COLLISIONS: {{ matchedHashes() }}/4</div>
+              </div>
+            }
+
+            <!-- Quantum Breach -->
+            @else if (activeMission()?.type === 'quantum-breach') {
+              <div class="quantum-game">
+                <div class="game-info">QUBIT_COHERENCE_STABILIZER</div>
+                <div class="quantum-waves">
+                  @for (wave of qubits(); track $index) {
+                    <div class="qubit-path">
+                      <div class="qubit" [style.left.%]="wave.pos" [class.unstable]="wave.pos < 20 || wave.pos > 80"></div>
+                      <div class="controls">
+                         <button (click)="nudgeQubit($index, -10)"><</button>
+                         <button (click)="nudgeQubit($index, 10)">></button>
+                      </div>
+                    </div>
+                  }
+                </div>
+                <div class="progress-info">COHERENCE_LEVEL: {{ coherence() }}%</div>
+              </div>
+            }
+
+            <!-- IoT Takeover -->
+            @else if (activeMission()?.type === 'iot-takeover') {
+              <div class="iot-game">
+                <div class="game-info">SMART_GRID_SEQUENCER</div>
+                <div class="node-map">
+                   @for (node of iotNodes(); track node.id) {
+                     <div class="iot-node" 
+                          [class.active]="node.active" 
+                          [class.linked]="node.linked"
+                          [style.left.px]="node.x" 
+                          [style.top.px]="node.y"
+                          (click)="linkNode(node)">
+                       {{ node.id }}
+                     </div>
+                   }
+                </div>
+                <div class="progress-info">LINKED: {{ linkedNodes() }}/5</div>
+              </div>
+            }
+
+            <!-- Drone Hijacking -->
+            @else if (activeMission()?.type === 'drone-hijacking') {
+              <div class="drone-game">
+                <div class="game-info">DIRECTIONAL_SIGNAL_TRACKER</div>
+                <div class="radar-view">
+                   <div class="drone-target" [style.left.%]="dronePos().x" [style.top.%]="dronePos().y"></div>
+                   <div class="crosshair" [style.left.%]="crosshairPos().x" [style.top.%]="crosshairPos().y"></div>
+                </div>
+                <div class="radar-controls">
+                   <button (click)="moveCrosshair(0, -5)">▲</button>
+                   <div class="h-row">
+                     <button (click)="moveCrosshair(-5, 0)">◀</button>
+                     <button (click)="moveCrosshair(5, 0)">▶</button>
+                   </div>
+                   <button (click)="moveCrosshair(0, 5)">▼</button>
+                </div>
+                <div class="progress-info">SIGNAL_LOCK: {{ signalLock() }}%</div>
+              </div>
+            }
+
+            <!-- Stock Manipulation -->
+            @else if (activeMission()?.type === 'stock-manipulation') {
+              <div class="stocks-game">
+                <div class="game-info">HFT_FLASH_CRASH_INITIATOR</div>
+                <div class="stock-graph">
+                   <div class="graph-line" [style.height.%]="stockPrice()"></div>
+                   <div class="sell-zone" [style.top.%]="targetPriceRange().min" [style.height.%]="targetPriceRange().max - targetPriceRange().min"></div>
+                </div>
+                <button class="launch-btn" (click)="executeTrade()">EXECUTE_HIGH_FREQ_SELL</button>
+                <div class="progress-info">MARKET_INSTABILITY: {{ matchedTrades() }}/3</div>
+              </div>
+            }
+
+            <!-- Satellite Hacking -->
+            @else if (activeMission()?.type === 'satellite-hacking') {
+              <div class="satellite-game">
+                <div class="game-info">ORBITAL_RESONANCE_ALIGNER</div>
+                <div class="sat-orbits">
+                   @for (sat of satellites(); track $index) {
+                     <div class="orbit">
+                        <div class="satellite" [style.transform]="'rotate(' + sat.angle + 'deg)'"></div>
+                        <button (click)="rotateSat($index)">ROTATE_RELAY</button>
+                     </div>
+                   }
+                </div>
+                <div class="progress-info">DOWNLINK_STATUS: {{ alignedSats() }}/3</div>
               </div>
             }
           </div>
@@ -335,6 +441,40 @@ import { FormsModule } from '@angular/forms';
 
     .abort-btn { background: #1a1a1a; color: #00ff00; margin-top: 1rem; padding: 0.75rem 1.5rem; font-size: 0.7rem; border: 1px solid #333; }
     .abort-btn:hover { background: #300; color: #f00; border-color: #f00; }
+
+    /* New Game Styles */
+    .hash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; margin-top: 1rem; }
+    .hash-block { background: #050505; border: 1px solid #222; padding: 0.75rem; font-size: 0.6rem; color: #444; cursor: pointer; transition: all 0.2s; word-break: break-all; }
+    .hash-block.target { border-color: #00ff00; color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.2); }
+    .hash-block.matched { background: #004400; color: #fff; border-color: #00ff00; }
+
+    .quantum-waves { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; margin-top: 1.5rem; }
+    .qubit-path { height: 20px; background: rgba(0,255,255,0.05); border: 1px solid #004444; position: relative; border-radius: 10px; }
+    .qubit { position: absolute; top: 0; width: 20px; height: 100%; background: #00ffff; border-radius: 50%; box-shadow: 0 0 15px #0ff; transition: left 0.3s; }
+    .qubit.unstable { background: #ff0000; box-shadow: 0 0 15px #f00; }
+    .qubit-path .controls { position: absolute; right: -80px; top: -5px; display: flex; gap: 5px; }
+    .qubit-path button { padding: 4px 8px; font-size: 0.5rem; background: #002222; border-color: #00ffff; color: #00ffff; }
+
+    .node-map { width: 300px; height: 200px; background: #050505; border: 1px solid #111; position: relative; overflow: hidden; margin: 1rem auto; }
+    .iot-node { position: absolute; width: 30px; height: 30px; border: 1px solid #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; color: #888; cursor: pointer; transition: all 0.2s; background: #000; }
+    .iot-node.active { border-color: #00ff00; color: #00ff00; box-shadow: 0 0 10px #0f0; }
+    .iot-node.linked { background: #004400; color: #fff; border-color: #00ff00; }
+
+    .radar-view { width: 200px; height: 200px; border: 2px solid #004400; border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, #001100 0%, #000 100%); margin: 1rem auto; }
+    .drone-target { position: absolute; width: 10px; height: 10px; background: #ff0000; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px #f00; transition: all 0.5s linear; }
+    .crosshair { position: absolute; width: 40px; height: 40px; border: 1px dashed #00ff00; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: inset 0 0 10px #0f0; pointer-events: none; }
+    .radar-controls { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: 1rem; }
+    .radar-controls .h-row { display: flex; gap: 20px; }
+    .radar-controls button { width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; }
+
+    .stock-graph { width: 100%; height: 150px; background: #050505; border: 1px solid #111; position: relative; margin-top: 1rem; overflow: hidden; }
+    .graph-line { position: absolute; bottom: 0; left: 0; width: 100%; background: #00ff00; opacity: 0.3; transition: height 0.1s linear; }
+    .sell-zone { position: absolute; left: 0; width: 100%; background: rgba(255,0,255,0.1); border-top: 1px dashed #f0f; border-bottom: 1px dashed #f0f; }
+
+    .sat-orbits { display: flex; gap: 2rem; justify-content: center; margin-top: 1.5rem; }
+    .orbit { position: relative; width: 80px; height: 80px; border: 1px solid #111; border-radius: 50%; display: flex; flex-direction: column; align-items: center; }
+    .satellite { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; background: #fff; box-shadow: 0 0 10px #fff; transform-origin: 0 40px; transition: transform 0.5s ease; }
+    .orbit button { position: absolute; bottom: -35px; white-space: nowrap; font-size: 0.45rem; padding: 4px; }
   `
 })
 export class MissionComponent implements OnDestroy {
@@ -347,7 +487,7 @@ export class MissionComponent implements OnDestroy {
   displayCode = signal<string>('');
   sqlItems = signal<{id: number, text: string, isVuln: boolean}[]>([]);
   rfidTiles = signal<{id: number, active: boolean}[]>([]);
-  rfidCaptured = 0;
+  rfidCaptured = signal(0);
 
   stack = signal<string[]>(new Array(32).fill('00'));
   eipOffset = signal(Math.floor(Math.random() * 20) + 8);
@@ -357,22 +497,40 @@ export class MissionComponent implements OnDestroy {
   sanitizedView = signal<string>('SAFE_RENDER_OUTPUT');
 
   targetHandle = '';
-  socialPosts: {date: string, text: string}[] = [];
+  socialPosts = signal<{date: string, text: string}[]>([]);
   osintAnswer = '';
   private correctPet = '';
 
   phishSender = 'IT';
   phishLure = 'URGENCY';
-  phishPreviewText = '';
-  spamScore = 0;
+  phishPreviewText = signal('');
+  spamScore = signal(0);
 
-  activePackets: {id: number, text: string, isTarget: boolean, x: number, y: number}[] = [];
-  mitmCaptured = 0;
+  activePackets = signal<{id: number, text: string, isTarget: boolean, x: number, y: number}[]>([]);
+  mitmCaptured = signal(0);
 
-  private sqlInterval: any;
-  private detectionInterval: any;
-  private rfidInterval: any;
-  private mitmInterval: any;
+  // New Game Signals
+  hashBlocks = signal<{hash: string, isTarget: boolean, matched: boolean}[]>([]);
+  matchedHashes = signal(0);
+
+  qubits = signal<{pos: number, target: number}[]>([]);
+  coherence = signal(100);
+
+  iotNodes = signal<{id: string, x: number, y: number, active: boolean, linked: boolean}[]>([]);
+  linkedNodes = signal(0);
+
+  dronePos = signal({x: 50, y: 50});
+  crosshairPos = signal({x: 50, y: 50});
+  signalLock = signal(0);
+
+  stockPrice = signal(50);
+  targetPriceRange = signal({min: 20, max: 40});
+  matchedTrades = signal(0);
+
+  satellites = signal<{angle: number, target: number}[]>([]);
+  alignedSats = signal(0);
+
+  private intervals: any[] = [];
 
   constructor() {
     effect(() => {
@@ -387,10 +545,8 @@ export class MissionComponent implements OnDestroy {
   ngOnDestroy() { this.clearAllIntervals(); }
 
   private clearAllIntervals() {
-    clearInterval(this.sqlInterval);
-    clearInterval(this.detectionInterval);
-    clearInterval(this.rfidInterval);
-    clearInterval(this.mitmInterval);
+    this.intervals.forEach(i => clearInterval(i));
+    this.intervals = [];
   }
 
   startMission(m: Mission) {
@@ -404,11 +560,10 @@ export class MissionComponent implements OnDestroy {
       this.audioService.playError();
     }
 
-    this.detectionInterval = setInterval(() => {
+    this.intervals.push(setInterval(() => {
       this.gameService.increaseDetection(1.5);
       
       const m = this.activeMission();
-      // Software: keylogger (Slowly reveal brute-force digits)
       if (m?.type === 'brute-force' && this.gameService.installedSoftware().find(s => s.id === 'keylogger' && s.installed)) {
           if (Math.random() > 0.9) {
               const current = this.displayCode().split('');
@@ -423,27 +578,31 @@ export class MissionComponent implements OnDestroy {
           }
       }
 
-      // Active Sabotage (Blue Team logic)
       if (this.gameService.blueTeamActive()) {
-        if (Math.random() > 0.85) {
-          this.executeSabotage();
-        }
+        if (Math.random() > 0.85) this.executeSabotage();
       }
-    }, 1000);
+    }, 1000));
 
+    // Game Specific Initializers
     if (m.type === 'port-scan') this.generatePorts(m.difficulty);
     else if (m.type === 'brute-force') this.generateCode(m.difficulty);
     else if (m.type === 'sql-injection') this.startSqlGame(m.difficulty);
     else if (m.type === 'rfid-clone') this.startRfidGame(m.difficulty);
     else if (m.type === 'buffer-overflow') this.initOverflow(m.difficulty);
     else if (m.type === 'osint-research') this.initOsint();
-    else if (m.type === 'phishing-campaign') {} // handled in launch
+    else if (m.type === 'phishing-campaign') this.updatePhishPreview();
+    else if (m.type === 'mitm-attack') this.startMitmGame(m.difficulty);
+    else if (m.type === 'crypto-heist') this.startCryptoGame(m.difficulty);
+    else if (m.type === 'quantum-breach') this.startQuantumGame(m.difficulty);
+    else if (m.type === 'iot-takeover') this.startIotGame(m.difficulty);
+    else if (m.type === 'drone-hijacking') this.startDroneGame(m.difficulty);
+    else if (m.type === 'stock-manipulation') this.startStockGame(m.difficulty);
+    else if (m.type === 'satellite-hacking') this.startSatelliteGame(m.difficulty);
   }
 
   private executeSabotage() {
     const m = this.activeMission();
     if (!m) return;
-
     this.gameService.log('<span style="color: #ff0000">!!! ALERT: ACTIVE_COUNTER_HACK DETECTED !!!</span>');
     this.audioService.playBeep(220, 0.1, 'sawtooth');
 
@@ -454,17 +613,6 @@ export class MissionComponent implements OnDestroy {
         const target = open[Math.floor(Math.random() * open.length)];
         target.scanned = false;
         this.ports.set([...current]);
-        this.gameService.log('BLUE_TEAM: Remote port re-filtered.');
-      }
-    } else if (m.type === 'brute-force') {
-      const current = this.displayCode();
-      const chars = current.split('');
-      const filled = chars.map((c, i) => ({c, i})).filter(x => x.c !== '_');
-      if (filled.length > 0) {
-        const target = filled[Math.floor(Math.random() * filled.length)];
-        chars[target.i] = '_'; 
-        this.displayCode.set(chars.join(''));
-        this.gameService.log('BLUE_TEAM: Buffer cleared. Identity lost.');
       }
     }
   }
@@ -478,13 +626,13 @@ export class MissionComponent implements OnDestroy {
 
   private stopMission() { this.activeMission.set(null); this.clearAllIntervals(); }
 
-  // Mini-game Logic
+  // --- MINIGAME LOGIC SECTOR ---
+
   private generatePorts(difficulty: number) {
     const p = [];
     const count = 18 + (difficulty * 6);
-    const openCount = 3 + difficulty;
     const openIndices = new Set<number>();
-    while(openIndices.size < openCount) openIndices.add(Math.floor(Math.random() * count));
+    while(openIndices.size < (3 + difficulty)) openIndices.add(Math.floor(Math.random() * count));
     for (let i = 0; i < count; i++) p.push({ num: 80 + i, status: openIndices.has(i) ? 'open' as const : 'closed' as const, scanned: false });
     this.ports.set(p);
   }
@@ -494,21 +642,10 @@ export class MissionComponent implements OnDestroy {
     if (current[index].scanned) return;
     current[index].scanned = true;
     this.ports.set([...current]);
-
-    // nmap-pro benefit
-    const nmapPro = this.gameService.installedSoftware().find(s => s.id === 'nmap-pro' && s.installed);
-    const traceGain = nmapPro ? 2.5 : 5;
-
-    if (current[index].status === 'open') { this.audioService.playClick(); this.gameService.log(`OPEN PORT: ${current[index].num}`); }
-    else { this.audioService.playBeep(200, 0.05, 'sine'); this.gameService.increaseDetection(traceGain); }
-    
-    // firewall-bypass benefit
-    const hasBypass = this.gameService.installedSoftware().find(s => s.id === 'firewall-bypass' && s.installed);
+    if (current[index].status === 'open') { this.audioService.playClick(); }
+    else { this.audioService.playBeep(200, 0.05, 'sine'); this.gameService.increaseDetection(5); }
     const openPorts = current.filter(p => p.status === 'open');
-    const scannedOpenCount = openPorts.filter(p => p.scanned).length;
-    const requiredCount = hasBypass ? Math.max(1, openPorts.length - 1) : openPorts.length;
-    
-    if (scannedOpenCount >= requiredCount) this.winMission();
+    if (openPorts.every(p => p.scanned)) this.winMission();
   }
 
   private generateCode(difficulty: number) {
@@ -517,21 +654,7 @@ export class MissionComponent implements OnDestroy {
     let code = '';
     for (let i = 0; i < length; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
     this.targetCode.set(code);
-    
-    // Software: packet-sniffer
-    const hasSniffer = this.gameService.installedSoftware().find(s => s.id === 'packet-sniffer' && s.installed);
-    if (hasSniffer) {
-      const display = '_'.repeat(length).split('');
-      const revealCount = Math.floor(length / 3);
-      for (let i = 0; i < revealCount; i++) {
-        const idx = Math.floor(Math.random() * length);
-        display[idx] = code[idx];
-      }
-      this.displayCode.set(display.join(''));
-      this.gameService.log('SNIFFER: Intercepted partial credential fragments.');
-    } else {
-      this.displayCode.set('_'.repeat(length));
-    }
+    this.displayCode.set('_'.repeat(length));
   }
 
   inputChar(char: string) {
@@ -548,14 +671,13 @@ export class MissionComponent implements OnDestroy {
   }
 
   private startSqlGame(difficulty: number) {
-    this.sqlItems.set([]);
-    const hasFuzzer = this.gameService.installedSoftware().find(s => s.id === 'ai-fuzzer' && s.installed);
-    this.sqlInterval = setInterval(() => {
-      const isVuln = Math.random() < (hasFuzzer ? 0.4 : 0.2);
-      const fragments = ["SELECT * FROM sys", "DROP TABLE cache", "OR 1=1", "UNION SELECT", "WAITFOR DELAY", "xp_cmdshell", "HAVING 1=1"];
+    const iv = setInterval(() => {
+      const isVuln = Math.random() < 0.2;
+      const fragments = ["SELECT * FROM sys", "DROP TABLE cache", "OR 1=1", "UNION SELECT", "HAVING 1=1"];
       const newItem = { id: Math.random(), text: fragments[Math.floor(Math.random()*fragments.length)] + (isVuln ? " [!] " : ""), isVuln };
       this.sqlItems.update(items => [newItem, ...items].slice(0, 8));
-    }, 900 - (difficulty * 100));
+    }, 900 - (difficulty * 50));
+    this.intervals.push(iv);
   }
 
   triggerSqlInjection(item: any) {
@@ -564,16 +686,21 @@ export class MissionComponent implements OnDestroy {
   }
 
   private startRfidGame(difficulty: number) {
-    this.rfidCaptured = 0;
-    this.rfidInterval = setInterval(() => {
+    this.rfidCaptured.set(0);
+    const iv = setInterval(() => {
       const activeIdx = Math.floor(Math.random() * 9);
       this.rfidTiles.set(Array.from({length:9}, (_, i) => ({id: i, active: i === activeIdx})));
       setTimeout(() => this.rfidTiles.set(Array.from({length:9}, (_, i) => ({id: i, active: false}))), 500);
     }, 1100 - (difficulty * 100));
+    this.intervals.push(iv);
   }
 
   interceptRfid(tile: any) {
-    if (tile.active) { this.audioService.playClick(); this.rfidCaptured++; if (this.rfidCaptured >= 5) this.winMission(); }
+    if (tile.active) { 
+        this.audioService.playClick(); 
+        this.rfidCaptured.update(c => c + 1); 
+        if (this.rfidCaptured() >= 5) this.winMission(); 
+    }
     else { this.audioService.playError(); this.gameService.increaseDetection(20); }
   }
 
@@ -593,116 +720,167 @@ export class MissionComponent implements OnDestroy {
   checkOverflow() {
     this.audioService.playGlitch();
     const current = this.stack();
-    if (current[this.eipOffset()] === 'E' && current[this.eipOffset() + 1] === 'F') {
-      this.gameService.log('EIP_OVERWRITE_SUCCESS');
-      this.winMission();
-    } else {
-      this.audioService.playError();
-      this.gameService.increaseDetection(15);
-    }
+    if (current[this.eipOffset()] === 'E' && current[this.eipOffset() + 1] === 'F') this.winMission();
+    else { this.audioService.playError(); this.gameService.increaseDetection(15); }
   }
 
   testXss() {
     this.audioService.playClick();
     const p = this.xssPayload.toLowerCase();
     this.sanitizedView.set(p.replace(/<script/g, '[FILTERED]'));
-
-    if (p.includes('onerror') || p.includes('onload') || (p.includes('<img') && p.includes('alert'))) {
-      this.gameService.log('BYPASS_DETECTED');
-      this.winMission();
-    } else {
-      this.audioService.playError();
-      this.gameService.increaseDetection(10);
-    }
+    if (p.includes('onerror') || p.includes('onload') || (p.includes('<img') && p.includes('alert'))) this.winMission();
+    else { this.audioService.playError(); this.gameService.increaseDetection(10); }
   }
 
   initOsint() {
     const petNames = ['Ghost', 'Viper', 'Cypher', 'Neon', 'Static', 'Buster', 'Rex', 'Bella', 'Luna', 'Max'];
-    const cities = ['Neo-Tokyo', 'Night City', 'Sector 7', 'The Sprawl', 'Zion'];
-    const hobbies = ['surfing the net', 'modding my cyberdeck', 'drinking synth-caf', 'watching braindances'];
-    
     this.correctPet = petNames[Math.floor(Math.random() * petNames.length)];
     this.targetHandle = 'CorpSlave_' + Math.floor(Math.random() * 9999);
-    
-    const posts = [
-      { date: '2 DAYS AGO', text: `Just transferred to the new branch in ${cities[Math.floor(Math.random() * cities.length)]}. The commute is terrible.` },
-      { date: '5 DAYS AGO', text: `Can't believe the weather today. Perfect for ${hobbies[Math.floor(Math.random() * hobbies.length)]}.` },
-      { date: '1 WEEK AGO', text: `Took my dog ${this.correctPet} to the vet. He hates his new cybernetic leg.` },
-      { date: '2 WEEKS AGO', text: `Sysadmin keeps changing the password policy. I just use my pet's name now, I don't care anymore.` },
-      { date: '1 MONTH AGO', text: `Does anyone know a good place to get ramen?` }
-    ];
-    
-    this.socialPosts = posts.sort(() => Math.random() - 0.5);
+    this.socialPosts.set([
+      { date: '2 DAYS AGO', text: `Just moved to the Sprawl. The neon lights keep me awake.` },
+      { date: '1 WEEK AGO', text: `My dog ${this.correctPet} just bit a corporate drone. Good boy.` },
+      { date: '2 WEEKS AGO', text: `If I forget my password again, I'll use my dog's name. Easy to remember.` }
+    ]);
     this.osintAnswer = '';
   }
 
   checkOsint() {
-    if (this.osintAnswer.toLowerCase() === this.correctPet.toLowerCase()) {
-      this.gameService.log('IDENTITY_VERIFIED');
-      this.winMission();
-    } else {
-      this.audioService.playError();
-      this.gameService.increaseDetection(15);
-    }
+    if (this.osintAnswer.toLowerCase() === this.correctPet.toLowerCase()) this.winMission();
+    else { this.audioService.playError(); this.gameService.increaseDetection(15); }
   }
 
   updatePhishPreview() {
-     let text = '';
-     if (this.phishSender === 'IT') text += "Dear User,\n\nYour account password will expire in 24 hours. ";
-     else if (this.phishSender === 'HR') text += "Attention Employee,\n\nPlease review the attached policy changes immediately. ";
-     else if (this.phishSender === 'CEO') text += "Team,\n\nI need you to review this confidential document before the board meeting. ";
-
-     if (this.phishLure === 'URGENCY') { text += "Failure to comply will result in immediate lockout."; this.spamScore = 65; }
-     else if (this.phishLure === 'FEAR') { text += "This is your final warning before disciplinary action is taken."; this.spamScore = 40; }
-     else if (this.phishLure === 'CURIOSITY') { text += "You won't believe what is in this file."; this.spamScore = 85; }
-     
-     if (this.phishSender === 'IT' && this.phishLure === 'FEAR') this.spamScore = 95;
-     if (this.phishSender === 'HR' && this.phishLure === 'URGENCY') this.spamScore = 80;
-     if (this.phishSender === 'CEO' && this.phishLure === 'CURIOSITY') this.spamScore = 90;
-
-     this.phishPreviewText = text + "\n\nClick here to proceed: [MALICIOUS_LINK]\n\nRegards,\nThe Management";
+     let text = "From: " + this.phishSender + "@corp.net\nSubject: " + this.phishLure + "\n\n";
+     text += "URGENT: Your workstation access is scheduled for termination. ";
+     this.phishPreviewText.set(text + "Please synchronize your neural link at [MALICIOUS_NODE].");
+     this.spamScore.set(70 + Math.floor(Math.random() * 20));
   }
 
   launchPhishing() {
     this.audioService.playClick();
-    this.gameService.log('INJECTING_CAMPAIGN...');
-    let successChance = this.spamScore / 100;
-    successChance += (this.gameService.totalSocialBonus() / 100);
-    if (Math.random() < successChance) this.winMission();
+    if (Math.random() < (this.spamScore() / 100)) this.winMission();
     else { this.audioService.playError(); this.gameService.increaseDetection(30); }
   }
 
-  startMitmGame(difficulty: number) {
-    this.mitmCaptured = 0;
-    this.activePackets = [];
-    this.mitmInterval = setInterval(() => {
-        const isTarget = Math.random() < 0.2;
-        const newPacket = {
-            id: Math.random(),
-            text: isTarget ? 'ENCRYPTED_HANDSHAKE' : 'TCP_KEEPALIVE',
-            isTarget,
-            x: -20,
-            y: Math.floor(Math.random() * 80) + 10
-        };
-        this.activePackets.push(newPacket);
-        
-        // Move packets
-        this.activePackets.forEach(p => p.x += (5 + difficulty));
-        this.activePackets = this.activePackets.filter(p => p.x < 120);
-    }, 400 - (difficulty * 50));
+  private startMitmGame(difficulty: number) {
+    this.mitmCaptured.set(0);
+    this.intervals.push(setInterval(() => {
+        const isTarget = Math.random() < 0.3;
+        const newPacket = { id: Math.random(), text: isTarget ? 'ENCRYPTED' : 'TCP', isTarget, x: -10, y: Math.random() * 90 };
+        this.activePackets.update(ps => [...ps, newPacket]);
+        this.activePackets.update(ps => ps.map(p => ({ ...p, x: p.x + 5 })).filter(p => p.x < 110));
+    }, 500 - (difficulty * 50)));
   }
 
   interceptPacket(packet: any) {
-      if (packet.isTarget) {
-          this.audioService.playClick();
-          this.mitmCaptured++;
-          packet.text = 'DECRYPTED';
-          packet.isTarget = false; // Prevent double click
-          if (this.mitmCaptured >= 3) this.winMission();
-      } else {
-          this.audioService.playError();
-          this.gameService.increaseDetection(15);
+      if (packet.isTarget) { 
+          this.audioService.playClick(); 
+          this.mitmCaptured.update(c => c + 1); 
+          if (this.mitmCaptured() >= 3) this.winMission(); 
       }
+      else this.gameService.increaseDetection(15);
+  }
+
+  private startCryptoGame(difficulty: number) {
+      this.matchedHashes.set(0);
+      const iv = setInterval(() => {
+          if (this.hashBlocks().length < 6) {
+              const h = Math.random().toString(16).substring(2, 8).toUpperCase();
+              this.hashBlocks.update(bs => [...bs, { hash: h, isTarget: Math.random() > 0.7, matched: false }]);
+          }
+      }, 1000);
+      this.intervals.push(iv);
+  }
+
+  matchHash(block: any) {
+      if (block.isTarget && !block.matched) {
+          block.matched = true;
+          this.matchedHashes.update(h => h + 1);
+          if (this.matchedHashes() >= 4) this.winMission();
+      } else { this.gameService.increaseDetection(10); }
+  }
+
+  private startQuantumGame(difficulty: number) {
+      this.coherence.set(100);
+      this.qubits.set([{pos: 50, target: 50}, {pos: 50, target: 50}]);
+      const iv = setInterval(() => {
+          this.qubits.update(qs => qs.map(q => ({ ...q, pos: q.pos + (Math.random() * 10 - 5) })));
+          const unstable = this.qubits().some(q => q.pos < 20 || q.pos > 80);
+          if (unstable) this.coherence.update(c => c - 2);
+          if (this.coherence() <= 0) { this.gameService.failMission(this.activeMission()!); this.stopMission(); }
+          else if (this.coherence() > 0 && Math.random() > 0.98) this.winMission();
+      }, 200);
+      this.intervals.push(iv);
+  }
+
+  nudgeQubit(idx: number, amt: number) {
+      this.qubits.update(qs => {
+          qs[idx].pos = Math.max(0, Math.min(100, qs[idx].pos + amt));
+          return [...qs];
+      });
+  }
+
+  private startIotGame(difficulty: number) {
+      this.linkedNodes.set(0);
+      this.iotNodes.set(Array.from({length: 5}, (_, i) => ({
+          id: 'NODE_' + i, x: Math.random() * 200 + 20, y: Math.random() * 150 + 20, active: i === 0, linked: false
+      })));
+  }
+
+  linkNode(node: any) {
+      if (node.active && !node.linked) {
+          node.linked = true;
+          this.linkedNodes.update(l => l + 1);
+          const next = this.iotNodes().find(n => !n.linked);
+          if (next) next.active = true;
+          else this.winMission();
+      }
+  }
+
+  private startDroneGame(difficulty: number) {
+      this.signalLock.set(0);
+      const iv = setInterval(() => {
+          this.dronePos.update(p => ({ x: p.x + (Math.random() * 4 - 2), y: p.y + (Math.random() * 4 - 2) }));
+          const dist = Math.sqrt(Math.pow(this.dronePos().x - this.crosshairPos().x, 2) + Math.pow(this.dronePos().y - this.crosshairPos().y, 2));
+          if (dist < 10) this.signalLock.update(s => Math.min(100, s + 5));
+          if (this.signalLock() >= 100) this.winMission();
+      }, 300);
+      this.intervals.push(iv);
+  }
+
+  moveCrosshair(x: number, y: number) {
+      this.crosshairPos.update(p => ({ x: Math.max(0, Math.min(100, p.x + x)), y: Math.max(0, Math.min(100, p.y + y)) }));
+  }
+
+  private startStockGame(difficulty: number) {
+      this.matchedTrades.set(0);
+      this.intervals.push(setInterval(() => {
+          this.stockPrice.update(p => Math.max(0, Math.min(100, p + (Math.random() * 20 - 10))));
+      }, 500));
+  }
+
+  executeTrade() {
+      const p = this.stockPrice();
+      const r = this.targetPriceRange();
+      if (p >= r.min && p <= r.max) {
+          this.matchedTrades.update(t => t + 1);
+          if (this.matchedTrades() >= 3) this.winMission();
+      } else { this.gameService.increaseDetection(20); }
+  }
+
+  private startSatelliteGame(difficulty: number) {
+      this.alignedSats.set(0);
+      this.satellites.set([{angle: 0, target: 180}, {angle: 0, target: 90}, {angle: 0, target: 270}]);
+  }
+
+  rotateSat(idx: number) {
+      this.satellites.update(ss => {
+          ss[idx].angle = (ss[idx].angle + 45) % 360;
+          return [...ss];
+      });
+      const aligned = this.satellites().filter(s => s.angle === s.target).length;
+      this.alignedSats.set(aligned);
+      if (aligned === 3) this.winMission();
   }
 
   private winMission() { 
