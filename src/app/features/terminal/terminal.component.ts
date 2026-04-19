@@ -79,14 +79,28 @@ export class TerminalComponent implements AfterViewChecked {
     'set': [
         'NAME: set - configure workstation parameters',
         'SYNOPSIS: set [category.parameter] [value]',
+        'DESCRIPTION: Modifies system behavior and UI settings.',
+        'Values for boolean toggles are [on|off|true|false].',
         'CATEGORIES:',
-        '  audio: volume [0-100], speech [on|off]',
-        '  video: matrix [on|off], glitch [on|off], scanlines [on|off]',
-        '  social: notifications [on|off], public_profile [on|off], status [ONLINE|AWAY|DND]',
-        '  beta: neural_vibration [on|off], ai_emotions [on|off], high_res_globe [on|off]',
-        '  general: auto_wipe [on|off], theme [CLASSIC|OMEGA]',
-        '  control: autocomplete [on|off]',
-        'EXAMPLE: set social.notifications off'
+        '  audio.volume      : Master volume [0-100]',
+        '  audio.speech      : Toggle AI voice [on|off]',
+        '  audio.ambient     : Toggle background hum [on|off]',
+        '  video.matrix      : Matrix rain effect [on|off]',
+        '  video.glitch      : Visual distortion intensity [on|off]',
+        '  video.scanlines   : Retro CRT filter [on|off]',
+        '  video.brightness  : Overall UI luminance [0-200]',
+        '  video.font_size   : Terminal text size [8-24]',
+        '  social.notifications: Browser alerts for DMs [on|off]',
+        '  social.incognito   : Hide handle in global chat [on|off]',
+        '  social.status      : Status [ONLINE|AWAY|DND]',
+        '  general.auto_wipe  : Automatic wipe at 90% trace [on|off]',
+        '  general.auto_analysis: 2x speed for artifact analysis [on|off]',
+        '  control.scroll_speed: Log scrolling velocity [50-500]',
+        'EXAMPLE: set general.auto_wipe on'
+    ],
+    'settings': [
+        'NAME: settings - list current configuration',
+        'DESCRIPTION: Prints a detailed status of all workstation parameters.'
     ],
     'wipe': [
         'NAME: wipe - purge local trace logs',
@@ -230,7 +244,8 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('clear       - Flush terminal buffer');
         this.gameService.log('ask [msg]   - Uplink to Neural AI');
         this.gameService.log('matrix      - Toggle visual neural-sync');
-        this.gameService.log('set         - Configure workstation settings');
+        this.gameService.log('settings    - Display current configuration');
+        this.gameService.log('set [val]   - Modify system parameters');
         this.gameService.log('man [cmd]   - Detailed manual for command');
         break;
 
@@ -309,17 +324,23 @@ export class TerminalComponent implements AfterViewChecked {
         this.audioService.playGlitch();
         break;
 
+      case 'settings':
+      case 'config':
+          this.gameService.log('--- WORKSTATION_CONFIGURATION ---');
+          const s = this.gameService.settings();
+          this.gameService.log(`[AUDIO] vol=${s.audio.volume}% speech=${s.audio.speech} ambient=${s.audio.ambient}`);
+          this.gameService.log(`[VIDEO] matrix=${s.video.matrix} glitch=${s.video.glitch} lines=${s.video.scanlines} font=${s.video.font_size}px`);
+          this.gameService.log(`[SOCIAL] notify=${s.social.notifications} incog=${s.social.incognito} status=${s.social.status}`);
+          this.gameService.log(`[BETA] vibe=${s.beta.neural_vibration} emo=${s.beta.ai_emotions} globe=${s.beta.high_res_globe}`);
+          this.gameService.log(`[GENERAL] autowipe=${s.general.auto_wipe} autoanal=${s.general.auto_analysis} theme=${s.general.theme}`);
+          this.gameService.log(`[CONTROL] auto=${s.control.autocomplete} speed=${s.control.scroll_speed}`);
+          this.gameService.log('Use "set [category.key] [on|off|value]" to modify.');
+          break;
+
       case 'set':
           this.gameService.log('Usage: set [category.key] [value]');
-          this.gameService.log('Example: set audio.volume 50');
-          this.gameService.log('Values: current state');
-          const s = this.gameService.settings();
-          this.gameService.log(`audio: volume=${s.audio.volume} speech=${s.audio.speech ? 'on' : 'off'}`);
-          this.gameService.log(`video: matrix=${s.video.matrix ? 'on' : 'off'} glitch=${s.video.glitch ? 'on' : 'off'} scanlines=${s.video.scanlines ? 'on' : 'off'}`);
-          this.gameService.log(`social: notifications=${s.social.notifications ? 'on' : 'off'} public=${s.social.public_profile ? 'on' : 'off'} status=${s.social.status}`);
-          this.gameService.log(`beta: vibe=${s.beta.neural_vibration ? 'on' : 'off'} emotions=${s.beta.ai_emotions ? 'on' : 'off'} globe=${s.beta.high_res_globe ? 'on' : 'off'}`);
-          this.gameService.log(`general: auto_wipe=${s.general.auto_wipe ? 'on' : 'off'} theme=${s.general.theme}`);
-          this.gameService.log(`control: autocomplete=${s.control.autocomplete ? 'on' : 'off'}`);
+          this.gameService.log('Example: set general.auto_wipe on');
+          this.gameService.log('See "man set" for all available parameters.');
           break;
 
       default:

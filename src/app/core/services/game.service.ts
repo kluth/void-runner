@@ -57,28 +57,35 @@ export interface GameSettings {
   audio: {
     volume: number;
     speech: boolean;
+    ambient: boolean;
   };
   video: {
     matrix: boolean;
     glitch: boolean;
     scanlines: boolean;
+    brightness: number;
+    font_size: number;
   };
   social: {
     notifications: boolean;
     public_profile: boolean;
+    incognito: boolean;
     status: 'ONLINE' | 'AWAY' | 'DND';
   };
   beta: {
     neural_vibration: boolean;
     ai_emotions: boolean;
     high_res_globe: boolean;
+    experimental_shaders: boolean;
   };
   general: {
     auto_wipe: boolean;
-    theme: 'CLASSIC' | 'OMEGA';
+    auto_analysis: boolean;
+    theme: 'CLASSIC' | 'OMEGA' | 'NOIR';
   };
   control: {
     autocomplete: boolean;
+    scroll_speed: number;
   };
 }
 
@@ -153,12 +160,12 @@ export class GameService {
 
   // Settings State
   settings = signal<GameSettings>({
-    audio: { volume: 50, speech: true },
-    video: { matrix: false, glitch: true, scanlines: true },
-    social: { notifications: true, public_profile: true, status: 'ONLINE' },
-    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false },
-    general: { auto_wipe: false, theme: 'CLASSIC' },
-    control: { autocomplete: true }
+    audio: { volume: 50, speech: true, ambient: true },
+    video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11 },
+    social: { notifications: true, public_profile: true, incognito: false, status: 'ONLINE' },
+    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false },
+    general: { auto_wipe: false, auto_analysis: false, theme: 'CLASSIC' },
+    control: { autocomplete: true, scroll_speed: 100 }
   });
 
   // Core State
@@ -364,6 +371,7 @@ export class GameService {
     this.botnetSize.set(player.botnetSize);
     this.campaignLevel.set(player.campaignLevel);
     this.reputation.set(player.reputation);
+    
     this.systemIntegrity.set(player.systemIntegrity);
     this.detectionLevel.set(player.detectionLevel);
 
@@ -384,7 +392,6 @@ export class GameService {
     try { 
         if (player.settings && player.settings !== '{}') {
             const parsed = JSON.parse(player.settings);
-            // Deep merge defaults to avoid broken state on schema updates
             this.settings.set({ ...this.settings(), ...parsed });
             this.applySettingsToSignals();
         }
@@ -424,6 +431,7 @@ export class GameService {
       this.reputation.set(state.reputation || 0);
       this.botnetSize.set(state.botnetSize || 0);
       this.campaignLevel.set(state.campaignLevel || 1);
+      
       this.systemIntegrity.set(state.systemIntegrity ?? 100);
       this.detectionLevel.set(state.detectionLevel ?? 0);
       this.activeDebuffs.set(state.activeDebuffs || []);
@@ -446,10 +454,12 @@ export class GameService {
   private applySettingsToSignals() {
       const s = this.settings();
       this.matrixMode.set(s.video.matrix);
-      
-      // Push to AudioService
       this.audioService.masterVolume.set(s.audio.volume / 100);
       this.audioService.speechEnabled.set(s.audio.speech);
+      
+      // Update global CSS variables for font size and brightness
+      document.documentElement.style.setProperty('--global-brightness', `${s.video.brightness}%`);
+      document.documentElement.style.setProperty('--terminal-font-size', `${s.video.font_size}px`);
   }
 
   updateSetting(path: string, value: string) {
@@ -459,29 +469,35 @@ export class GameService {
 
     const category = parts[0] as keyof GameSettings;
     const key = parts[1] as any;
-    const isBool = value === 'on' || value === 'off' || value === 'true' || value === 'false';
     const boolVal = value === 'on' || value === 'true';
 
     if (category === 'audio') {
         if (key === 'volume') s.audio.volume = parseInt(value);
         if (key === 'speech') s.audio.speech = boolVal;
+        if (key === 'ambient') s.audio.ambient = boolVal;
     } else if (category === 'video') {
         if (key === 'matrix') s.video.matrix = boolVal;
         if (key === 'glitch') s.video.glitch = boolVal;
         if (key === 'scanlines') s.video.scanlines = boolVal;
+        if (key === 'brightness') s.video.brightness = parseInt(value);
+        if (key === 'font_size') s.video.font_size = parseInt(value);
     } else if (category === 'social') {
         if (key === 'notifications') s.social.notifications = boolVal;
         if (key === 'public_profile') s.social.public_profile = boolVal;
+        if (key === 'incognito') s.social.incognito = boolVal;
         if (key === 'status') s.social.status = value.toUpperCase() as any;
     } else if (category === 'beta') {
         if (key === 'neural_vibration') s.beta.neural_vibration = boolVal;
         if (key === 'ai_emotions') s.beta.ai_emotions = boolVal;
         if (key === 'high_res_globe') s.beta.high_res_globe = boolVal;
+        if (key === 'experimental_shaders') s.beta.experimental_shaders = boolVal;
     } else if (category === 'general') {
         if (key === 'auto_wipe') s.general.auto_wipe = boolVal;
+        if (key === 'auto_analysis') s.general.auto_analysis = boolVal;
         if (key === 'theme') s.general.theme = value.toUpperCase() as any;
     } else if (category === 'control') {
         if (key === 'autocomplete') s.control.autocomplete = boolVal;
+        if (key === 'scroll_speed') s.control.scroll_speed = parseInt(value);
     }
 
     this.settings.set(s);
@@ -621,7 +637,8 @@ export class GameService {
 
     this.artifacts.update(arts => arts.map(a => {
       if (!a.analyzed && a.analysisProgress < 100) {
-        return { ...a, analysisProgress: Math.min(100, a.analysisProgress + 1.5) };
+        const gain = this.settings().general.auto_analysis ? 2.5 : 1.5;
+        return { ...a, analysisProgress: Math.min(100, a.analysisProgress + gain) };
       }
       return a;
     }));
@@ -660,13 +677,10 @@ export class GameService {
   async triggerHijack() {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
-
     const code = '0x' + Math.random().toString(16).substring(2, 10).toUpperCase();
     this.hijackUnlockCode.set(code);
-
     const history = this.teamMessages().map(m => m.text).join(' ');
     const augmentedHistory = `${history} [SYSTEM_SECURITY_CODE: ${code}]`;
-    
     const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
     obs.subscribe(res => {
       this.hijackMessage.set(res.response);
