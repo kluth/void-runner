@@ -356,6 +356,7 @@ export class GameService {
     });
 
     this.socket.on('auth_complete', (data: { token: string, player: PlayerData }) => {
+      console.log('[AUTH] Token received from matrix.');
       localStorage.setItem('VOID_RUNNER_TOKEN', data.token);
       this.authToken.set(data.token);
       this.restoreFullState(data.player);
@@ -390,6 +391,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.availableTeams.set(data.teams);
       this.restoreFullState(data.player);
       this.authRequired.set(false);
+      this.twoFactorUserId.set(null);
     });
 
     this.socket.on('error_msg', (msg: string) => {
@@ -703,10 +705,12 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   handleOAuthToken(token: string) {
+    console.log('[AUTH] Syncing Google Token to local sector...');
     localStorage.setItem('VOID_RUNNER_TOKEN', token);
     this.authToken.set(token);
     this.authRequired.set(false);
     
+    // Explicitly re-initialize socket handshake with the new token
     this.socket.emit('session_resume', { token });
     this.log('NEURAL_SYNC: Identity verified. Restoration protocol active.');
     
