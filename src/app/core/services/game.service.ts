@@ -308,10 +308,12 @@ export class GameService {
   isConfigured = signal(true); 
   tutorialActive = signal(false);
   currentTutorialSelector = signal<string | null>(null);
+  detectedOS = signal<'ANDROID' | 'IOS' | 'WINDOWS' | 'LINUX' | 'MAC' | 'UNKNOWN'>('UNKNOWN');
 
   private rivalNames = ['Zer0_Cool', 'CrashOverride', 'AcidBurn', 'CerealKiller', 'Lord_Nikon', 'PhantomPhreak', 'Plague', 'Dark_Dante', 'Mudge', 'Gummo'];
 
   constructor() {
+    this.detectOS();
     this.initSocket();
     this.loadLocalState();
     this.checkConfigStatus();
@@ -353,6 +355,16 @@ export class GameService {
       .then(r => r.json())
       .then((res: {configured: boolean}) => this.isConfigured.set(res.configured))
       .catch(() => this.isConfigured.set(true)); 
+  }
+
+  private detectOS() {
+    const ua = navigator.userAgent.toLowerCase();
+    if (/android/.test(ua)) this.detectedOS.set('ANDROID');
+    else if (/iphone|ipad|ipod/.test(ua)) this.detectedOS.set('IOS');
+    else if (/win/.test(ua)) this.detectedOS.set('WINDOWS');
+    else if (/mac/.test(ua)) this.detectedOS.set('MAC');
+    else if (/linux/.test(ua)) this.detectedOS.set('LINUX');
+    else this.detectedOS.set('UNKNOWN');
   }
 
   private setupSocket() {

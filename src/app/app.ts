@@ -76,7 +76,8 @@ import { CommonModule } from '@angular/common';
          [class.matrix]="gameService.matrixMode()" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
          [class.walkthrough-active]="gameService.tutorialActive()"
-         [class.tabbed-mode]="gameService.settings().video.view_mode === 'TABBED'">
+         [class.tabbed-mode]="gameService.settings().video.view_mode === 'TABBED'"
+         [class]="'os-' + gameService.detectedOS().toLowerCase()">
          
       <header [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'">
         <div class="logo-group">
@@ -300,6 +301,26 @@ import { CommonModule } from '@angular/common';
       transform: scale(1.02);
       background: rgba(0, 20, 0, 0.9);
     }
+
+    /* --- PLATFORM MIMICRY OVERRIDES --- */
+    
+    /* 🤖 ANDROID Sector: Material Design Vibes */
+    .os-android { font-family: 'Roboto', 'Inter', sans-serif !important; }
+    .os-android header { border-radius: 0 0 15px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .os-android .tactical-tabs button { border-radius: 20px; text-transform: capitalize; border: none; background: rgba(0,255,0,0.1); }
+    .os-android .tactical-tabs button.active { background: #00ff00; color: #000; }
+
+    /* 🍎 IOS Sector: Glassmorphism & SF Vibes */
+    .os-ios { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif !important; }
+    .os-ios header { backdrop-filter: blur(20px) saturate(1.5); background: rgba(10,10,10,0.6); border-bottom: 0.5px solid rgba(255,255,255,0.1); }
+    .os-ios .tactical-tabs { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 4px; }
+    .os-ios .tactical-tabs button { border: none !important; border-radius: 8px; }
+    .os-ios .tactical-tabs button.active { background: rgba(255,255,255,0.15); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+
+    /* 💻 DESKTOP Matrix: High-Density Terminal */
+    .os-windows, .os-mac, .os-linux { font-family: 'JetBrains Mono', 'Cascadia Code', monospace !important; }
+    .os-windows header::before { content: "█ SYSTEM_OPERATIVE // "; font-size: 0.5em; opacity: 0.3; }
+    .os-windows .game-wrapper { border: 2px solid #1a1a1a; }
 
     .game-wrapper.matrix { filter: sepia(1) saturate(2) hue-rotate(80deg); }
     .game-wrapper.distorted { 
