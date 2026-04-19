@@ -85,19 +85,26 @@ export class TerminalComponent implements AfterViewChecked {
         '  audio.volume      : Master volume [0-100]',
         '  audio.speech      : Toggle AI voice [on|off]',
         '  audio.ambient     : Toggle background hum [on|off]',
+        '  audio.music_complexity: Intensity of procedural tracks [0-100]',
         '  video.matrix      : Matrix rain effect [on|off]',
         '  video.glitch      : Visual distortion intensity [on|off]',
         '  video.scanlines   : Retro CRT filter [on|off]',
         '  video.brightness  : Overall UI luminance [0-200]',
         '  video.font_size   : Terminal text size [8-24]',
+        '  video.opacity     : UI transparency [0-100]',
+        '  video.crt_curvature: Simulate monitor curve [on|off]',
         '  social.notifications: Browser alerts for DMs [on|off]',
         '  social.incognito   : Hide handle in global chat [on|off]',
+        '  social.broadcast_location: Show location on grid globe [on|off]',
         '  social.status      : Status [ONLINE|AWAY|DND]',
         '  general.auto_wipe  : Automatic wipe at 90% trace [on|off]',
         '  general.auto_analysis: 2x speed for artifact analysis [on|off]',
+        '  general.language   : Localization [EN|DE|SV|HEX]',
+        '  general.tutorial_completed: Manually mark tutorial state [on|off]',
         '  control.scroll_speed: Log scrolling velocity [50-500]',
-        '  streamer.enabled   : Toggle chat integration [on|off]',
-        '  streamer.platform  : Live platform [TWITCH|YOUTUBE|TIKTOK]',
+        '  control.vibe_intensity: Hardware feedback strength [0-200]',
+        '  streamer.enabled  : Toggle streaming integrations [on|off]',
+        '  streamer.platform : Live platform [TWITCH|YOUTUBE|TIKTOK]',
         'EXAMPLE: set general.auto_wipe on'
     ],
     'settings': [
@@ -438,12 +445,12 @@ export class TerminalComponent implements AfterViewChecked {
       case 'config':
           this.gameService.log('--- WORKSTATION_CONFIGURATION ---');
           const s = this.gameService.settings();
-          this.gameService.log(`[AUDIO] vol=${s.audio.volume}% speech=${s.audio.speech} ambient=${s.audio.ambient}`);
-          this.gameService.log(`[VIDEO] matrix=${s.video.matrix} glitch=${s.video.glitch} lines=${s.video.scanlines} font=${s.video.font_size}px`);
-          this.gameService.log(`[SOCIAL] notify=${s.social.notifications} incog=${s.social.incognito} status=${s.social.status}`);
-          this.gameService.log(`[BETA] vibe=${s.beta.neural_vibration} emo=${s.beta.ai_emotions} globe=${s.beta.high_res_globe}`);
-          this.gameService.log(`[GENERAL] autowipe=${s.general.auto_wipe} autoanal=${s.general.auto_analysis} theme=${s.general.theme}`);
-          this.gameService.log(`[CONTROL] auto=${s.control.autocomplete} speed=${s.control.scroll_speed}`);
+          this.gameService.log(`[AUDIO] vol=${s.audio.volume}% speech=${s.audio.speech} ambient=${s.audio.ambient} complex=${s.audio.music_complexity}`);
+          this.gameService.log(`[VIDEO] matrix=${s.video.matrix} glitch=${s.video.glitch} lines=${s.video.scanlines} font=${s.video.font_size}px opac=${s.video.opacity}% curve=${s.video.crt_curvature}`);
+          this.gameService.log(`[SOCIAL] notify=${s.social.notifications} incog=${s.social.incognito} loc=${s.social.broadcast_location} status=${s.social.status}`);
+          this.gameService.log(`[BETA] vibe=${s.beta.neural_vibration} emo=${s.beta.ai_emotions} globe=${s.beta.high_res_globe} shaders=${s.beta.experimental_shaders}`);
+          this.gameService.log(`[GENERAL] autowipe=${s.general.auto_wipe} autoanal=${s.general.auto_analysis} theme=${s.general.theme} lang=${s.general.language}`);
+          this.gameService.log(`[CONTROL] auto=${s.control.autocomplete} scroll=${s.control.scroll_speed} vibe=${s.control.vibe_intensity}`);
           this.gameService.log(`[STREAMER] enabled=${s.streamer.enabled} platform=${s.streamer.platform}`);
           this.gameService.log('Use "set [category.key] [on|off|value]" to modify.');
           break;
