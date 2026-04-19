@@ -25,19 +25,34 @@ import { FormsModule } from '@angular/forms';
         <div class="input-line">
           <span class="prompt">{{ gameService.playerHandle() }}@void:~$</span>
           <input type="text" 
+                 #cmdInputRef
                  [(ngModel)]="cmdInput" 
                  (keyup.enter)="handleCmd()"
                  (keydown.arrowUp)="navigateHistory(1)"
                  (keydown.arrowDown)="navigateHistory(-1)"
                  autofocus>
+          @if (gameService.detectedOS() === 'ANDROID' || gameService.detectedOS() === 'IOS') {
+            <button class="mobile-send" (click)="handleCmd()">SEND</button>
+          }
         </div>
+
+        @if (gameService.detectedOS() === 'ANDROID' || gameService.detectedOS() === 'IOS') {
+          <div class="mobile-shortcuts">
+            <button (click)="runQuickCmd('help')">HELP</button>
+            <button (click)="runQuickCmd('ls')">LS</button>
+            <button (click)="runQuickCmd('sync')">SYNC</button>
+            <button (click)="runQuickCmd('dossier')">DOSSIER</button>
+            <button (click)="runQuickCmd('news')">NEWS</button>
+            <button (click)="runQuickCmd('clear')">CLR</button>
+          </div>
+        }
       </div>
     </div>
   `,
   styles: `
     .terminal-container { background: #050505; border: 1px solid #00ff00; height: 100%; display: flex; flex-direction: column; font-family: 'JetBrains Mono', monospace; box-shadow: 0 0 20px rgba(0, 255, 0, 0.05); }
     .terminal-header { background: #00ff00; color: #000; padding: 4px 10px; display: flex; justify-content: space-between; font-size: 0.6em; font-weight: bold; }
-    .terminal-body { flex-grow: 1; padding: 15px; overflow-y: auto; color: #fff; }
+    .terminal-body { flex-grow: 1; padding: 15px; overflow-y: auto; color: #fff; display: flex; flex-direction: column; }
     .log-line { font-size: 0.7rem; margin-bottom: 0.25rem; display: flex; gap: 10px; }
     .timestamp { color: #008800; min-width: 70px; }
     .message { line-height: 1.4; word-break: break-all; }
@@ -45,6 +60,11 @@ import { FormsModule } from '@angular/forms';
     .prompt { color: #00ff00; font-size: clamp(0.6rem, 2vw, 0.7rem); font-weight: bold; white-space: nowrap; }
     input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: clamp(0.6rem, 2vw, 0.7rem); flex-grow: 1; outline: none; min-width: 100px; }
     input:disabled { opacity: 0.5; cursor: wait; }
+
+    .mobile-send { background: #004400; border: 1px solid #00ff00; color: #00ff00; font-family: inherit; font-size: 0.6rem; padding: 4px 10px; cursor: pointer; }
+    .mobile-shortcuts { display: flex; gap: 5px; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
+    .mobile-shortcuts button { background: rgba(0, 255, 0, 0.1); border: 1px solid #004400; color: #00ff00; padding: 8px 15px; font-family: inherit; font-size: 0.6rem; font-weight: bold; cursor: pointer; border-radius: 4px; white-space: nowrap; }
+    .mobile-shortcuts button:active { background: #00ff00; color: #000; }
 
     .terminal-body::-webkit-scrollbar { width: 4px; }
     .terminal-body::-webkit-scrollbar-track { background: #000; }
@@ -57,6 +77,7 @@ export class TerminalComponent implements AfterViewChecked {
   neuralService = inject(NeuralService);
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('cmdInputRef') private cmdInputRef!: ElementRef;
 
   cmdInput = '';
   commandHistory: string[] = [];
@@ -212,6 +233,14 @@ export class TerminalComponent implements AfterViewChecked {
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
+  }
+
+  runQuickCmd(cmd: string) {
+      this.cmdInput = cmd;
+      this.handleCmd();
+      setTimeout(() => {
+          if (this.cmdInputRef) this.cmdInputRef.nativeElement.focus();
+      }, 100);
   }
 
   navigateHistory(direction: number) {
