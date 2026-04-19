@@ -25,6 +25,22 @@ model Player {
   name             String
   score            Int              @default(0)
   reputation       Int              @default(0)
+  
+  // Base Game State
+  credits          Int              @default(500)
+  experience       Int              @default(0)
+  botnetSize       Int              @default(0)
+  campaignLevel    Int              @default(1)
+  inventory        String           @default("[]") 
+  software         String           @default("[]") 
+
+  // Tactical Session State
+  systemIntegrity  Int              @default(100)
+  detectionLevel   Float            @default(0)
+  activeDebuffs    String           @default("[]") // JSON of debuff objects
+  artifacts        String           @default("[]") // JSON of unanalyzed artifacts
+  publicExploits   String           @default("[]") // JSON array of mission types
+  
   teamId           String?
   team             Team?            @relation("TeamMembers", fields: [teamId], references: [id])
   ledTeam          Team?            @relation("TeamLeader")

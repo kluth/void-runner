@@ -59,6 +59,17 @@ export interface PlayerData {
   name: string;
   reputation: number;
   score: number;
+  credits: number;
+  experience: number;
+  botnetSize: number;
+  campaignLevel: number;
+  inventory: string; 
+  software: string; 
+  systemIntegrity: number;
+  detectionLevel: number;
+  activeDebuffs: string;
+  artifacts: string;
+  publicExploits: string;
   teamId?: string | null;
   team?: Team | null;
 }
@@ -95,7 +106,7 @@ export const AVAILABLE_HARDWARE: HardwareItem[] = [
   providedIn: 'root'
 })
 export class GameService {
-  private socket: Socket;
+  private socket!: Socket;
   private neuralService = inject(NeuralService);
   private audioService = inject(AudioService);
   playerHandle = signal('VOID_RUNNER_' + Math.floor(Math.random() * 9999));
@@ -188,11 +199,8 @@ export class GameService {
   private rivalNames = ['Zer0_Cool', 'CrashOverride', 'AcidBurn', 'CerealKiller', 'Lord_Nikon', 'PhantomPhreak', 'Plague', 'Dark_Dante', 'Mudge', 'Gummo'];
 
   constructor() {
-    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-    const socketUrl = isProd ? window.location.origin : 'http://localhost:3000';
-    this.socket = io(socketUrl);
-    
-    this.setupSocket();
+    this.initSocket();
+    this.loadLocalState();
     this.checkConfigStatus();
 
     this.log('INITIALIZING VOID_OS...');
@@ -203,6 +211,13 @@ export class GameService {
 
     setInterval(() => this.gameTick(), 1000);
     setInterval(() => this.economyTick(), 10000);
+  }
+
+  private initSocket() {
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const socketUrl = isProd ? window.location.origin : 'http://localhost:3000';
+    this.socket = io(socketUrl);
+    this.setupSocket();
   }
 
   private checkConfigStatus() {
@@ -226,7 +241,7 @@ export class GameService {
     this.socket.on('auth_complete', (data: { token: string, player: PlayerData }) => {
       localStorage.setItem('VOID_RUNNER_TOKEN', data.token);
       this.authToken.set(data.token);
-      this.playerData.set(data.player);
+      this.restoreFullState(data.player);
       this.authRequired.set(false);
       this.twoFactorUserId.set(null);
       this.socket.emit('session_resume', { token: data.token });
@@ -253,7 +268,7 @@ export class GameService {
       this.leaderboard.set(data.leaderboard.map((p: any) => ({ ...p, isPlayer: p.id === data.player.id })));
       this.teamMessages.set(data.chatMessages);
       this.availableTeams.set(data.teams);
-      this.playerData.set(data.player);
+      this.restoreFullState(data.player);
       this.authRequired.set(false);
     });
 
@@ -298,14 +313,101 @@ export class GameService {
     });
   }
 
+  private restoreFullState(player: PlayerData) {
+    this.playerData.set(player);
+    this.credits.set(player.credits);
+    this.experience.set(player.experience);
+    this.botnetSize.set(player.botnetSize);
+    this.campaignLevel.set(player.campaignLevel);
+    this.reputation.set(player.reputation);
+    
+    this.systemIntegrity.set(player.systemIntegrity);
+    this.detectionLevel.set(player.detectionLevel);
+
+    try {
+      const invIds = JSON.parse(player.inventory) as string[];
+      const inv = AVAILABLE_HARDWARE.filter(h => invIds.includes(h.id));
+      this.inventory.set(inv);
+    } catch(e) {}
+
+    try {
+      const softIds = JSON.parse(player.software) as string[];
+      this.installedSoftware.update(sw => sw.map(s => ({ ...s, installed: softIds.includes(s.id) })));
+    } catch(e) {}
+
+    try { this.activeDebuffs.set(JSON.parse(player.activeDebuffs)); } catch(e) {}
+    try { this.artifacts.set(JSON.parse(player.artifacts)); } catch(e) {}
+    try { this.publicExploits.set(JSON.parse(player.publicExploits)); } catch(e) {}
+    
+    this.saveLocalState();
+  }
+
+  private saveLocalState() {
+    const state = {
+      handle: this.playerHandle(),
+      credits: this.credits(),
+      experience: this.experience(),
+      reputation: this.reputation(),
+      botnetSize: this.botnetSize(),
+      campaignLevel: this.campaignLevel(),
+      inventory: this.inventory().map(i => i.id),
+      software: this.installedSoftware().filter(s => s.installed).map(s => s.id),
+      systemIntegrity: this.systemIntegrity(),
+      detectionLevel: this.detectionLevel(),
+      activeDebuffs: this.activeDebuffs(),
+      artifacts: this.artifacts(),
+      publicExploits: this.publicExploits()
+    };
+    localStorage.setItem('VOID_RUNNER_STATE', JSON.stringify(state));
+  }
+
+  private loadLocalState() {
+    const saved = localStorage.getItem('VOID_RUNNER_STATE');
+    if (!saved) return;
+    try {
+      const state = JSON.parse(saved);
+      if (state.handle) this.playerHandle.set(state.handle);
+      this.credits.set(state.credits || 500);
+      this.experience.set(state.experience || 0);
+      this.reputation.set(state.reputation || 0);
+      this.botnetSize.set(state.botnetSize || 0);
+      this.campaignLevel.set(state.campaignLevel || 1);
+      
+      this.systemIntegrity.set(state.systemIntegrity ?? 100);
+      this.detectionLevel.set(state.detectionLevel ?? 0);
+      this.activeDebuffs.set(state.activeDebuffs || []);
+      this.artifacts.set(state.artifacts || []);
+      this.publicExploits.set(state.publicExploits || []);
+
+      if (state.inventory) {
+        this.inventory.set(AVAILABLE_HARDWARE.filter(h => state.inventory.includes(h.id)));
+      }
+      if (state.software) {
+        this.installedSoftware.update(sw => sw.map(s => ({ ...s, installed: state.software.includes(s.id) })));
+      }
+    } catch(e) {}
+  }
+
   private updateRemoteScore() {
     if (this.authToken()) {
       this.socket.emit('update_score', { 
         token: this.authToken(),
         score: this.credits(), 
-        reputation: this.reputation() 
+        reputation: this.reputation(),
+        credits: this.credits(),
+        experience: this.experience(),
+        botnetSize: this.botnetSize(),
+        campaignLevel: this.campaignLevel(),
+        inventory: JSON.stringify(this.inventory().map(i => i.id)),
+        software: JSON.stringify(this.installedSoftware().filter(s => s.installed).map(s => s.id)),
+        systemIntegrity: this.systemIntegrity(),
+        detectionLevel: this.detectionLevel(),
+        activeDebuffs: JSON.stringify(this.activeDebuffs()),
+        artifacts: JSON.stringify(this.artifacts()),
+        publicExploits: JSON.stringify(this.publicExploits())
       });
     }
+    this.saveLocalState();
   }
 
   sendTeamMessage(text: string) {
@@ -378,11 +480,13 @@ export class GameService {
       if (remaining.length !== currentDebuffs.length) {
         this.activeDebuffs.set(remaining);
         this.log("DEBUFF_CLEARED: System stability improved.");
+        this.updateRemoteScore();
       }
     }
 
     if (this.systemIntegrity() < 100 && now % 5000 < 1000) {
       this.systemIntegrity.update(i => Math.min(100, i + 1));
+      this.updateRemoteScore();
     }
 
     if (this.systemIntegrity() < 30 && now % 2000 < 1000) {
@@ -390,12 +494,13 @@ export class GameService {
       if (this.credits() > 0) {
         this.credits.update(c => Math.max(0, c - bleed));
         if (Math.random() > 0.9) this.log('<span style="color: #ff0000">!!! ALERT: MEMORY_LEAK DETECTED. DATA DECAYING !!!</span>');
+        this.updateRemoteScore();
       }
     }
 
     if (this.installedSoftware().find(s => s.id === 'bleachbit-core' && s.installed) && now % 3000 < 1000) {
       if (this.detectionLevel() > 0) {
-        this.detectionLevel.update(d => Math.max(0, d - 0.1));
+        this.detectionLevel.update(d => Math.max(0, Number((d - 0.1).toFixed(1))));
       }
     }
 
@@ -440,14 +545,10 @@ export class GameService {
   async triggerHijack() {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
-
     const code = '0x' + Math.random().toString(16).substring(2, 10).toUpperCase();
     this.hijackUnlockCode.set(code);
-
     const history = this.teamMessages().map(m => m.text).join(' ');
-    // We add the secret code to the history so AI knows it
     const augmentedHistory = `${history} [SYSTEM_SECURITY_CODE: ${code}]`;
-    
     const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
     obs.subscribe(res => {
       this.hijackMessage.set(res.response);
@@ -466,7 +567,6 @@ export class GameService {
           this.log(`BOTNET: Mined ${cryptoMined}cr in background.`);
       }
     }
-
     if (this.activeRansoms() > 0) {
       const extortionPayout = this.activeRansoms() * 80;
       this.credits.update(c => c + extortionPayout);
@@ -476,37 +576,30 @@ export class GameService {
     this.updateRemoteScore();
   }
 
-  // Stats
   totalReconBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
     return this.inventory().filter(i => i.bonusType === 'recon').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
-
   totalExploitBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
     return this.inventory().filter(i => i.bonusType === 'exploit').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
-
   totalStealthBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
     return this.inventory().filter(i => i.bonusType === 'stealth').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
-
   totalSocialBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
     return this.inventory().filter(i => i.bonusType === 'social').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
-
   totalDefenseBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
     return this.inventory().filter(i => i.bonusType === 'defense').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
-
   totalCloudBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
     return this.inventory().filter(i => i.bonusType === 'cloud').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
-
   stealthMultiplier = computed(() => {
     switch (this.routingMode()) {
       case 'VPN': return 1.5;
@@ -522,24 +615,13 @@ export class GameService {
   }
 
   addRandomMission() {
-    const types: Mission['type'][] = [
-      'port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 
-      'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign',
-      'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering'
-    ];
+    const types: Mission['type'][] = ['port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign', 'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering'];
     const type = types[Math.floor(Math.random() * types.length)];
-    
-    // Difficulty scaling: New types are naturally harder
     const baseDifficulty = (['crypto-heist', 'quantum-breach'].includes(type)) ? 4 : 1;
     const difficulty = this.campaignLevel() + baseDifficulty + Math.floor(Math.random() * 2);
-    
     const reward = (difficulty * 150) + Math.floor(Math.random() * 100);
-    const targetPrefixes = [
-      'GLOBAL_NET', 'CORP_NODE', 'SECURE_VAULT', 'DATA_HUB', 'VOID_LINK', 'SHADOW_SRV',
-      'SAT_UPLINK', 'BIO_LAB_MAINFRAME', 'CRYPTO_EXCHANGE', 'DEEP_SEA_CABLE', 'QUANTUM_NODE', 'GOV_DATACENTER'
-    ];
+    const targetPrefixes = ['GLOBAL_NET', 'CORP_NODE', 'SECURE_VAULT', 'DATA_HUB', 'VOID_LINK', 'SHADOW_SRV', 'SAT_UPLINK', 'BIO_LAB_MAINFRAME', 'CRYPTO_EXCHANGE', 'DEEP_SEA_CABLE', 'QUANTUM_NODE', 'GOV_DATACENTER'];
     const target = targetPrefixes[Math.floor(Math.random() * targetPrefixes.length)] + '_' + Math.floor(Math.random() * 9999);
-    
     const newMission: Mission = {
       id: Math.random().toString(36).substring(7),
       name: `OP_${type.replace('-', '_').toUpperCase()}`,
@@ -552,40 +634,36 @@ export class GameService {
 
   increaseDetection(amount: number) {
     if (this.inventory().some(i => i.id === 'red-pill')) return;
-    
-    // Check for CREDIT_FREEZE debuff - if active, you are "flagged" and trace grows faster
     const isFrozen = this.activeDebuffs().some(d => d.type === 'LOCK'); 
     const finalAmount = isFrozen ? amount * 2 : amount;
-
     const stealth = this.totalStealthBonus();
     let multiplier = this.stealthMultiplier();
     if (this.globalEvent() === 'ZERO_DAY_PANIC') multiplier *= 0.5;
     const reducedAmount = Math.max(0.1, (finalAmount - (stealth / 10)) / multiplier) * (this.supplyChainActive() ? 0.5 : 1.0);
     this.detectionLevel.update(d => Math.min(100, Number((d + reducedAmount).toFixed(1))));
-    
+    this.updateRemoteScore();
     if (this.detectionLevel() >= 100) {
       this.log('!!! CRITICAL: TRACE DETECTED. EMERGENCY DISCONNECT !!!');
       this.activeRansoms.set(0);
       this.triggerRetaliation(true);
       this.detectionLevel.set(0);
+      this.updateRemoteScore();
     }
   }
 
   triggerRetaliation(critical = false) {
     const chance = critical ? 1.0 : 0.3;
     if (Math.random() > chance) return;
-    
     const types = ['RANSOM', 'GLITCH', 'LOCK', 'DATA_WIPE', 'REP_SABOTAGE'] as const;
     const type = types[Math.floor(Math.random() * types.length)];
     const duration = critical ? 60000 : 30000;
-    
     this.applyRetaliation(type, duration, critical);
+    this.updateRemoteScore();
   }
 
   private applyRetaliation(type: 'RANSOM' | 'GLITCH' | 'LOCK' | 'DATA_WIPE' | 'REP_SABOTAGE', duration: number, critical = false) {
     const id = Math.random().toString(36).substring(7);
     this.systemIntegrity.update(i => Math.max(0, i - (critical ? 40 : 15)));
-
     switch (type) {
       case 'RANSOM':
         const loss = critical ? 500 : 200;
@@ -627,10 +705,6 @@ export class GameService {
     let rep = Math.floor(mission.difficulty * 1.5);
     if (this.globalEvent() === 'CTF_ACTIVE') { e *= 2; rep *= 2; }
     if (this.globalEvent() === 'ZERO_DAY_PANIC') r *= 2;
-    if (this.publicExploits().includes(mission.type)) {
-      this.log(`1-DAY EXPLOIT USED: ${mission.type.toUpperCase()} SUCCESS RATE 100%.`);
-      this.publicExploits.update(ex => ex.filter(t => t !== mission.type));
-    }
     this.credits.update(c => c + r);
     this.addExperience(e);
     this.reputation.update(rp => rp + rep);
@@ -657,6 +731,7 @@ export class GameService {
     };
     this.artifacts.update(arts => [...arts, newArt]);
     this.log(`[ALERT] ACQUIRED ARTIFACT: ${newArt.name}`);
+    this.updateRemoteScore();
   }
 
   private finishAnalysis(art: Artifact) {
@@ -668,47 +743,64 @@ export class GameService {
       case 'credits': this.credits.update(c => c + 1500); this.log('RESULT: EXFILTRATED 1500cr.'); break;
       case 'target_intel': this.log('RESULT: TARGET INTEL ACQUIRED.'); break;
     }
+    this.updateRemoteScore();
   }
 
-  buyPublicExploit(type: Mission['type']) {
-    const cost = 100;
-    if (this.credits() >= cost) {
-      this.credits.update(c => c - cost);
-      this.publicExploits.update(ex => [...ex, type]);
-      this.log(`ACQUIRED 1-DAY EXPLOIT FOR ${type.toUpperCase()}.`);
+  buyHardware(item: HardwareItem) {
+    if (!this.authToken()) {
+      this.authRequired.set(true);
+      this.log('<span style="color: #ffaa00">HARDWARE_LINK: Identity verification required for physical module installation.</span>');
+      return;
+    }
+    if (this.credits() >= item.price) {
+      this.credits.update(c => c - item.price);
+      this.inventory.update(inv => [...inv, item]);
+      this.log(`HARDWARE: ${item.name.toUpperCase()} ONLINE.`);
+      this.updateRemoteScore();
+    }
+  }
+
+  unlockHardware(id: string, cost: number) {
+    if (!this.authToken()) {
+      this.authRequired.set(true);
+      this.log('<span style="color: #ffaa00">RESEARCH_DB: Access restricted to verified operatives. Authenticate to decrypt.</span>');
+      return false;
+    }
+    if (this.experience() >= cost) {
+      this.experience.update(e => e - cost);
+      this.availableHardware.update(hw => hw.map(h => h.id === id ? { ...h, unlocked: true } : h));
+      this.log(`RESEARCH: ${id.toUpperCase()} UNLOCKED.`);
+      this.updateRemoteScore();
       return true;
     }
     return false;
   }
 
-  private generateInternalNetwork(origin: string) {
-    this.activeInternalOrigin.set(origin);
-    this.internalNetwork.set([
-      { id: 'wks1', name: 'DEV_WORKSTATION', type: 'WORKSTATION', status: 'LOCKED', reward: 150 },
-      { id: 'db1', name: 'PRODUCTION_DB', type: 'DATABASE', status: 'LOCKED', reward: 400 },
-      { id: 'mail1', name: 'EXCHANGE_SRV', type: 'MAIL_SERVER', status: 'LOCKED', reward: 250 },
-      { id: 'dc1', name: 'DOMAIN_CONTROLLER', type: 'ADMIN_CONTROLLER', status: 'LOCKED', reward: 1000 }
-    ]);
-    this.log(`PIVOT ESTABLISHED: INTERNAL NETWORK OF ${origin} MAPPED.`);
+  addExperience(amount: number) { 
+    this.experience.update(e => e + amount); 
+    this.updateRemoteScore();
   }
 
-  compromiseInternal(targetId: string) {
-    const target = this.internalNetwork().find(t => t.id === targetId);
-    if (!target || target.status === 'COMPROMISED') return;
-    if (Math.random() > 0.4) {
-      this.internalNetwork.update(nets => nets.map(n => n.id === targetId ? { ...n, status: 'COMPROMISED' } : n));
-      this.credits.update(c => c + target.reward);
-      this.log(`PIVOT SUCCESSFUL: EXFILTRATED ${target.reward}cr.`);
-      if (target.type === 'ADMIN_CONTROLLER') {
-        this.reputation.update(r => r + 50);
-        this.activeInternalOrigin.set(null);
-        this.internalNetwork.set([]);
-        this.updateRemoteScore();
-      }
-    } else {
-      this.log(`PIVOT FAILED. INCIDENT RESPONSE TRIGGERED.`);
-      this.increaseDetection(20);
+  failMission(mission: Mission) {
+    this.detectionLevel.set(0);
+    this.log(`MISSION FAILED: ${mission.name.toUpperCase()}`);
+    this.triggerRetaliation(false);
+    this.activeMissions.update(m => m.filter(x => x.id !== mission.id));
+    this.addRandomMission();
+    this.updateRemoteScore();
+  }
+
+  installSoftware(id: string) {
+    const pkg = this.installedSoftware().find(s => s.id === id);
+    if (!pkg || pkg.installed) return false;
+    if (this.credits() >= pkg.price) {
+      this.credits.update(c => c - pkg.price);
+      this.installedSoftware.update(sw => sw.map(s => s.id === id ? { ...s, installed: true } : s));
+      this.log(`vpm: ${id} installed successfully.`);
+      this.updateRemoteScore();
+      return true;
     }
+    return false;
   }
 
   private startIntrusion() {
@@ -734,51 +826,27 @@ export class GameService {
     }
   }
 
-  setRouting(mode: RoutingMode) {
-    const cost = mode === 'ONION' ? 50 : mode === 'VPN' ? 20 : 0;
+  buyPublicExploit(type: Mission['type']) {
+    const cost = 100;
     if (this.credits() >= cost) {
-      if (cost > 0) this.credits.update(c => c - cost);
-      this.routingMode.set(mode);
-      this.log(`ROUTING: ${mode}`);
-    }
-  }
-
-  buyHardware(item: HardwareItem) {
-    if (!this.authToken()) {
-      this.authRequired.set(true);
-      this.log('<span style="color: #ffaa00">HARDWARE_LINK: Identity verification required for physical module installation.</span>');
-      return;
-    }
-    if (this.credits() >= item.price) {
-      this.credits.update(c => c - item.price);
-      this.inventory.update(inv => [...inv, item]);
-      this.log(`HARDWARE: ${item.name.toUpperCase()} ONLINE.`);
-    }
-  }
-
-  unlockHardware(id: string, cost: number) {
-    if (!this.authToken()) {
-      this.authRequired.set(true);
-      this.log('<span style="color: #ffaa00">RESEARCH_DB: Access restricted to verified operatives. Authenticate to decrypt.</span>');
-      return false;
-    }
-    if (this.experience() >= cost) {
-      this.experience.update(e => e - cost);
-      this.availableHardware.update(hw => hw.map(h => h.id === id ? { ...h, unlocked: true } : h));
-      this.log(`RESEARCH: ${id.toUpperCase()} UNLOCKED.`);
+      this.credits.update(c => c - cost);
+      this.publicExploits.update(ex => [...ex, type]);
+      this.log(`ACQUIRED 1-DAY EXPLOIT FOR ${type.toUpperCase()}.`);
+      this.updateRemoteScore();
       return true;
     }
     return false;
   }
 
-  addExperience(amount: number) { this.experience.update(e => e + amount); }
-
-  failMission(mission: Mission) {
-    this.detectionLevel.set(0);
-    this.log(`MISSION FAILED: ${mission.name.toUpperCase()}`);
-    this.triggerRetaliation(false);
-    this.activeMissions.update(m => m.filter(x => x.id !== mission.id));
-    this.addRandomMission();
+  private generateInternalNetwork(origin: string) {
+    this.activeInternalOrigin.set(origin);
+    this.internalNetwork.set([
+      { id: 'wks1', name: 'DEV_WORKSTATION', type: 'WORKSTATION', status: 'LOCKED', reward: 150 },
+      { id: 'db1', name: 'PRODUCTION_DB', type: 'DATABASE', status: 'LOCKED', reward: 400 },
+      { id: 'mail1', name: 'EXCHANGE_SRV', type: 'MAIL_SERVER', status: 'LOCKED', reward: 250 },
+      { id: 'dc1', name: 'DOMAIN_CONTROLLER', type: 'ADMIN_CONTROLLER', status: 'LOCKED', reward: 1000 }
+    ]);
+    this.log(`PIVOT ESTABLISHED: INTERNAL NETWORK OF ${origin} MAPPED.`);
   }
 
   researchZeroDay() {
@@ -792,6 +860,7 @@ export class GameService {
       if (Math.random() > (this.globalEvent() === 'PATCH_TUESDAY' ? 0.85 : 0.7)) {
         this.zeroDays.update(z => z + 1);
         this.log('0-DAY ACQUIRED!');
+        this.updateRemoteScore();
         return true;
       }
     }
@@ -832,6 +901,7 @@ export class GameService {
       this.botnetSize.update(b => b - Math.floor(b * 0.5));
       this.detectionLevel.update(d => Math.max(0, d - 40));
       this.log('DDoS LAUNCHED.');
+      this.updateRemoteScore();
       return true;
     }
     return false;
@@ -842,6 +912,7 @@ export class GameService {
       this.botnetSize.update(b => b - 15);
       this.activeRansoms.update(r => r + 1);
       this.log('RANSOMWARE DEPLOYED.');
+      this.updateRemoteScore();
       return true;
     }
     return false;
@@ -853,6 +924,7 @@ export class GameService {
       this.credits.update(c => c + p);
       this.activeRansoms.set(0);
       this.log(`RANSOMWARE CASHED: +${p}cr.`);
+      this.updateRemoteScore();
       return true;
     }
     return false;
@@ -864,18 +936,7 @@ export class GameService {
       this.botnetSize.update(b => b - 50);
       this.supplyChainActive.set(true);
       this.log('SUPPLY CHAIN COMPROMISED.');
-      return true;
-    }
-    return false;
-  }
-
-  installSoftware(id: string) {
-    const pkg = this.installedSoftware().find(s => s.id === id);
-    if (!pkg || pkg.installed) return false;
-    if (this.credits() >= pkg.price) {
-      this.credits.update(c => c - pkg.price);
-      this.installedSoftware.update(sw => sw.map(s => s.id === id ? { ...s, installed: true } : s));
-      this.log(`vpm: ${id} installed successfully.`);
+      this.updateRemoteScore();
       return true;
     }
     return false;

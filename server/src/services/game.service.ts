@@ -4,14 +4,7 @@ import { vectorService } from './vector.service';
 import { configService } from './config.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-
-interface OtpAuthenticator {
-  check: (code: string, secret: string) => boolean;
-  generateSecret: () => string;
-  keyuri: (user: string, service: string, secret: string) => string;
-}
-
-const { authenticator } = require('otplib') as { authenticator: OtpAuthenticator };
+const { authenticator } = require('otplib');
 import * as qrcode from 'qrcode';
 
 const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC'] as const;
@@ -135,13 +128,32 @@ export class GameService {
         }
       });
 
-      socket.on('update_score', async (data: { token: string, score: number, reputation: number }) => {
+      socket.on('update_score', async (data: { 
+          token: string, 
+          score: number, 
+          reputation: number,
+          credits?: number,
+          experience?: number,
+          botnetSize?: number,
+          campaignLevel?: number,
+          inventory?: string,
+          software?: string
+      }) => {
         const decoded = await this.verifyToken(data.token);
         if (!decoded) return;
 
         await prisma.player.update({
           where: { id: decoded.id },
-          data: { score: data.score, reputation: data.reputation }
+          data: { 
+              score: data.score, 
+              reputation: data.reputation,
+              credits: data.credits ?? undefined,
+              experience: data.experience ?? undefined,
+              botnetSize: data.botnetSize ?? undefined,
+              campaignLevel: data.campaignLevel ?? undefined,
+              inventory: data.inventory ?? undefined,
+              software: data.software ?? undefined
+          }
         });
         this.io.emit('leaderboard_update', await this.getLeaderboard());
       });
@@ -184,9 +196,7 @@ export class GameService {
 
       socket.on('disconnect', async () => {
         console.log(`[SOCKET] User disconnected: ${socket.id}`);
-        try {
-          await prisma.player.delete({ where: { id: socket.id } });
-        } catch (e) { }
+        // We no longer delete anonymous players on disconnect if we want persistence
         const board = await this.getLeaderboard();
         this.io.emit('leaderboard_update', board);
       });
