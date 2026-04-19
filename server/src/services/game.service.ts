@@ -25,6 +25,7 @@ export class GameService {
 
     io.on('connection', (socket) => {
       console.log(`[SOCKET] Handshake: ${socket.id}`);
+      this.broadcastOperativeCount();
 
       // --- AUTHENTICATION ---
       socket.on('auth_register', async (data) => {
@@ -208,11 +209,19 @@ export class GameService {
 
       socket.on('disconnect', async () => {
         console.log(`[SOCKET] User disconnected: ${socket.id}`);
+        this.broadcastOperativeCount();
         // We no longer delete anonymous players on disconnect if we want persistence
         const board = await this.getLeaderboard();
         this.io.emit('leaderboard_update', board);
       });
     });
+  }
+
+  private broadcastOperativeCount() {
+    if (this.io) {
+        const count = this.io.engine.clientsCount;
+        this.io.emit('operative_count_update', { count });
+    }
   }
 
   private async verifyToken(token: string): Promise<any> {

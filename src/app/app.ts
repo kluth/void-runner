@@ -135,6 +135,10 @@ import { CommonModule } from '@angular/common';
             <span class="label">TRACE</span>
             <span class="value" [class.danger]="gameService.detectionLevel() > 50">{{ gameService.detectionLevel() }}%</span>
           </div>
+          <div class="stat-box">
+            <span class="label">OPERATIVES</span>
+            <span class="value" style="color: #00ff00">{{ gameService.activeOperatives() }}</span>
+          </div>
           <div class="music-player">
             <span class="label">NEURAL_AUDIO_STREAM</span>
             <span class="track-name">{{ audioService.currentTrack() }}</span>

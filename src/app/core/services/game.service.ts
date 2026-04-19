@@ -247,6 +247,7 @@ export class GameService {
   // Advanced Mechanics State
   botnetSize = signal(0);
   zeroDays = signal(0);
+  activeOperatives = signal(1);
   reputation = signal(0);
   reputationFixers = signal(0);
   reputationAnarchists = signal(0);
@@ -365,9 +366,12 @@ export class GameService {
     this.socket.on('auth_2fa_required', (data: { userId: string }) => {
       this.twoFactorUserId.set(data.userId);
     });
+this.socket.on('auth_2fa_qr', (qr: string) => {
+  this.qrCode.set(qr);
+});
 
-    this.socket.on('auth_2fa_qr', (qr: string) => {
-      this.qrCode.set(qr);
+    this.socket.on('operative_count_update', (data: { count: number }) => {
+      this.activeOperatives.set(data.count);
     });
 
     this.socket.on('init_state', (data: { 
