@@ -140,6 +140,38 @@ export class GameService {
         socket.emit('dossier_data', { dossier: dossier || 'ANALYSIS_PENDING: Deep sector scan in progress.' });
       });
 
+      // --- MEDIA ARCHIVE HANDLERS ---
+      socket.on('save_media', async (data: { token: string, type: 'IMAGE' | 'AUDIO', data: string }) => {
+        const decoded = await this.verifyToken(data.token);
+        if (!decoded) return;
+
+        try {
+            const capture = await prisma.mediaCapture.create({
+                data: {
+                    type: data.type,
+                    data: data.data,
+                    playerId: decoded.id
+                }
+            });
+            console.log(`[MEDIA] Captured ${data.type} for ${decoded.username}`);
+            socket.emit('media_saved', { id: capture.id });
+        } catch (e) {
+            console.error('[MEDIA] Failed to archive shard:', e);
+        }
+      });
+
+      socket.on('get_media', async (data: { token: string }) => {
+        const decoded = await this.verifyToken(data.token);
+        if (!decoded) return;
+
+        const media = await prisma.mediaCapture.findMany({
+            where: { playerId: decoded.id },
+            orderBy: { createdAt: 'desc' },
+            take: 20
+        });
+        socket.emit('media_gallery', media);
+      });
+
       socket.on('send_message', async (data: { token: string, text: string, teamId?: string }) => {
         const decoded = await this.verifyToken(data.token);
         if (!decoded) return;

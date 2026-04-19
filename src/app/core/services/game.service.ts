@@ -280,6 +280,7 @@ export class GameService {
   authToken = signal<string | null>(localStorage.getItem('VOID_RUNNER_TOKEN'));
   isAuthenticated = computed(() => !!this.authToken());
   playerData = signal<PlayerData | null>(null);
+  userMedia = signal<any[]>([]);
   qrCode = signal<string | null>(null);
   authRequired = signal(false); 
   twoFactorUserId = signal<string | null>(null);
@@ -466,6 +467,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         // We reuse restoreFullState as it handles mapping from DB-style objects
         // and we ensure local storage is updated too.
         this.restoreFullState(data);
+    });
+
+    this.socket.on('media_gallery', (media: any[]) => {
+        this.userMedia.set(media);
     });
 
     // Attack Sync: Server-driven high-stress events
@@ -757,9 +762,22 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     
     // Explicitly re-initialize socket handshake with the new token
     this.socket.emit('session_resume', { token });
+    this.getMedia(); // Fetch private archive
     this.log('NEURAL_SYNC: Identity verified. Restoration protocol active.');
     
     window.history.replaceState({}, document.title, "/");
+  }
+
+  saveMedia(type: 'IMAGE' | 'AUDIO', data: string) {
+    if (this.authToken()) {
+        this.socket.emit('save_media', { token: this.authToken(), type, data });
+    }
+  }
+
+  getMedia() {
+    if (this.authToken()) {
+        this.socket.emit('get_media', { token: this.authToken() });
+    }
   }
 
   private gameTick() {

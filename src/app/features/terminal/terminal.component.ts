@@ -408,10 +408,24 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('matrix      - Toggle visual neural-sync');
         this.gameService.log('settings    - Display current configuration');
         this.gameService.log('dossier     - Request your neural OSINT case file');
+        this.gameService.log('gallery     - Access your private media archive');
         this.gameService.log('sync        - Proactively initialize neural handshake');
         this.gameService.log('set [val]   - Modify system parameters');
         this.gameService.log('man [cmd]   - Detailed manual for command');
         this.gameService.log('tutorial    - Start onboard AI walkthrough');
+        break;
+
+      case 'gallery':
+        this.gameService.log('--- NEURAL_MEDIA_ARCHIVE ---');
+        const media = this.gameService.userMedia();
+        if (media.length === 0) {
+            this.gameService.log('ARCHIVE_EMPTY: No media shards captured.');
+        } else {
+            media.forEach((m, i) => {
+                this.gameService.log(`[${i}] ${m.type} - Captured ${new Date(m.createdAt).toLocaleString()}`);
+                if (m.type === 'IMAGE') this.gameService.log(`  > VIEW_LINK: [Encrypted Base64 Node]`);
+            });
+        }
         break;
 
       case 'dossier':

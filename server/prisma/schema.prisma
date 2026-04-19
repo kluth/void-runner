@@ -47,8 +47,18 @@ model Player {
   ledTeam          Team?            @relation("TeamLeader")
   sentMessages     PrivateMessage[] @relation("SentMessages")
   receivedMessages PrivateMessage[] @relation("ReceivedMessages")
+  mediaCaptures    MediaCapture[]
 
   @@unique([provider, providerId])
+}
+
+model MediaCapture {
+  id        String   @id @default(uuid())
+  type      String   // 'IMAGE' | 'AUDIO'
+  data      String   // Base64 encoded media or URL
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Team {
