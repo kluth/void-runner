@@ -316,6 +316,14 @@ export class GameService {
     this.loadLocalState();
     this.checkConfigStatus();
 
+    // Boot Sector Optimization: Only show boot screen on fresh session
+    const hasBooted = sessionStorage.getItem('VOID_RUNNER_BOOTED');
+    if (hasBooted) {
+        this.isBooting.set(false);
+    } else {
+        sessionStorage.setItem('VOID_RUNNER_BOOTED', 'true');
+    }
+
     this.log('INITIALIZING VOID_OS...');
     this.log('CORE SYSTEMS ONLINE.');
     for (let i = 0; i < 4; i++) {

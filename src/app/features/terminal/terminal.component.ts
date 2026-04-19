@@ -135,6 +135,12 @@ export class TerminalComponent implements AfterViewChecked {
         'DESCRIPTION: Interface for workstation technical documentation.',
         'Displays name, synopsis, and detailed usage for any grid binary.'
     ],
+    'sync': [
+        'NAME: sync - Neural Identity Synchronization',
+        'SYNOPSIS: sync',
+        'DESCRIPTION: Proactively initializes the Google Neural Handshake.',
+        'Use this to restore a disconnected session or switch operative profiles at any time.'
+    ],
     'clear': [
         'NAME: clear - flush terminal buffer',
         'DESCRIPTION: Resets the workstation interface and clears log history.'
@@ -373,6 +379,7 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('matrix      - Toggle visual neural-sync');
         this.gameService.log('settings    - Display current configuration');
         this.gameService.log('dossier     - Request your neural OSINT case file');
+        this.gameService.log('sync        - Proactively initialize neural handshake');
         this.gameService.log('set [val]   - Modify system parameters');
         this.gameService.log('man [cmd]   - Detailed manual for command');
         this.gameService.log('tutorial    - Start onboard AI walkthrough');
@@ -381,6 +388,11 @@ export class TerminalComponent implements AfterViewChecked {
       case 'dossier':
         this.gameService.log('PROFILER: Requesting deep sector audit...');
         this.gameService.socket.emit('get_dossier', { token: this.gameService.authToken() });
+        break;
+
+      case 'sync':
+        this.gameService.log('UPLINK: Proactive identity handshake initiated.');
+        this.gameService.authRequired.set(true);
         break;
 
       case 'vpm':
