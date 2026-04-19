@@ -1,35 +1,47 @@
-# Use Node.js 20 on Debian Bookworm
-FROM node:20-bookworm-slim
+# --- Stage 1: Build ---
+FROM node:20-bookworm-slim AS build
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y openssl libssl3 ca-certificates curl && rm -rf /var/lib/apt/lists/*
+# Install build dependencies
+RUN apt-get update && apt-get install -y openssl libssl3 ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
-
-# Install pnpm
 RUN npm install -g pnpm
 
-# Copy configuration files
+# Install dependencies separately to leverage Docker cache
 COPY package.json pnpm-lock.yaml ./
-
-# Install all dependencies
 RUN pnpm install
 
 # Copy application source
 COPY . .
 
-# Generate Prisma client for the current environment
+# Generate Prisma client specifically for OpenSSL 3.0
+# We force the binary target to ensure it doesn't try to use a local cache
 RUN pnpm prisma generate
 
 # Build the TypeScript application
 RUN pnpm run build
 
-# Expose backend port
+# --- Stage 2: Runtime ---
+FROM node:20-bookworm-slim AS runtime
+
+# Install ONLY runtime dependencies
+RUN apt-get update && apt-get install -y openssl libssl3 ca-certificates curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy production artifacts from build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/prisma ./prisma
+
+# Set production environment flags for Prisma
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+
 EXPOSE 3000
 
-# Health check using relative path
+# Health check
 HEALTHCHECK --interval=10s --timeout=5s --retries=5 CMD curl -f http://localhost:3000/api/config/status || exit 1
 
-# Start the application using the compiled entry point
 CMD ["node", "dist/index.js"]
