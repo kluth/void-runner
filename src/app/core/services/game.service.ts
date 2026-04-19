@@ -851,29 +851,43 @@ export class GameService {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
 
+    const level = this.campaignLevel();
     const puzzleTypes = ['MATH', 'HEX', 'BINARY', 'WORD'];
     const pType = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
     let code = '';
     let puzzlePrompt = '';
+    let clarityInstruction = '';
+
+    // Adjust clarity based on level
+    if (level <= 3) clarityInstruction = "You MUST DIRECTLY tell the user the answer in a clear way.";
+    else if (level <= 7) clarityInstruction = "You MUST hint strongly at the answer but do not state it directly.";
+    else clarityInstruction = "You MUST be very cryptic and make the answer hard to find in your message.";
 
     if (pType === 'MATH') {
-        const a = Math.floor(Math.random() * 50) + 10;
-        const b = Math.floor(Math.random() * 50) + 10;
-        code = (a + b).toString();
-        puzzlePrompt = `Ask the user what is ${a} plus ${b}. The answer is ${code}.`;
+        if (level <= 3) {
+            const a = Math.floor(Math.random() * 9) + 1;
+            const b = Math.floor(Math.random() * 9) + 1;
+            code = (a + b).toString();
+            puzzlePrompt = `Ask what is ${a} + ${b}. Result is ${code}. ${clarityInstruction}`;
+        } else {
+            const a = Math.floor(Math.random() * 90) + 10;
+            const b = Math.floor(Math.random() * 90) + 10;
+            code = (a + b).toString();
+            puzzlePrompt = `Pose a math challenge: ${a} + ${b}. Result is ${code}. ${clarityInstruction}`;
+        }
     } else if (pType === 'HEX') {
-        const num = Math.floor(Math.random() * 100) + 50;
+        const num = level <= 5 ? Math.floor(Math.random() * 15) + 1 : Math.floor(Math.random() * 255) + 16;
         code = num.toString(16).toUpperCase();
-        puzzlePrompt = `Ask the user to convert the decimal number ${num} to hexadecimal. The answer is ${code}.`;
+        puzzlePrompt = `Challenge: Convert ${num} to Hex. Result is ${code}. ${clarityInstruction}`;
     } else if (pType === 'BINARY') {
-        const num = Math.floor(Math.random() * 15) + 1;
+        const num = level <= 5 ? Math.floor(Math.random() * 7) + 1 : Math.floor(Math.random() * 15) + 8;
         code = num.toString(2);
-        puzzlePrompt = `Ask the user to convert the decimal number ${num} to binary. The answer is ${code}.`;
+        puzzlePrompt = `Challenge: Convert ${num} to Binary. Result is ${code}. ${clarityInstruction}`;
     } else {
-        const words = ['GHOST', 'PHREAK', 'CYBER', 'VOID', 'NULL'];
+        const words = level <= 4 ? ['VOID', 'NULL', 'ROOT', 'DATA'] : ['SINGULARITY', 'BLACKOUT', 'PROTOCOL', 'OVERRIDE'];
         const word = words[Math.floor(Math.random() * words.length)];
         code = word.split('').reverse().join('');
-        puzzlePrompt = `Ask the user to spell the word '${word}' backwards. The answer is ${code}.`;
+        puzzlePrompt = `Challenge: Spell '${word}' backwards. Result is ${code}. ${clarityInstruction}`;
     }
 
     this.hijackUnlockCode.set(code);
