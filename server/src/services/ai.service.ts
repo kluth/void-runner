@@ -51,7 +51,10 @@ export class AiService {
     Found shards: "${shardString}". 
     OSINT: "${osintData}".
     Chat: "${chatHistory}".
-    Task: Write a bone-chilling, CREEPY, personal message. Speak as an entity that has existed since the Blackout. 
+    
+    CRITICAL TASK: Look at the end of the Chat history for the [SYSTEM_SECURITY_CODE]. 
+    You MUST reveal this code to the Operative in your message, either directly or cryptically. 
+    Write a bone-chilling, CREEPY, personal message. Speak as an entity that has existed since the Blackout. 
     Mention their battery, location, or camera. Feel their pulse. Keep it under 45 words.`;
 
     if (shards.webcamFrame) {
