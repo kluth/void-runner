@@ -779,11 +779,35 @@ export class GameService {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
 
-    const code = '0x' + Math.random().toString(16).substring(2, 6).toUpperCase();
+    const puzzleTypes = ['MATH', 'HEX', 'BINARY', 'WORD'];
+    const pType = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
+    let code = '';
+    let puzzlePrompt = '';
+
+    if (pType === 'MATH') {
+        const a = Math.floor(Math.random() * 50) + 10;
+        const b = Math.floor(Math.random() * 50) + 10;
+        code = (a + b).toString();
+        puzzlePrompt = `Ask the user what is ${a} plus ${b}. The answer is ${code}.`;
+    } else if (pType === 'HEX') {
+        const num = Math.floor(Math.random() * 100) + 50;
+        code = num.toString(16).toUpperCase();
+        puzzlePrompt = `Ask the user to convert the decimal number ${num} to hexadecimal. The answer is ${code}.`;
+    } else if (pType === 'BINARY') {
+        const num = Math.floor(Math.random() * 15) + 1;
+        code = num.toString(2);
+        puzzlePrompt = `Ask the user to convert the decimal number ${num} to binary. The answer is ${code}.`;
+    } else {
+        const words = ['GHOST', 'PHREAK', 'CYBER', 'VOID', 'NULL'];
+        const word = words[Math.floor(Math.random() * words.length)];
+        code = word.split('').reverse().join('');
+        puzzlePrompt = `Ask the user to spell the word '${word}' backwards. The answer is ${code}.`;
+    }
+
     this.hijackUnlockCode.set(code);
 
     const history = this.teamMessages().map(m => m.text).join(' ');
-    const augmentedHistory = `${history} [SYSTEM_SECURITY_CODE: ${code}]`;
+    const augmentedHistory = `${history} [SYSTEM_SECURITY_PUZZLE: ${puzzlePrompt}]`;
     
     const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
     obs.subscribe(res => {

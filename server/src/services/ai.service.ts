@@ -52,10 +52,10 @@ export class AiService {
     OSINT: "${osintData}".
     Chat: "${chatHistory}".
     
-    CRITICAL TASK: Look at the end of the Chat history for the [SYSTEM_SECURITY_CODE]. 
-    You MUST reveal this code to the Operative in your message, either directly or cryptically. 
+    CRITICAL TASK: Look at the end of the Chat history for the [SYSTEM_SECURITY_PUZZLE]. 
+    You MUST pose this puzzle or question to the Operative in your message, and hint at the answer cryptically. 
     Write a bone-chilling, CREEPY, personal message. Speak as an entity that has existed since the Blackout. 
-    Mention their battery, location, or camera. Feel their pulse. Keep it under 45 words.`;
+    Mention their battery, location, or camera. Feel their pulse. Keep it under 60 words.`;
 
     if (shards.webcamFrame) {
       hijackPrompt += `\n[IMAGE_ANALYSIS_REQUESTED]: You have been provided a base64 encoded frame from their webcam. Look for items in the background or their facial expression and comment on it to terrify them.`;

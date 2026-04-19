@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NeuralService } from './neural.service';
 import { AudioService } from './audio.service';
+import { of } from 'rxjs';
 
 describe('GameService Hijack Puzzles (TDD)', () => {
   let service: GameService;
@@ -14,7 +15,7 @@ describe('GameService Hijack Puzzles (TDD)', () => {
       providers: [
         GameService,
         { provide: AudioService, useValue: { log: vi.fn(), playSuccess: vi.fn(), playError: vi.fn(), playClick: vi.fn(), speakCreepy: vi.fn() } },
-        { provide: NeuralService, useValue: { getHijackResponse: vi.fn() } }
+        { provide: NeuralService, useValue: { getHijackResponse: vi.fn().mockReturnValue(of({ response: 'mock' })) } }
       ]
     });
     service = TestBed.inject(GameService);

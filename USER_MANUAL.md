@@ -184,11 +184,25 @@ This turns the hacking simulator into a high-stakes, asymmetric multiplayer expe
 - **The Singularity:** Survive rare global events where the AI overrides the entire grid.
 - **Syndicate Hideouts:** Deposit credits into a shared pool for team-wide bonuses.
 
-## 10. Interactive Walkthrough (Tutorial)
+## 12. Interactive Walkthrough (Tutorial)
 
 First-time operatives will be greeted by the **Walkthrough Overlay**, an interactive guide narrated by the onboard AI. 
 - It highlights critical UI elements like the Terminal, Hardware Shop, and Global Grid.
 - **Manual Trigger:** If you ever need a refresher on the interface, simply type `tutorial` in the terminal to re-initialize the guided sequence.
+
+---
+
+## 13. Terminal UI (TUI) Mode
+
+For the ultimate hacker experience, VOID_RUNNER can be played directly from your real operating system's terminal, bypassing the browser entirely.
+
+**To initialize the TUI:**
+1. Ensure Node.js is installed on your local machine.
+2. Open your real terminal and navigate to the game directory.
+3. Run `node tui.js`.
+4. Type `login <username> <password>` to sync your neural state with the remote server.
+
+The TUI connects directly to the Socket.io backend, allowing you to run `hack` commands, view `ls` targets, and chat with operatives in the true darknet.
 
 ---
 
