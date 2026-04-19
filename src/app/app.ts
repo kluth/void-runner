@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { GameService } from './core/services/game.service';
 import { AudioService } from './core/services/audio.service';
 import { StreamerIntegrationService } from './core/services/streamer-integration.service';
+import { ActivatedRoute } from '@angular/router';
 import { TerminalComponent } from './features/terminal/terminal.component';
 import { HardwareShopComponent } from './features/hardware/hardware-shop.component';
 import { MissionComponent } from './features/missions/missions.component';
@@ -488,8 +489,21 @@ import { CommonModule } from '@angular/common';
     @keyframes glitch-anim2 { 0% { clip: rect(10px, 9999px, 30px, 0); } 20% { clip: rect(40px, 9999px, 10px, 0); } 100% { clip: rect(80px, 9999px, 20px, 0); } }
   `
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   gameService = inject(GameService);
   audioService = inject(AudioService);
   streamerService = inject(StreamerIntegrationService);
+  private route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    // Neural Link: Global Token Extraction Protocol
+    // Detects tokens from OAuth redirects even if AuthComponent isn't rendered
+    this.route.queryParamMap.subscribe(params => {
+        const token = params.get('token');
+        if (token) {
+            console.log('[UPLINK] Neural token detected in global sector.');
+            this.gameService.handleOAuthToken(token);
+        }
+    });
+  }
 }
