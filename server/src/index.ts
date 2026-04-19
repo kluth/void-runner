@@ -16,11 +16,21 @@ import { gameService } from './services/game.service';
 import { authService } from './services/auth.service';
 import { configService } from './services/config.service';
 
+const FRONTEND_URL = process.env['FRONTEND_URL'] || 'http://localhost:4200';
+
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:4200",
+    origin: (origin, callback) => {
+        // In production, we allow same-origin (proxied) or explicit FRONTEND_URL
+        if (!origin || origin === FRONTEND_URL || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+            callback(null, true);
+        } else {
+            // For VPS access via IP, we accept all origins to ensure handshake stability
+            callback(null, true);
+        }
+    },
     methods: ["GET", "POST"]
   }
 });
@@ -28,7 +38,7 @@ const io = new Server(server, {
 const port = process.env['PORT'] || 3000;
 
 app.use(cors({
-    origin: "http://localhost:4200",
+    origin: true,
     credentials: true
 }));
 app.use(bodyParser.json());
@@ -133,7 +143,7 @@ authRoutes.forEach(provider => {
   app.get(`/api/auth/${provider}`, passport.authenticate(provider, provider === 'google' ? { scope: ['profile'] } : {}));
   app.get(`/api/auth/${provider}/callback`, passport.authenticate(provider, { failureRedirect: '/login' }), (req, res) => {
     const { token } = req.user as any;
-    res.redirect(`http://localhost:4200/login?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/login?token=${token}`);
   });
 });
 
@@ -154,6 +164,8 @@ app.post('/api/hijack', async (req, res) => {
   return res.json({ response: result });
 });
 
+app.get('/health', (req, res) => res.json({ status: 'UP' }));
+
 server.listen(port, () => {
-  console.log(`VOID_RUNNER Backend listening at http://localhost:${port}`);
+  console.log(`VOID_RUNNER Backend listening on port ${port}`);
 });

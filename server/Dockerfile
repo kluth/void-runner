@@ -26,11 +26,14 @@ RUN pnpm prisma generate
 # Build the TypeScript application
 RUN pnpm run build
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Expose backend port
 EXPOSE 3000
 
 # Health check with increased start period
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD curl -f http://localhost:3000/api/config/status || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
 
-# Start the application
-CMD ["pnpm", "start"]
+# Start the application via script
+CMD ["./start.sh"]
