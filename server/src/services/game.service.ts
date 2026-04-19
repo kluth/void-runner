@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 const { authenticator } = require('otplib');
 import * as qrcode from 'qrcode';
+import { firstNames, lastNames } from './names.data';
 
 const EVENT_TYPES = ['CTF_ACTIVE', 'PATCH_TUESDAY', 'ZERO_DAY_PANIC'] as const;
 type EventType = typeof EVENT_TYPES[number] | 'NONE';
@@ -256,13 +257,6 @@ export class GameService {
   }
 
   private async getLeaderboard() {
-    const firstNames = [
-        'Neo', 'Trinity', 'Morpheus', 'Elliot', 'Darlene', 'Tyrell', 'Angela', 'Case', 'Molly', 'Hiro', 'Raven', 'Lain', 'Motoko', 'Solid', 'Liquid', 'Raiden', 'Deckard', 'Gaff', 'Rachael', 'Roy', 'Pris', 'Leon', 'Zhora', 'Chell', 'Glados', 'Wheatley', 'Gordon', 'Alyx', 'Barney', 'Kliener', 'Vance', 'Corben', 'Leeloo', 'Ruby', 'Zorg', 'Kevin', 'Quorra', 'Clu', 'Rinzler', 'Tron', 'Sark'
-    ];
-    const lastNames = [
-        'Anderson', 'Alderson', 'Wellick', 'Moss', 'Millions', 'Protagonist', 'Iwakura', 'Kusanagi', 'Snake', 'Snake', 'Batty', 'Deckard', 'Dallas', 'Flynn', 'Freeman', 'Vance', 'Rhod', 'Zorg', 'Johnson', 'Smith', 'Doe', 'Null', 'Void', 'Shadow', 'Ghost', 'Prime', 'One', 'Zero', 'Alpha', 'Omega', 'Cyber', 'Neon', 'Cobalt', 'Static'
-    ];
-
     return prisma.player.findMany({
       orderBy: { reputation: 'desc' },
       take: 10,
