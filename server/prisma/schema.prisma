@@ -31,8 +31,9 @@ model Player {
   experience       Int              @default(0)
   botnetSize       Int              @default(0)
   campaignLevel    Int              @default(1)
-  inventory        String           @default("[]") 
-  software         String           @default("[]") 
+  inventory        String   @default("[]")
+  mountedHardware  String   @default("[null,null,null,null,null,null]")
+  software         String   @default("[]") 
 
   // Tactical Session State
   systemIntegrity  Int              @default(100)

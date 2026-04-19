@@ -1,230 +1,216 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { GameService, HardwareItem } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-hardware-shop',
   standalone: true,
+  imports: [CommonModule],
   template: `
     <div class="shop-container">
       <div class="shop-header">
-        <span class="title">BLACK_MARKET // MODULES</span>
-        <span class="status">TRADING_OPEN</span>
-      </div>
-
-      <div class="zero-day-market">
-        <div class="zd-info">
-          <h4>VULNERABILITY RESEARCH BROKER</h4>
-          <p>Expend research data to discover unpatched 0-Day vulnerabilities. Highly illegal, highly profitable.</p>
-        </div>
-        <div class="zd-actions">
-          <div class="zd-stat">OWNED: <span class="highlight">{{ gameService.zeroDays() }}</span></div>
-          <button class="zd-btn research" 
-                  [disabled]="gameService.experience() < 250"
-                  (click)="researchZeroDay()">
-            RESEARCH 0-DAY [250 DATA]
-          </button>
-          <div class="zd-choice">
-            <button class="zd-btn sell" 
-                    [disabled]="gameService.zeroDays() < 1"
-                    (click)="sellZeroDay()">
-              SELL ON DARKNET
-            </button>
-            <button class="zd-btn disclose" 
-                    [disabled]="gameService.zeroDays() < 1"
-                    (click)="discloseZeroDay()">
-              BUG BOUNTY DISCLOSURE
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="hardware-grid">
-        @for (item of gameService.availableHardware(); track item.id) {
-          <div class="hw-card" 
-               [class.locked]="!item.unlocked" 
-               [class.affordable]="item.unlocked && gameService.credits() >= item.price"
-               (mouseenter)="audioService.playClick()">
-            
-            <div class="card-glow"></div>
-            
-            <div class="hw-top">
-              <span class="hw-name">{{ item.name }}</span>
-              <span class="hw-type">{{ item.bonusType.toUpperCase() }}</span>
+        <span class="title">NEURAL_RIG // MODULAR_INTERFACE</span>
+        <div class="power-telemetry">
+          <span class="label">NEURAL_LOAD:</span>
+          <div class="power-bar">
+            <div class="power-fill" 
+                 [style.width.%]="(gameService.currentPowerUsage() / gameService.totalPowerCapacity()) * 100"
+                 [class.warning]="(gameService.currentPowerUsage() / gameService.totalPowerCapacity()) > 0.8">
             </div>
+          </div>
+          <span class="value">{{ gameService.currentPowerUsage() }}/{{ gameService.totalPowerCapacity() }} NW</span>
+        </div>
+      </div>
 
-            @if (item.unlocked) {
-              <div class="hw-desc">{{ item.description }}</div>
-              <div class="hw-stat">+{{ item.bonusValue }} {{ item.bonusType.toUpperCase() }} power</div>
-              <div class="hw-price">{{ item.price }}cr</div>
-              <button class="buy-btn" 
-                      (click)="buy(item)" 
-                      [disabled]="gameService.credits() < item.price">
-                INIT_PURCHASE
-              </button>
-            } @else {
-              <div class="hw-desc locked">SCHEMA_ENCRYPTED</div>
-              <div class="research-cost">DATA_REQD: {{ getResearchCost(item) }}</div>
-              <button class="research-btn" 
-                      (click)="unlock(item)" 
-                      [disabled]="gameService.experience() < getResearchCost(item)">
-                DECRYPT_SCHEMA
-              </button>
+      <!-- VISUAL RIG BLUEPRINT -->
+      <div class="rig-blueprint">
+        <div class="blueprint-bg"></div>
+        <div class="slots-container">
+          @for (slot of gameService.mountedHardware(); track $index) {
+            <div class="rig-slot" 
+                 [class.occupied]="slot !== null"
+                 (click)="handleSlotClick($index)"
+                 [attr.data-slot]="$index">
+              <div class="slot-label">SLOT_0{{ $index + 1 }}</div>
+              @if (slot) {
+                <div class="mounted-item" [class]="slot.bonusType">
+                  <div class="item-name">{{ slot.name }}</div>
+                  <div class="item-power">-{{ slot.powerDraw }}NW</div>
+                </div>
+              } @else {
+                <div class="empty-prompt">EMPTY_LINK</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="interface-split">
+        <!-- BLACK MARKET DRAWER -->
+        <div class="market-sector">
+          <div class="sec-header">AVAIL_MODULES</div>
+          <div class="hardware-grid">
+            @for (item of gameService.availableHardware(); track item.id) {
+              <div class="hw-mini-card" 
+                   [class.locked]="!item.unlocked"
+                   [class.owned]="isOwned(item)"
+                   (click)="handleMarketAction(item)">
+                <div class="mini-top">
+                  <span class="name">{{ item.name }}</span>
+                  <span class="cost">{{ item.unlocked ? item.price + 'cr' : 'LOCKED' }}</span>
+                </div>
+                <div class="mini-stats">
+                  <span>{{ item.bonusValue }} {{ item.bonusType.substring(0,3).toUpperCase() }}</span>
+                  <span>{{ item.powerDraw }}NW</span>
+                </div>
+              </div>
             }
           </div>
-        }
+        </div>
+
+        <!-- LOCAL INVENTORY -->
+        <div class="inventory-sector">
+          <div class="sec-header">LOCAL_STORAGE</div>
+          <div class="inventory-list">
+            @for (item of gameService.inventory(); track $index) {
+              <div class="inv-item" 
+                   [class.active]="selectedInventoryItem === item"
+                   (click)="selectedInventoryItem = item">
+                <span class="name">{{ item.name }}</span>
+                <span class="type">{{ item.bonusType.toUpperCase() }}</span>
+              </div>
+            } @empty {
+              <div class="empty-msg">NO_UNLINKED_MODULES</div>
+            }
+          </div>
+          @if (selectedInventoryItem) {
+            <div class="item-detail-popup">
+               <div class="popup-title">{{ selectedInventoryItem.name }}</div>
+               <div class="popup-desc">{{ selectedInventoryItem.description }}</div>
+               <div class="popup-actions">
+                  <button (click)="selectedInventoryItem = null">CANCEL</button>
+                  <div class="slot-selector">
+                     @for (s of [0,1,2,3,4,5]; track s) {
+                       <button class="slot-btn" (click)="mountToSlot(s)">MOUNT_0{{ s+1 }}</button>
+                     }
+                  </div>
+               </div>
+            </div>
+          }
+        </div>
       </div>
     </div>
   `,
   styles: `
-    .shop-container {
-      background: rgba(10, 10, 10, 0.9);
-      border: 1px solid #1a1a1a;
-      padding: 1rem;
-    }
-    .shop-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #222;
-      padding-bottom: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .shop-header .title { font-size: 0.8rem; color: #00ff00; letter-spacing: 2px; }
-    .shop-header .status { font-size: 0.6rem; color: #004400; }
+    .shop-container { background: rgba(5, 5, 5, 0.95); border: 1px solid #00ff00; padding: 1rem; color: #00ff00; font-family: 'JetBrains Mono', monospace; }
+    .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #004400; padding-bottom: 0.5rem; }
+    .title { font-size: 0.8rem; font-weight: 900; letter-spacing: 3px; }
 
-    .zero-day-market {
-      background: #050505;
-      border: 1px dashed #ff00ff;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .power-telemetry { display: flex; align-items: center; gap: 10px; font-size: 0.6rem; }
+    .power-bar { width: 100px; height: 10px; background: #002200; border: 1px solid #004400; }
+    .power-fill { height: 100%; background: #00ff00; transition: width 0.5s ease; }
+    .power-fill.warning { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
 
-    .zd-info { flex: 1; min-width: 15rem; }
-    .zd-info h4 { margin: 0 0 0.25rem 0; color: #ff00ff; font-size: 0.8rem; text-shadow: 0 0 5px #ff00ff; }
-    .zd-info p { margin: 0; color: #888; font-size: 0.6rem; max-width: 100%; }
+    /* RIG BLUEPRINT */
+    .rig-blueprint { 
+      background: #000; border: 1px solid #004400; height: 180px; margin-bottom: 1.5rem; position: relative; 
+      display: flex; align-items: center; justify-content: center;
+      background-image: radial-gradient(#002200 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .slots-container { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; width: 90%; height: 80%; }
+    .rig-slot { 
+      border: 1px dashed #004400; background: rgba(0, 255, 0, 0.02); display: flex; flex-direction: column; 
+      align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.2s;
+    }
+    .rig-slot:hover { background: rgba(0, 255, 0, 0.05); border-style: solid; border-color: #00ff00; }
+    .rig-slot.occupied { border-style: solid; border-color: #00ff00; background: rgba(0, 255, 0, 0.1); }
+    .slot-label { position: absolute; top: 2px; left: 4px; font-size: 0.4rem; opacity: 0.5; }
+    .empty-prompt { font-size: 0.5rem; color: #004400; font-weight: bold; }
     
-    .zd-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; flex: 1; min-width: 15rem; }
-    .zd-choice { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .zd-stat { font-size: 0.7rem; color: #fff; }
-    .highlight { color: #ff00ff; font-weight: bold; }
+    .mounted-item { text-align: center; }
+    .mounted-item .item-name { font-size: 0.6rem; font-weight: bold; margin-bottom: 2px; }
+    .mounted-item .item-power { font-size: 0.5rem; opacity: 0.7; }
+    .mounted-item.recon { color: #00ffff; }
+    .mounted-item.exploit { color: #ff00ff; }
+    .mounted-item.stealth { color: #ffffff; }
 
-    @media (max-width: 600px) {
-      .zero-day-market { flex-direction: column; align-items: stretch; }
-      .zd-actions { justify-content: flex-start; align-items: stretch; min-width: 0; }
-      .zd-choice { width: 100%; }
-      .zd-choice .zd-btn { flex: 1; min-width: 0; }
-      .zd-btn.research { width: 100%; }
+    .interface-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 800px) { .interface-split { grid-template-columns: 1fr; } }
+
+    .sec-header { font-size: 0.6rem; color: #004400; background: #001100; padding: 4px 10px; margin-bottom: 10px; font-weight: bold; }
+
+    .hardware-grid { display: flex; flex-direction: column; gap: 5px; max-height: 250px; overflow-y: auto; }
+    .hw-mini-card { 
+      background: #000; border: 1px solid #111; padding: 8px; cursor: pointer; transition: all 0.2s;
     }
+    .hw-mini-card:hover:not(.locked) { border-color: #00ff00; background: #001100; }
+    .hw-mini-card.locked { opacity: 0.4; filter: grayscale(1); }
+    .hw-mini-card.owned { border-color: #004400; }
+    .mini-top { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: bold; margin-bottom: 4px; }
+    .mini-stats { display: flex; gap: 10px; font-size: 0.5rem; color: #008800; }
 
-    .hardware-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
-      gap: 1rem;
+    .inventory-list { display: flex; flex-direction: column; gap: 5px; max-height: 250px; overflow-y: auto; }
+    .inv-item { background: #000; border: 1px solid #004400; padding: 8px; display: flex; justify-content: space-between; font-size: 0.6rem; cursor: pointer; }
+    .inv-item:hover { background: #002200; }
+    .inv-item.active { border-color: #00ff00; box-shadow: 0 0 10px #0f0; }
+    .empty-msg { font-size: 0.6rem; color: #002200; text-align: center; margin-top: 2rem; }
+
+    .item-detail-popup { 
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      background: #000; border: 2px solid #00ff00; padding: 20px; z-index: 1000; width: 300px;
+      box-shadow: 0 0 100px rgba(0,255,0,0.4);
     }
-
-    .hw-card {
-      background: #000;
-      border: 1px solid #222;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s;
-      min-height: 12rem;
-    }
-
-    .hw-card.affordable { border-color: #008800; }
-    .hw-card:hover:not(.locked) { border-color: #00ff00; transform: translateY(-2px); box-shadow: 0 0 15px rgba(0, 255, 0, 0.1); }
-    .hw-card.locked { border-color: #300; opacity: 0.8; }
-
-    .hw-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
-    .hw-name { font-size: 0.7rem; font-weight: bold; color: #fff; line-height: 1.2; }
-    .hw-type { font-size: 0.5rem; color: #00ff00; background: #002200; padding: 0.1rem 0.25rem; border: 1px solid #004400; white-space: nowrap; }
-
-    .hw-desc { font-size: 0.6rem; color: #666; margin-bottom: 0.75rem; flex-grow: 1; min-height: 2.5rem; }
-    .hw-desc.locked { color: #400; font-style: italic; }
-
-    .hw-stat { font-size: 0.6rem; color: #00ff00; margin-bottom: 0.5rem; font-family: monospace; }
-    .hw-price, .research-cost { font-size: 0.8rem; font-weight: 900; margin-bottom: 0.75rem; }
-    .hw-price { color: #fff; }
-    .research-cost { color: #ff00ff; }
-
-    .zd-btn, .buy-btn, .research-btn {
-      border: none;
-      padding: 0.5rem;
-      font-family: inherit;
-      font-size: 0.6rem;
-      font-weight: bold;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.2s;
-    }
-
-    .zd-btn.research { background: #ff00ff; color: #fff; }
-    .zd-btn.sell { background: #003333; color: #00ffff; border: 1px solid #00ffff; }
-    .zd-btn.disclose { background: #333; color: #fff; }
-    .zd-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    .buy-btn { background: #00ff00; color: #000; }
-    .buy-btn:disabled { background: #111; color: #333; cursor: not-allowed; }
-    .research-btn { background: #ff00ff; color: #000; }
-    .research-btn:disabled { background: #111; color: #303; cursor: not-allowed; }
+    .popup-title { font-size: 0.8rem; font-weight: 900; margin-bottom: 10px; border-bottom: 1px solid #004400; }
+    .popup-desc { font-size: 0.6rem; color: #888; margin-bottom: 20px; line-height: 1.4; }
+    .popup-actions { display: flex; flex-direction: column; gap: 15px; }
+    .slot-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .slot-btn { font-size: 0.5rem; padding: 5px; background: #002200; color: #00ff00; border: 1px solid #00ff00; cursor: pointer; }
+    .slot-btn:hover { background: #00ff00; color: #000; }
   `
 })
 export class HardwareShopComponent {
   gameService = inject(GameService);
   audioService = inject(AudioService);
+  
+  selectedInventoryItem: HardwareItem | null = null;
 
-  getResearchCost(item: HardwareItem): number {
-    return item.price * 2;
+  isOwned(item: HardwareItem): boolean {
+    return this.gameService.inventory().some(i => i.id === item.id) || 
+           this.gameService.mountedHardware().some(m => m?.id === item.id);
   }
 
-  buy(item: HardwareItem) {
-    if (this.gameService.credits() >= item.price) {
-      this.gameService.buyHardware(item);
-      this.audioService.playSuccess();
-    } else {
-      this.audioService.playError();
+  handleMarketAction(item: HardwareItem) {
+    if (!item.unlocked) {
+        const cost = item.price * 2;
+        if (this.gameService.experience() >= cost) {
+            this.gameService.unlockHardware(item.id, cost);
+            this.audioService.playSuccess();
+        } else {
+            this.audioService.playError();
+        }
+    } else if (!this.isOwned(item)) {
+        if (this.gameService.credits() >= item.price) {
+            this.gameService.buyHardware(item);
+        } else {
+            this.audioService.playError();
+        }
     }
   }
 
-  unlock(item: HardwareItem) {
-    const cost = this.getResearchCost(item);
-    if (this.gameService.unlockHardware(item.id, cost)) {
-      this.audioService.playSuccess();
-    } else {
-      this.audioService.playError();
-    }
-  }
-
-  researchZeroDay() {
-    if (this.gameService.experience() >= 250) {
-      if (this.gameService.researchZeroDay()) {
-        this.audioService.playSuccess();
-      } else {
-        this.audioService.playError();
+  handleSlotClick(slotIndex: number) {
+      const item = this.gameService.mountedHardware()[slotIndex];
+      if (item) {
+          this.gameService.unmountHardware(slotIndex);
+          this.audioService.playClick();
       }
-    }
   }
 
-  sellZeroDay() {
-    if (this.gameService.zeroDays() > 0) {
-      this.gameService.sellZeroDay();
-      this.audioService.playSuccess();
-    }
-  }
-
-  discloseZeroDay() {
-    if (this.gameService.zeroDays() > 0) {
-      this.gameService.discloseZeroDay();
-      this.audioService.playSuccess();
-    }
+  mountToSlot(slotIndex: number) {
+      if (this.selectedInventoryItem) {
+          this.gameService.mountHardware(this.selectedInventoryItem, slotIndex);
+          this.selectedInventoryItem = null;
+      }
   }
 }

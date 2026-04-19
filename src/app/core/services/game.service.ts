@@ -11,6 +11,7 @@ export interface HardwareItem {
   bonusType: 'recon' | 'exploit' | 'stealth' | 'social' | 'defense' | 'cloud';
   bonusValue: number;
   unlocked: boolean;
+  powerDraw: number;
 }
 
 export interface LogEntry {
@@ -139,33 +140,33 @@ export interface Mission {
 export type RoutingMode = 'DIRECT' | 'VPN' | 'ONION';
 
 export const AVAILABLE_HARDWARE: HardwareItem[] = [
-  { id: 'pineapple', name: 'WiFi Pineapple Nano', description: 'Advanced wireless auditing platform.', price: 300, bonusType: 'recon', bonusValue: 20, unlocked: true },
-  { id: 'ducky', name: 'USB Rubber Ducky', description: 'The original keystroke injection tool.', price: 150, bonusType: 'exploit', bonusValue: 15, unlocked: true },
-  { id: 'flipper', name: 'Flipper Zero', description: 'Multi-tool for pentesting physical access.', price: 250, bonusType: 'recon', bonusValue: 25, unlocked: true },
-  { id: 'hackrf', name: 'HackRF One', description: 'Software Defined Radio for advanced RF attacks.', price: 600, bonusType: 'exploit', bonusValue: 30, unlocked: false },
-  { id: 'omg', name: 'O.MG Cable', description: 'Covert HID injection cable with WiFi control.', price: 450, bonusType: 'stealth', bonusValue: 25, unlocked: false },
-  { id: 'proxmark', name: 'Proxmark3 RDV4', description: 'Powerful RFID/NFC research tool.', price: 500, bonusType: 'recon', bonusValue: 30, unlocked: false },
-  { id: 'se-toolkit', name: 'SET - Social Eng. Toolkit', description: 'Convincing templates and automated phishing.', price: 400, bonusType: 'social', bonusValue: 25, unlocked: false },
-  { id: 'voip-spoofer', name: 'VoIP Spoof-Station', description: 'Spoof caller IDs for high-trust vishing.', price: 350, bonusType: 'social', bonusValue: 20, unlocked: false },
-  { id: 'firewall', name: 'Sentinel Firewall', description: 'Blocks rival intrusion attempts.', price: 300, bonusType: 'defense', bonusValue: 20, unlocked: true },
-  { id: 'edr', name: 'Advanced EDR Node', description: 'Detects stealthy intrusions on your botnet.', price: 550, bonusType: 'defense', bonusValue: 35, unlocked: false },
-  { id: 'bucket-bruter', name: 'S3 Bucket Hunter', description: 'Scans for misconfigured cloud storage.', price: 700, bonusType: 'cloud', bonusValue: 40, unlocked: false },
-  { id: 'red-pill', name: 'The Red Pill', description: 'See the world as it truly is. Frozen trace level.', price: 1000, bonusType: 'stealth', bonusValue: 99, unlocked: false },
-  { id: 'neural-coprocessor', name: 'Neural Coprocessor', description: 'Decreases mini-game complexity (e.g., slower timer).', price: 1200, bonusType: 'recon', bonusValue: 20, unlocked: false },
-  { id: 'quantum-decryptor', name: 'Quantum Decryptor', description: 'Allows skipping one port scan per mission.', price: 1500, bonusType: 'exploit', bonusValue: 35, unlocked: false },
-  { id: 'faraday-cage', name: 'Faraday Cage', description: 'Prevents "HARDWARE_LOCKDOWN" debuffs.', price: 800, bonusType: 'defense', bonusValue: 30, unlocked: false },
-  { id: 'emp-grenade', name: 'EMP Grenade', description: 'Clears active trace instantly but destroys all current mission progress.', price: 600, bonusType: 'defense', bonusValue: 50, unlocked: false },
-  { id: 'biometric-spoof', name: 'Biometric Spoof', description: 'Increases success rate of Social Engineering missions.', price: 900, bonusType: 'social', bonusValue: 40, unlocked: false },
-  { id: 'optic-camo', name: 'Optic Camo Cloak', description: 'Drastically reduces trace gain during physical infiltration.', price: 1300, bonusType: 'stealth', bonusValue: 45, unlocked: false },
-  { id: 'signal-jammer', name: 'Signal Jammer', description: 'Delays Blue Team retaliation by 30 seconds.', price: 700, bonusType: 'stealth', bonusValue: 30, unlocked: false },
-  { id: 'rfid-injector', name: 'Subdermal RFID Injector', description: 'Auto-completes RFID cloning games.', price: 1100, bonusType: 'recon', bonusValue: 40, unlocked: false },
-  { id: 'darknet-router', name: 'Darknet Router', description: 'Halves the cost of Onion routing.', price: 1000, bonusType: 'stealth', bonusValue: 25, unlocked: false },
-  { id: 'overclocked-gpu', name: 'Overclocked GPU', description: 'Doubles crypto mining speed for botnets.', price: 2000, bonusType: 'cloud', bonusValue: 50, unlocked: false },
-  { id: 'cryo-cooling', name: 'Cryo-Cooling Rig', description: 'Allows botnet to run without increasing detection over time.', price: 2500, bonusType: 'cloud', bonusValue: 60, unlocked: false },
-  { id: 'satellite-uplink', name: 'Satellite Uplink', description: 'Allows access to orbital missions.', price: 3000, bonusType: 'recon', bonusValue: 50, unlocked: false },
-  { id: 'holographic-emitter', name: 'Holographic Emitter', description: 'Creates decoys to confuse trace algorithms.', price: 1400, bonusType: 'stealth', bonusValue: 40, unlocked: false },
-  { id: 'acoustic-dampener', name: 'Acoustic Dampener', description: 'Suppresses peak volume detection from the real-life microphone API.', price: 900, bonusType: 'stealth', bonusValue: 35, unlocked: false },
-  { id: 'retinal-scanner', name: 'Retinal Scanner', description: 'Required for Level 5+ secure vault missions.', price: 1800, bonusType: 'recon', bonusValue: 60, unlocked: false }
+  { id: 'pineapple', name: 'WiFi Pineapple Nano', description: 'Advanced wireless auditing platform.', price: 300, bonusType: 'recon', bonusValue: 20, unlocked: true, powerDraw: 15 },
+  { id: 'ducky', name: 'USB Rubber Ducky', description: 'The original keystroke injection tool.', price: 150, bonusType: 'exploit', bonusValue: 15, unlocked: true, powerDraw: 5 },
+  { id: 'flipper', name: 'Flipper Zero', description: 'Multi-tool for pentesting physical access.', price: 250, bonusType: 'recon', bonusValue: 25, unlocked: true, powerDraw: 10 },
+  { id: 'hackrf', name: 'HackRF One', description: 'Software Defined Radio for advanced RF attacks.', price: 600, bonusType: 'exploit', bonusValue: 30, unlocked: false, powerDraw: 25 },
+  { id: 'omg', name: 'O.MG Cable', description: 'Covert HID injection cable with WiFi control.', price: 450, bonusType: 'stealth', bonusValue: 25, unlocked: false, powerDraw: 5 },
+  { id: 'proxmark', name: 'Proxmark3 RDV4', description: 'Powerful RFID/NFC research tool.', price: 500, bonusType: 'recon', bonusValue: 30, unlocked: false, powerDraw: 20 },
+  { id: 'se-toolkit', name: 'SET - Social Eng. Toolkit', description: 'Convincing templates and automated phishing.', price: 400, bonusType: 'social', bonusValue: 25, unlocked: false, powerDraw: 15 },
+  { id: 'voip-spoofer', name: 'VoIP Spoof-Station', description: 'Spoof caller IDs for high-trust vishing.', price: 350, bonusType: 'social', bonusValue: 20, unlocked: false, powerDraw: 10 },
+  { id: 'firewall', name: 'Sentinel Firewall', description: 'Blocks rival intrusion attempts.', price: 300, bonusType: 'defense', bonusValue: 20, unlocked: true, powerDraw: 15 },
+  { id: 'edr', name: 'Advanced EDR Node', description: 'Detects stealthy intrusions on your botnet.', price: 550, bonusType: 'defense', bonusValue: 35, unlocked: false, powerDraw: 25 },
+  { id: 'bucket-bruter', name: 'S3 Bucket Hunter', description: 'Scans for misconfigured cloud storage.', price: 700, bonusType: 'cloud', bonusValue: 40, unlocked: false, powerDraw: 30 },
+  { id: 'red-pill', name: 'The Red Pill', description: 'See the world as it truly is. Frozen trace level.', price: 1000, bonusType: 'stealth', bonusValue: 99, unlocked: false, powerDraw: 50 },
+  { id: 'neural-coprocessor', name: 'Neural Coprocessor', description: 'Decreases mini-game complexity (e.g., slower timer).', price: 1200, bonusType: 'recon', bonusValue: 20, unlocked: false, powerDraw: 40 },
+  { id: 'quantum-decryptor', name: 'Quantum Decryptor', description: 'Allows skipping one port scan per mission.', price: 1500, bonusType: 'exploit', bonusValue: 35, unlocked: false, powerDraw: 45 },
+  { id: 'faraday-cage', name: 'Faraday Cage', description: 'Prevents "HARDWARE_LOCKDOWN" debuffs.', price: 800, bonusType: 'defense', bonusValue: 30, unlocked: false, powerDraw: 10 },
+  { id: 'emp-grenade', name: 'EMP Grenade', description: 'Clears active trace instantly but destroys all current mission progress.', price: 600, bonusType: 'defense', bonusValue: 50, unlocked: false, powerDraw: 5 },
+  { id: 'biometric-spoof', name: 'Biometric Spoof', description: 'Increases success rate of Social Engineering missions.', price: 900, bonusType: 'social', bonusValue: 40, unlocked: false, powerDraw: 20 },
+  { id: 'optic-camo', name: 'Optic Camo Cloak', description: 'Drastically reduces trace gain during physical infiltration.', price: 1300, bonusType: 'stealth', bonusValue: 45, unlocked: false, powerDraw: 35 },
+  { id: 'signal-jammer', name: 'Signal Jammer', description: 'Delays Blue Team retaliation by 30 seconds.', price: 700, bonusType: 'stealth', bonusValue: 30, unlocked: false, powerDraw: 25 },
+  { id: 'rfid-injector', name: 'Subdermal RFID Injector', description: 'Auto-completes RFID cloning games.', price: 1100, bonusType: 'recon', bonusValue: 40, unlocked: false, powerDraw: 30 },
+  { id: 'darknet-router', name: 'Darknet Router', description: 'Halves the cost of Onion routing.', price: 1000, bonusType: 'stealth', bonusValue: 25, unlocked: false, powerDraw: 40 },
+  { id: 'overclocked-gpu', name: 'Overclocked GPU', description: 'Doubles crypto mining speed for botnets.', price: 2000, bonusType: 'cloud', bonusValue: 50, unlocked: false, powerDraw: 60 },
+  { id: 'cryo-cooling', name: 'Cryo-Cooling Rig', description: 'Allows botnet to run without increasing detection over time.', price: 2500, bonusType: 'cloud', bonusValue: 60, unlocked: false, powerDraw: 70 },
+  { id: 'satellite-uplink', name: 'Satellite Uplink', description: 'Allows access to orbital missions.', price: 3000, bonusType: 'recon', bonusValue: 50, unlocked: false, powerDraw: 80 },
+  { id: 'holographic-emitter', name: 'Holographic Emitter', description: 'Creates decoys to confuse trace algorithms.', price: 1400, bonusType: 'stealth', bonusValue: 40, unlocked: false, powerDraw: 30 },
+  { id: 'acoustic-dampener', name: 'Acoustic Dampener', description: 'Suppresses peak volume detection from the real-life microphone API.', price: 900, bonusType: 'stealth', bonusValue: 35, unlocked: false, powerDraw: 15 },
+  { id: 'retinal-scanner', name: 'Retinal Scanner', description: 'Required for Level 5+ secure vault missions.', price: 1800, bonusType: 'recon', bonusValue: 60, unlocked: false, powerDraw: 40 }
 ];
 
 @Injectable({
@@ -230,6 +231,10 @@ export class GameService {
   credits = signal(500);
   experience = signal(0);
   inventory = signal<HardwareItem[]>([]);
+  mountedHardware = signal<(HardwareItem | null)[]>(new Array(6).fill(null));
+  totalPowerCapacity = signal(100);
+  currentPowerUsage = computed(() => this.mountedHardware().reduce((sum, item) => sum + (item?.powerDraw || 0), 0));
+
   terminalLogs = signal<LogEntry[]>([]);
   
   // Mission State
@@ -542,20 +547,32 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.systemIntegrity.set(player.systemIntegrity);
     this.detectionLevel.set(player.detectionLevel);
 
-    try {
-      const invIds = JSON.parse(player.inventory) as string[];
-      const inv = AVAILABLE_HARDWARE.filter(h => invIds.includes(h.id));
-      this.inventory.set(inv);
-    } catch(e) {}
+    if (player.inventory) {
+      try {
+        const invIds = typeof player.inventory === 'string' ? JSON.parse(player.inventory) : player.inventory;
+        const inv = AVAILABLE_HARDWARE.filter(h => invIds.includes(h.id));
+        this.inventory.set(inv);
+      } catch(e) {}
+    }
 
-    try {
-      const softIds = JSON.parse(player.software) as string[];
-      this.installedSoftware.update(sw => sw.map(s => ({ ...s, installed: softIds.includes(s.id) })));
-    } catch(e) {}
+    if (player.mountedHardware) {
+      try {
+        const rigIds = typeof player.mountedHardware === 'string' ? JSON.parse(player.mountedHardware) : player.mountedHardware;
+        const rig = rigIds.map((id: string | null) => id ? AVAILABLE_HARDWARE.find(h => h.id === id) : null);
+        this.mountedHardware.set(rig);
+      } catch(e) {}
+    }
 
-    try { this.activeDebuffs.set(JSON.parse(player.activeDebuffs)); } catch(e) {}
-    try { this.artifacts.set(JSON.parse(player.artifacts)); } catch(e) {}
-    try { this.publicExploits.set(JSON.parse(player.publicExploits)); } catch(e) {}
+    if (player.software) {
+      try {
+        const softIds = typeof player.software === 'string' ? JSON.parse(player.software) : player.software;
+        this.installedSoftware.update(sw => sw.map(s => ({ ...s, installed: softIds.includes(s.id) })));
+      } catch(e) {}
+    }
+
+    try { if (player.activeDebuffs) this.activeDebuffs.set(JSON.parse(player.activeDebuffs)); } catch(e) {}
+    try { if (player.artifacts) this.artifacts.set(JSON.parse(player.artifacts)); } catch(e) {}
+    try { if (player.publicExploits) this.publicExploits.set(JSON.parse(player.publicExploits)); } catch(e) {}
     try { 
         if (player.settings && player.settings !== '{}') {
             const parsed = JSON.parse(player.settings);
@@ -700,6 +717,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         botnetSize: this.botnetSize(),
         campaignLevel: this.campaignLevel(),
         inventory: JSON.stringify(this.inventory().map(i => i.id)),
+        mountedHardware: JSON.stringify(this.mountedHardware().map(i => i?.id || null)),
         software: JSON.stringify(this.installedSoftware().filter(s => s.installed).map(s => s.id)),
         systemIntegrity: this.systemIntegrity(),
         detectionLevel: this.detectionLevel(),
@@ -1050,27 +1068,27 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
 
   totalReconBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
-    return this.inventory().filter(i => i.bonusType === 'recon').reduce((acc, curr) => acc + curr.bonusValue, 0);
+    return this.mountedHardware().filter(i => i?.bonusType === 'recon').reduce((acc, curr) => acc + (curr?.bonusValue || 0), 0);
   });
   totalExploitBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
-    return this.inventory().filter(i => i.bonusType === 'exploit').reduce((acc, curr) => acc + curr.bonusValue, 0);
+    return this.mountedHardware().filter(i => i?.bonusType === 'exploit').reduce((acc, curr) => acc + (curr?.bonusValue || 0), 0);
   });
   totalStealthBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
-    return this.inventory().filter(i => i.bonusType === 'stealth').reduce((acc, curr) => acc + curr.bonusValue, 0);
+    return this.mountedHardware().filter(i => i?.bonusType === 'stealth').reduce((acc, curr) => acc + (curr?.bonusValue || 0), 0);
   });
   totalSocialBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
-    return this.inventory().filter(i => i.bonusType === 'social').reduce((acc, curr) => acc + curr.bonusValue, 0);
+    return this.mountedHardware().filter(i => i?.bonusType === 'social').reduce((acc, curr) => acc + (curr?.bonusValue || 0), 0);
   });
   totalDefenseBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
-    return this.inventory().filter(i => i.bonusType === 'defense').reduce((acc, curr) => acc + curr.bonusValue, 0);
+    return this.mountedHardware().filter(i => i?.bonusType === 'defense').reduce((acc, curr) => acc + (curr?.bonusValue || 0), 0);
   });
   totalCloudBonus = computed(() => {
     if (this.activeDebuffs().some(d => d.type === 'LOCK')) return 0;
-    return this.inventory().filter(i => i.bonusType === 'cloud').reduce((acc, curr) => acc + curr.bonusValue, 0);
+    return this.mountedHardware().filter(i => i?.bonusType === 'cloud').reduce((acc, curr) => acc + (curr?.bonusValue || 0), 0);
   });
   stealthMultiplier = computed(() => {
     switch (this.routingMode()) {
@@ -1280,7 +1298,35 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     if (this.credits() >= item.price) {
       this.credits.update(c => c - item.price);
       this.inventory.update(inv => [...inv, item]);
-      this.log(`HARDWARE: ${item.name.toUpperCase()} ONLINE.`);
+      this.log(`PURCHASED: ${item.name}. Module stored in inventory.`);
+      this.audioService.playSuccess();
+      this.updateRemoteScore();
+    }
+  }
+
+  mountHardware(item: HardwareItem, slot: number) {
+    const current = this.mountedHardware();
+    if (this.currentPowerUsage() + item.powerDraw - (current[slot]?.powerDraw || 0) > this.totalPowerCapacity()) {
+      this.log('<span style="color: #ff0000">POWER_CRITICAL: Insufficient neural power for module mounting.</span>');
+      this.audioService.playError();
+      return;
+    }
+    
+    const newRig = [...current];
+    newRig[slot] = item;
+    this.mountedHardware.set(newRig);
+    this.audioService.playSuccess();
+    this.log(`RIG_LINK: ${item.name} synchronized in slot ${slot}.`);
+    this.updateRemoteScore();
+  }
+
+  unmountHardware(slot: number) {
+    const newRig = [...this.mountedHardware()];
+    const item = newRig[slot];
+    if (item) {
+      this.log(`RIG_UNLINK: ${item.name} disconnected from slot ${slot}.`);
+      newRig[slot] = null;
+      this.mountedHardware.set(newRig);
       this.updateRemoteScore();
     }
   }

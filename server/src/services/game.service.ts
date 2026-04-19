@@ -200,6 +200,7 @@ export class GameService {
           botnetSize?: number,
           campaignLevel?: number,
           inventory?: string,
+          mountedHardware?: string,
           software?: string,
           systemIntegrity?: number,
           detectionLevel?: number,
@@ -221,6 +222,7 @@ export class GameService {
               botnetSize: data.botnetSize ?? undefined,
               campaignLevel: data.campaignLevel ?? undefined,
               inventory: data.inventory ?? undefined,
+              mountedHardware: data.mountedHardware ?? undefined,
               software: data.software ?? undefined,
               systemIntegrity: data.systemIntegrity ?? undefined,
               detectionLevel: data.detectionLevel ?? undefined,
@@ -235,7 +237,8 @@ export class GameService {
         // Ensure username is preserved in the mirror packet
         this.io.to(`user_${decoded.id}`).emit('state_mirror', {
             ...data,
-            username: decoded.username
+            username: decoded.username,
+            mountedHardware: data.mountedHardware
         });
         
         this.io.emit('leaderboard_update', await this.getLeaderboard());
