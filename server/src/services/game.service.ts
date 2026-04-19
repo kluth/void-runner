@@ -256,15 +256,28 @@ export class GameService {
   }
 
   private async getLeaderboard() {
+    const cyberNames = [
+        'Neo', 'Trinity', 'Morpheus', 'Cypher', 'Acid Burn', 'Zero Cool', 'Cereal Killer', 
+        'Lord Nikon', 'Phantom Phreak', 'The Plague', 'Elliot Alderson', 'Darlene', 
+        'Tyrell Wellick', 'White Rose', 'Case', 'Molly Millions', 'Armitage', 'Wintermute',
+        'Neuromancer', 'Hiro Protagonist', 'Y.T.', 'Raven', 'Lain Iwakura', 'Motoko Kusanagi'
+    ];
+
     return prisma.player.findMany({
       orderBy: { reputation: 'desc' },
       take: 10,
-      select: { id: true, username: true, reputation: true }
-    }).then(players => players.map(p => ({
-        ...p,
-        name: p.username, // Force identity masking
-        score: p.reputation // Use reputation as the display score
-    })));
+      select: { id: true, reputation: true }
+    }).then(players => players.map(p => {
+        // Deterministic mapping: use the sum of char codes of ID to pick a name
+        const idSum = p.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const maskedName = cyberNames[idSum % cyberNames.length];
+        
+        return {
+            ...p,
+            name: maskedName,
+            score: p.reputation
+        };
+    }));
   }
 
   private async getChatHistory() {
