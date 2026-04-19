@@ -177,6 +177,7 @@ This turns the hacking simulator into a high-stakes, asymmetric multiplayer expe
 ## 11. Advanced Mechanics (100+ Total Features)
 
 - **Artifact Crafting:** Use `craft` to synthesize 0-days from fragments.
+- **Dossier:** Access your persistent AI-generated OSINT case file using `dossier`.
 - **Bounty Hunting:** Use `bounty` to claim rewards for tracking rival operatives.
 - **Doxxing:** Burn DATA to weaken target defenses permanently with `dox`.
 - **Grid News Feed:** Stay informed with procedural headlines using `news`.

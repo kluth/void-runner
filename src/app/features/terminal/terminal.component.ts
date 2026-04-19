@@ -190,6 +190,14 @@ export class TerminalComponent implements AfterViewChecked {
 ]
 };
 
+  constructor() {
+    this.gameService.socket.on('dossier_data', (data: { dossier: string }) => {
+        this.gameService.log('--- OPERATIVE_DOSSIER_DECRYPTED ---');
+        this.gameService.log(data.dossier);
+        this.audioService.playSuccess();
+    });
+  }
+
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
@@ -364,9 +372,15 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.log('ask [msg]   - Uplink to Neural AI');
         this.gameService.log('matrix      - Toggle visual neural-sync');
         this.gameService.log('settings    - Display current configuration');
+        this.gameService.log('dossier     - Request your neural OSINT case file');
         this.gameService.log('set [val]   - Modify system parameters');
         this.gameService.log('man [cmd]   - Detailed manual for command');
         this.gameService.log('tutorial    - Start onboard AI walkthrough');
+        break;
+
+      case 'dossier':
+        this.gameService.log('PROFILER: Requesting deep sector audit...');
+        this.gameService.socket.emit('get_dossier', { token: this.gameService.authToken() });
         break;
 
       case 'vpm':

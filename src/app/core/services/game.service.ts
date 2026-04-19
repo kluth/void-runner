@@ -172,7 +172,7 @@ export const AVAILABLE_HARDWARE: HardwareItem[] = [
   providedIn: 'root'
 })
 export class GameService {
-  private socket!: Socket;
+  public socket!: Socket;
   private neuralService = inject(NeuralService);
   private audioService = inject(AudioService);
   playerHandle = signal('VOID_RUNNER_' + Math.floor(Math.random() * 9999));

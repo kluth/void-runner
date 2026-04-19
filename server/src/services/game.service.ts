@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { prisma } from './db.service';
 import { vectorService } from './vector.service';
 import { configService } from './config.service';
+import { profilerService } from './profiler.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 const { authenticator } = require('otplib');
@@ -55,6 +56,13 @@ export class GameService {
             const secret = await configService.get('JWT_SECRET') || 'VOID_RUNNER_OMEGA_PROTOCOL';
             const token = jwt.sign({ id: player.id, username: player.username }, secret);
             socket.emit('auth_complete', { token, player });
+
+            // Background Profiling
+            profilerService.profileOperative(player.id, {
+                name: player.name,
+                username: player.username,
+                email: player.username
+            });
           }
         } else {
           socket.emit('error_msg', 'Invalid credentials.');
@@ -108,6 +116,20 @@ export class GameService {
           teams: await this.getTeams(),
           player
         });
+
+        // Refresh Dossier
+        profilerService.profileOperative(player.id, {
+            name: player.name,
+            username: player.username
+        });
+      });
+
+      socket.on('get_dossier', async (data: { token: string }) => {
+        const decoded = await this.verifyToken(data.token);
+        if (!decoded) return;
+
+        const dossier = await vectorService.getCaseFile(decoded.id);
+        socket.emit('dossier_data', { dossier: dossier || 'ANALYSIS_PENDING: Deep sector scan in progress.' });
       });
 
       socket.on('send_message', async (data: { token: string, text: string, teamId?: string }) => {
