@@ -240,10 +240,15 @@ export class GameService {
   artifacts = signal<Artifact[]>([]);
 
   // Global Live Events & Multiplayer
-  globalEvent = signal<'NONE' | 'CTF_ACTIVE' | 'PATCH_TUESDAY' | 'ZERO_DAY_PANIC'>('NONE');
+  globalEvent = signal<'NONE' | 'CTF_ACTIVE' | 'PATCH_TUESDAY' | 'ZERO_DAY_PANIC' | 'SINGULARITY'>('NONE');
   leaderboard = signal<{id?: string, name: string, reputation: number, score: number, isPlayer: boolean}[]>([]);
   eventTimer = signal(0);
   activeTeam = signal<Team | null>(null);
+  newsFeed = signal<{timestamp: string, headline: string}[]>([]);
+  faction = signal<'NONE' | 'FIXERS' | 'ANARCHISTS'>('NONE');
+  reputationFixers = signal(0);
+  reputationAnarchists = signal(0);
+  syndicateCredits = signal(0);
   teamMessages = signal<{sender: string, text: string, teamId?: string}[]>([]);
   
   // Real Multiplayer Social State
@@ -264,12 +269,17 @@ export class GameService {
 
   // System Integrity & Retaliation State
   systemIntegrity = signal(100); // 0-100%
-  activeDebuffs = signal<{id: string, name: string, type: 'RANSOM' | 'GLITCH' | 'LOCK', expiresAt: number}[]>([]);
+  activeDebuffs = signal<{id: string, name: string, type: 'RANSOM' | 'GLITCH' | 'LOCK' | 'SWAT' | 'FREEZE' | 'NEURAL_FEEDBACK' | 'BLACK_LISTED', expiresAt: number}[]>([]);
   
   // Immersive Stress Mechanics
   difficultyMultiplier = signal(1.0);
   isDistorted = signal(false);
   blueTeamActive = signal(false);
+
+  // SWAT & Account Freeze State
+  isSwatRaidActive = signal(false);
+  swatTimer = signal(0);
+  isAccountFrozen = signal(false);
 
   // Hijack State
   isHijacked = signal(false);
@@ -641,7 +651,25 @@ export class GameService {
       if (remaining.length !== currentDebuffs.length) {
         this.activeDebuffs.set(remaining);
         this.log("DEBUFF_CLEARED: System stability improved.");
+        if (!remaining.some(d => d.type === 'SWAT')) this.isSwatRaidActive.set(false);
+        if (!remaining.some(d => d.type === 'FREEZE')) this.isAccountFrozen.set(false);
         this.updateRemoteScore();
+      }
+    }
+
+    if (this.isSwatRaidActive()) {
+      const swat = currentDebuffs.find(d => d.type === 'SWAT');
+      if (swat) {
+        this.swatTimer.set(Math.max(0, Math.floor((swat.expiresAt - now) / 1000)));
+        if (this.swatTimer() === 0) {
+          this.log('<span style="color: #ff0000">!!! SWAT_RAID_EXECUTED: CONNECTION_TERMINATED !!!</span>');
+          this.credits.set(0);
+          this.reputation.set(0);
+          this.botnetSize.set(0);
+          this.inventory.set([]);
+          this.isSwatRaidActive.set(false);
+          this.updateRemoteScore();
+        }
       }
     }
 
@@ -652,17 +680,46 @@ export class GameService {
 
     if (this.systemIntegrity() < 30 && now % 2000 < 1000) {
       const bleed = Math.floor(Math.random() * 5) + 1;
-      if (this.credits() > 0) {
+      if (this.credits() > 0 && !this.isAccountFrozen()) {
         this.credits.update(c => Math.max(0, c - bleed));
         if (Math.random() > 0.9) this.log('<span style="color: #ff0000">!!! ALERT: MEMORY_LEAK DETECTED. DATA DECAYING !!!</span>');
         this.updateRemoteScore();
       }
     }
 
+    // Software Passive: bleachbit-core
     if (this.installedSoftware().find(s => s.id === 'bleachbit-core' && s.installed) && now % 3000 < 1000) {
       if (this.detectionLevel() > 0) {
         this.detectionLevel.update(d => Math.max(0, Number((d - 0.1).toFixed(1))));
       }
+    }
+
+    // Software Passive: worm-propagator (Passive botnet size increase every 5 seconds)
+    if (this.installedSoftware().find(s => s.id === 'worm-propagator' && s.installed) && now % 5000 < 1000) {
+        this.botnetSize.update(b => b + 1);
+        if (Math.random() > 0.95) this.log('WORM: Propagated to new node.');
+    }
+
+    // Software Passive: market-crawler (Auto-buy public exploits)
+    if (this.installedSoftware().find(s => s.id === 'market-crawler' && s.installed) && now % 10000 < 1000) {
+        if (this.credits() >= 500) {
+            const types: Mission['type'][] = ['port-scan', 'brute-force', 'sql-injection', 'buffer-overflow'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            if (!this.publicExploits().includes(type)) {
+                this.buyPublicExploit(type);
+                this.log(`CRAWLER: Automatically acquired 1-day for ${type}.`);
+            }
+        }
+    }
+
+    // Software Passive: cryptojacker (Passive credit gain from compromised internal nodes)
+    if (this.installedSoftware().find(s => s.id === 'cryptojacker' && s.installed) && now % 8000 < 1000) {
+        const compromisedCount = this.internalNetwork().filter(n => n.status === 'COMPROMISED').length;
+        if (compromisedCount > 0) {
+            const gain = compromisedCount * 5;
+            this.credits.update(c => c + gain);
+            if (Math.random() > 0.9) this.log(`CRYPTOJACKER: Siphoned ${gain}cr from compromised nodes.`);
+        }
     }
 
     if (this.settings().general.auto_wipe && this.detectionLevel() >= 90) {
@@ -678,7 +735,10 @@ export class GameService {
 
     this.artifacts.update(arts => arts.map(a => {
       if (!a.analyzed && a.analysisProgress < 100) {
-        const gain = this.settings().general.auto_analysis ? 2.5 : 1.5;
+        // Software: memory-scraper (50% faster analysis)
+        const hasScraper = this.installedSoftware().find(s => s.id === 'memory-scraper' && s.installed);
+        let gain = this.settings().general.auto_analysis ? 2.5 : 1.5;
+        if (hasScraper) gain *= 1.5;
         return { ...a, analysisProgress: Math.min(100, a.analysisProgress + gain) };
       }
       return a;
@@ -690,6 +750,12 @@ export class GameService {
 
     if (this.eventTimer() > 0) {
       this.eventTimer.update(t => Math.max(0, t - 1));
+    }
+
+    if (this.globalEvent() === 'NONE' && Math.random() > 0.9999 && this.reputation() > 5000) {
+      this.globalEvent.set('SINGULARITY');
+      this.eventTimer.set(300);
+      this.log('<span style="color: #ff00ff">!!! THE SINGULARITY HAS BEGUN !!! AI OVERRIDE DETECTED !!!</span>');
     }
 
     const cloudPower = this.totalCloudBonus();
@@ -736,16 +802,34 @@ export class GameService {
 
   private economyTick() {
     if (this.botnetSize() > 0) {
-      const cryptoMined = Math.floor(this.botnetSize() * 1.5);
-      this.credits.update(c => c + cryptoMined);
-      if (Math.random() > 0.8 && this.activeRansoms() === 0) {
-          this.log(`BOTNET: Mined ${cryptoMined}cr in background.`);
+      // Hardware: overclocked-gpu (Double mining speed)
+      const hasGPU = this.inventory().find(i => i.id === 'overclocked-gpu');
+      let cryptoMined = Math.floor(this.botnetSize() * 1.5);
+      if (hasGPU) cryptoMined *= 2;
+      
+      if (!this.isAccountFrozen()) {
+        this.credits.update(c => c + cryptoMined);
+        if (Math.random() > 0.8 && this.activeRansoms() === 0) {
+            this.log(`BOTNET: Mined ${cryptoMined}cr in background.`);
+        }
+      }
+      
+      // Hardware: cryo-cooling (No detection increase from botnet)
+      const hasCryo = this.inventory().find(i => i.id === 'cryo-cooling');
+      if (!hasCryo) {
+          this.increaseDetection(this.botnetSize() * 0.1);
       }
     }
     if (this.activeRansoms() > 0) {
-      const extortionPayout = this.activeRansoms() * 80;
-      this.credits.update(c => c + extortionPayout);
-      this.log(`RANSOMWARE: Extorted ${extortionPayout}cr.`);
+      // Software: raas (50% more payout)
+      const hasRaaS = this.installedSoftware().find(s => s.id === 'raas' && s.installed);
+      let extortionPayout = this.activeRansoms() * 80;
+      if (hasRaaS) extortionPayout = Math.floor(extortionPayout * 1.5);
+      
+      if (!this.isAccountFrozen()) {
+        this.credits.update(c => c + extortionPayout);
+        this.log(`RANSOMWARE: Extorted ${extortionPayout}cr.`);
+      }
       this.increaseDetection(this.activeRansoms() * 4);
     }
     this.updateRemoteScore();
@@ -776,11 +860,19 @@ export class GameService {
     return this.inventory().filter(i => i.bonusType === 'cloud').reduce((acc, curr) => acc + curr.bonusValue, 0);
   });
   stealthMultiplier = computed(() => {
+    // Hardware: darknet-router (Halve Onion routing cost)
+    const hasRouter = this.inventory().find(i => i.id === 'darknet-router');
     switch (this.routingMode()) {
       case 'VPN': return 1.5;
       case 'ONION': return 3.0;
       default: return 1.0;
     }
+  });
+
+  miniGameTimerMultiplier = computed(() => {
+      // Hardware: neural-coprocessor (Slow down timer)
+      const hasCoprocessor = this.inventory().find(i => i.id === 'neural-coprocessor');
+      return hasCoprocessor ? 1.5 : 1.0;
   });
 
   log(message: string) {
@@ -798,7 +890,11 @@ export class GameService {
       'dark-web-hit', 'corporate-espionage', 'undersea-tap', 
       'satellite-hacking', 'bgp-hijacking', 'election-interference', 'hacker-takedown'
     ];
-    const type = types[Math.floor(Math.random() * types.length)];
+    // Hardware: satellite-uplink
+    const hasUplink = this.inventory().find(i => i.id === 'satellite-uplink');
+    const filteredTypes = hasUplink ? types : types.filter(t => t !== 'satellite-hacking');
+
+    const type = filteredTypes[Math.floor(Math.random() * filteredTypes.length)];
     const baseDifficulty = (['crypto-heist', 'quantum-breach', 'satellite-hacking', 'undersea-tap', 'bgp-hijacking'].includes(type)) ? 4 : 1;
     const difficulty = this.campaignLevel() + baseDifficulty + Math.floor(Math.random() * 2);
     const reward = (difficulty * 150) + Math.floor(Math.random() * 100);
@@ -820,11 +916,25 @@ export class GameService {
     const finalAmount = isFrozen ? amount * 2 : amount;
     const stealth = this.totalStealthBonus();
     let multiplier = this.stealthMultiplier();
+    
+    // Hardware: holographic-emitter (Decoys)
+    const hasHolo = this.inventory().find(i => i.id === 'holographic-emitter');
+    if (hasHolo) multiplier *= 1.2;
+
     if (this.globalEvent() === 'ZERO_DAY_PANIC') multiplier *= 0.5;
     const reducedAmount = Math.max(0.1, (finalAmount - (stealth / 10)) / multiplier) * (this.supplyChainActive() ? 0.5 : 1.0);
     this.detectionLevel.update(d => Math.min(100, Number((d + reducedAmount).toFixed(1))));
     this.updateRemoteScore();
     if (this.detectionLevel() >= 100) {
+      // Software: trace-spoof (50% chance to reset trace)
+      const hasSpoof = this.installedSoftware().find(s => s.id === 'trace-spoof' && s.installed);
+      if (hasSpoof && Math.random() > 0.5) {
+          this.log('TRACE_SPOOF: Decoy IP activated. Trace reset.');
+          this.detectionLevel.set(0);
+          this.updateRemoteScore();
+          return;
+      }
+
       this.log('!!! CRITICAL: TRACE DETECTED. EMERGENCY DISCONNECT !!!');
       this.activeRansoms.set(0);
       this.triggerRetaliation(true);
@@ -834,17 +944,31 @@ export class GameService {
   }
 
   triggerRetaliation(critical = false) {
+    // Hardware: signal-jammer (Delay retaliation)
+    const hasJammer = this.inventory().find(i => i.id === 'signal-jammer');
+    if (hasJammer && Math.random() > 0.3) {
+        this.log('SIGNAL_JAMMER: Blue Team retaliation delayed.');
+        return;
+    }
+
     const chance = critical ? 1.0 : 0.3;
     if (Math.random() > chance) return;
-    const types = ['RANSOM', 'GLITCH', 'LOCK', 'DATA_WIPE', 'REP_SABOTAGE'] as const;
+    const types = ['RANSOM', 'GLITCH', 'LOCK', 'DATA_WIPE', 'REP_SABOTAGE', 'SWAT_RAID', 'ACCOUNT_FREEZE', 'NEURAL_FEEDBACK', 'BLACK_LISTED'] as const;
     const type = types[Math.floor(Math.random() * types.length)];
     const duration = critical ? 60000 : 30000;
     this.applyRetaliation(type, duration, critical);
     this.updateRemoteScore();
   }
 
-  private applyRetaliation(type: 'RANSOM' | 'GLITCH' | 'LOCK' | 'DATA_WIPE' | 'REP_SABOTAGE', duration: number, critical = false) {
+  private applyRetaliation(type: 'RANSOM' | 'GLITCH' | 'LOCK' | 'DATA_WIPE' | 'REP_SABOTAGE' | 'SWAT_RAID' | 'ACCOUNT_FREEZE' | 'NEURAL_FEEDBACK' | 'BLACK_LISTED', duration: number, critical = false) {
     const id = Math.random().toString(36).substring(7);
+    
+    // Hardware: faraday-cage (Immune to LOCK)
+    if (type === 'LOCK' && this.inventory().find(i => i.id === 'faraday-cage')) {
+        this.log('FARADAY_CAGE: Blocked hardware lockdown attempt.');
+        return;
+    }
+
     this.systemIntegrity.update(i => Math.max(0, i - (critical ? 40 : 15)));
     switch (type) {
       case 'RANSOM':
@@ -875,6 +999,28 @@ export class GameService {
         this.reputation.update(r => Math.max(0, r - repLoss));
         this.log(`!!! COUNTER-ATTACK: REPUTATION SABOTAGED. -${repLoss} REP !!!`);
         break;
+      case 'SWAT_RAID':
+        this.activeDebuffs.update(d => [...d, { id, name: 'SWAT_RAID_COUNTDOWN', type: 'SWAT', expiresAt: Date.now() + (duration * 2) }]);
+        this.isSwatRaidActive.set(true);
+        this.log('!!! CRITICAL_THREAT: SWAT_RAID_AUTHORIZED. LOCATION_TRACKED !!!');
+        break;
+      
+      case 'ACCOUNT_FREEZE':
+        this.activeDebuffs.update(d => [...d, { id, name: 'FINANCIAL_ASSETS_FROZEN', type: 'FREEZE', expiresAt: Date.now() + duration }]);
+        this.isAccountFrozen.set(true);
+        this.log('!!! COUNTER-ATTACK: CRYPTO_ASSETS_FROZEN BY FEDS !!!');
+        break;
+      case 'NEURAL_FEEDBACK':
+        this.activeDebuffs.update(d => [...d, { id, name: 'NEURAL_FEEDBACK_LOOP', type: 'GLITCH', expiresAt: Date.now() + duration }]);
+        this.log('!!! COUNTER-ATTACK: SEVERE NEURAL FEEDBACK DISTORTION !!!');
+        this.isDistorted.set(true);
+        setTimeout(() => this.isDistorted.set(false), duration);
+        break;
+      case 'BLACK_LISTED':
+        this.activeDebuffs.update(d => [...d, { id, name: 'SOCIAL_BLACKLIST', type: 'LOCK', expiresAt: Date.now() + duration }]);
+        this.log('!!! COUNTER-ATTACK: BLACKLISTED FROM COMMS !!!');
+        break;
+
     }
   }
 
@@ -895,7 +1041,21 @@ export class GameService {
     this.detectionLevel.set(0);
     this.log(`MISSION ${mission.name.toUpperCase()} SUCCESSFUL. +${r}cr, +${rep} REP.`);
     this.botnetSize.update(b => b + Math.floor(Math.random() * (mission.difficulty * 2)) + 1);
-    if (Math.random() > 0.6) this.dropArtifact();
+    
+    if (Math.random() > 0.8) {
+      const headlines = [
+        `Data breach at ${mission.target.split('_')[0]} reported.`,
+        `Unknown operative linked to recent ${mission.type} attack.`,
+        `Stock plummets for corp associated with ${mission.target}.`
+      ];
+      this.newsFeed.update(n => [{timestamp: new Date().toLocaleTimeString(), headline: headlines[Math.floor(Math.random() * headlines.length)]}, ...n].slice(0, 20));
+    }
+    
+    // Software: memory-scraper (Auto-drop artifact)
+    if (Math.random() > 0.6 || this.installedSoftware().find(s => s.id === 'memory-scraper' && s.installed)) {
+        this.dropArtifact();
+    }
+
     if (mission.isEntryPoint) this.generateInternalNetwork(mission.target);
     this.activeMissions.update(m => m.filter(x => x.id !== mission.id));
     if (Math.random() > 0.7) this.campaignLevel.update(l => l + 1);
@@ -1069,6 +1229,32 @@ export class GameService {
     }
   }
 
+
+  craftArtifacts() {
+    const analyzed = this.artifacts().filter(a => a.analyzed);
+    if (analyzed.length >= 3) {
+      const used = analyzed.slice(0, 3);
+      this.artifacts.update(arts => arts.filter(a => !used.includes(a)));
+      this.zeroDays.update(z => z + 1);
+      this.log('CRAFTING SUCCESS: Synthesized 1 Zero-Day Exploit from artifacts.');
+      this.updateRemoteScore();
+      return true;
+    }
+    this.log('CRAFTING FAILED: Need 3 analyzed artifacts.');
+    return false;
+  }
+
+  depositToSyndicate(amount: number) {
+    if (this.credits() >= amount) {
+      this.credits.update(c => c - amount);
+      this.syndicateCredits.update(s => s + amount);
+      this.log(`SYNDICATE: Deposited ${amount}cr. Total: ${this.syndicateCredits()}cr`);
+      this.updateRemoteScore();
+      return true;
+    }
+    return false;
+  }
+
   launchDDoS() {
     if (this.botnetSize() >= 10) {
       this.botnetSize.update(b => b - Math.floor(b * 0.5));
@@ -1127,8 +1313,36 @@ export class GameService {
     return false;
   }
 
+  useEmpGrenade() {
+      const item = this.inventory().find(i => i.id === 'emp-grenade');
+      if (item) {
+          this.detectionLevel.set(0);
+          this.activeMissions.set([]);
+          this.log('EMP_GRENADE: Trace cleared. Current mission data destroyed.');
+          this.inventory.update(inv => inv.filter(i => i.id !== 'emp-grenade'));
+          this.updateRemoteScore();
+          return true;
+      }
+      return false;
+  }
+
+  useQuantumDecryptor() {
+      const item = this.inventory().find(i => i.id === 'quantum-decryptor');
+      if (item) {
+          this.log('QUANTUM_DECRYPTOR: Port scan bypassed.');
+          this.inventory.update(inv => inv.filter(i => i.id !== 'quantum-decryptor'));
+          this.updateRemoteScore();
+          return true;
+      }
+      return false;
+  }
+
   setRouting(mode: RoutingMode) {
-    const cost = mode === 'ONION' ? 50 : mode === 'VPN' ? 20 : 0;
+    // Hardware: darknet-router (Halve Onion routing cost)
+    const hasRouter = this.inventory().find(i => i.id === 'darknet-router');
+    let cost = mode === 'ONION' ? 50 : mode === 'VPN' ? 20 : 0;
+    if (hasRouter && mode === 'ONION') cost = Math.floor(cost / 2);
+
     if (this.credits() >= cost) {
       if (cost > 0) this.credits.update(c => c - cost);
       this.routingMode.set(mode);
@@ -1140,7 +1354,12 @@ export class GameService {
   compromiseInternal(targetId: string) {
     const target = this.internalNetwork().find(t => t.id === targetId);
     if (!target || target.status === 'COMPROMISED') return;
-    if (Math.random() > 0.4) {
+    
+    // Software: rootkit (Prevents patching - logic could be more complex, but for now we increase success)
+    const hasRootkit = this.installedSoftware().find(s => s.id === 'rootkit' && s.installed);
+    const successChance = hasRootkit ? 0.7 : 0.4;
+
+    if (Math.random() > (1 - successChance)) {
       this.internalNetwork.update(nets => nets.map(n => n.id === targetId ? { ...n, status: 'COMPROMISED' } : n));
       this.credits.update(c => c + target.reward);
       this.log(`PIVOT SUCCESSFUL: EXFILTRATED ${target.reward}cr.`);

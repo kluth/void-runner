@@ -150,23 +150,27 @@ export class WalkthroughOverlayComponent {
     },
     {
       title: 'HARDWARE SHOP',
-      content: 'Access physical modules here. Buy WiFi Pineapples, Flipper Zeros, and more to increase your recon, exploit, and stealth capabilities. Some modules require research (DATA) to unlock.'
+      content: 'Access physical modules here. Buy WiFi Pineapples, Flipper Zeros, and more. Advanced gear like <b>Neural Coprocessors</b> and <b>Quantum Decryptors</b> provide critical passive bonuses during missions.'
+    },
+    {
+      title: 'SOFTWARE (VPM)',
+      content: 'Install software daemons like the <b>Worm Propagator</b> or <b>Cryptojacker</b> for passive income. Use <b>Memory Scrapers</b> to accelerate artifact analysis automatically.'
     },
     {
       title: 'MISSIONS & CONTRACTS',
-      content: 'Browse the active contracts on the grid. Complete missions to earn credits (cr) and reputation (REP). Be careful: higher difficulty missions increase your TRACE level faster.'
+      content: 'Browse active contracts. Be careful: higher difficulty missions increase your TRACE level faster. Some missions require specialized hardware like <b>Satellite Uplinks</b>.'
+    },
+    {
+      title: 'RETALIATION & THREATS',
+      content: 'Keep your TRACE low. If it reaches 100%, expect retaliation. Beware of <b>SWAT Raids</b> (total loss) and <b>Account Freezes</b>. Use <b>EMP Grenades</b> as a last resort to purge your trace.'
     },
     {
       title: 'GLOBAL GRID (SOCIAL)',
-      content: 'Monitor global events, join hacker teams, and communicate via the Darknet. Your reputation determines which syndicates will talk to you.'
-    },
-    {
-      title: 'SYSTEM SETTINGS',
-      content: 'Configure your neural feedback. Adjust volume, CRT scanlines, matrix visualization, and font sizes. You can use the <code>set</code> command in the terminal for quick adjustments.'
+      content: 'Monitor global events, join hacker teams, and communicate via the Darknet. Streamers can enable integration to let their chat help—or hinder—their progress.'
     },
     {
       title: 'FINAL ADVICE',
-      content: 'Keep your TRACE level low. If it reaches 100%, the Blue Team will locate your node and initiate a counter-strike. Use <code>wipe</code> to purge your logs regularly.'
+      content: 'Keep your system integrity high. If it drops too low, you may become vulnerable to <b>Unknown Overrides</b>. Use <code>wipe</code> to purge your logs regularly. Good luck, operative.'
     }
   ];
 

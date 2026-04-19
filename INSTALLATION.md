@@ -1,4 +1,4 @@
-# VOID_RUNNER: System Deployment Guide
+# VOID_RUNNER: System Deployment Guide (v2.0 - 100+ Feature Stack)
 
 Follow these protocols to establish your node on the Global Net. This guide is optimized for deployment on a Hostinger VPS or any standard Linux server.
 

@@ -350,6 +350,22 @@ export class MissionComponent implements OnDestroy {
     this.detectionInterval = setInterval(() => {
       this.gameService.increaseDetection(1.5);
       
+      const m = this.activeMission();
+      // Software: keylogger (Slowly reveal brute-force digits)
+      if (m?.type === 'brute-force' && this.gameService.installedSoftware().find(s => s.id === 'keylogger' && s.installed)) {
+          if (Math.random() > 0.9) {
+              const current = this.displayCode().split('');
+              const target = this.targetCode();
+              const hiddenIdx = current.map((c, i) => i).filter(i => current[i] === '_');
+              if (hiddenIdx.length > 0) {
+                  const idx = hiddenIdx[Math.floor(Math.random() * hiddenIdx.length)];
+                  current[idx] = target[idx];
+                  this.displayCode.set(current.join(''));
+                  this.gameService.log('KEYLOGGER: Captured keystroke fragment.');
+              }
+          }
+      }
+
       // Active Sabotage (Blue Team logic)
       if (this.gameService.blueTeamActive()) {
         if (Math.random() > 0.85) {
@@ -428,7 +444,14 @@ export class MissionComponent implements OnDestroy {
 
     if (current[index].status === 'open') { this.audioService.playClick(); this.gameService.log(`OPEN PORT: ${current[index].num}`); }
     else { this.audioService.playBeep(200, 0.05, 'sine'); this.gameService.increaseDetection(traceGain); }
-    if (current.filter(p => p.status === 'open').every(p => p.scanned)) this.winMission();
+    
+    // firewall-bypass benefit
+    const hasBypass = this.gameService.installedSoftware().find(s => s.id === 'firewall-bypass' && s.installed);
+    const openPorts = current.filter(p => p.status === 'open');
+    const scannedOpenCount = openPorts.filter(p => p.scanned).length;
+    const requiredCount = hasBypass ? Math.max(1, openPorts.length - 1) : openPorts.length;
+    
+    if (scannedOpenCount >= requiredCount) this.winMission();
   }
 
   private generateCode(difficulty: number) {
@@ -437,7 +460,21 @@ export class MissionComponent implements OnDestroy {
     let code = '';
     for (let i = 0; i < length; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
     this.targetCode.set(code);
-    this.displayCode.set('_'.repeat(length));
+    
+    // Software: packet-sniffer
+    const hasSniffer = this.gameService.installedSoftware().find(s => s.id === 'packet-sniffer' && s.installed);
+    if (hasSniffer) {
+      const display = '_'.repeat(length).split('');
+      const revealCount = Math.floor(length / 3);
+      for (let i = 0; i < revealCount; i++) {
+        const idx = Math.floor(Math.random() * length);
+        display[idx] = code[idx];
+      }
+      this.displayCode.set(display.join(''));
+      this.gameService.log('SNIFFER: Intercepted partial credential fragments.');
+    } else {
+      this.displayCode.set('_'.repeat(length));
+    }
   }
 
   inputChar(char: string) {
@@ -455,8 +492,9 @@ export class MissionComponent implements OnDestroy {
 
   private startSqlGame(difficulty: number) {
     this.sqlItems.set([]);
+    const hasFuzzer = this.gameService.installedSoftware().find(s => s.id === 'ai-fuzzer' && s.installed);
     this.sqlInterval = setInterval(() => {
-      const isVuln = Math.random() < 0.2;
+      const isVuln = Math.random() < (hasFuzzer ? 0.4 : 0.2);
       const fragments = ["SELECT * FROM sys", "DROP TABLE cache", "OR 1=1", "UNION SELECT", "WAITFOR DELAY", "xp_cmdshell", "HAVING 1=1"];
       const newItem = { id: Math.random(), text: fragments[Math.floor(Math.random()*fragments.length)] + (isVuln ? " [!] " : ""), isVuln };
       this.sqlItems.update(items => [newItem, ...items].slice(0, 8));

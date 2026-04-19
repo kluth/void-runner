@@ -1,6 +1,8 @@
-# VOID_RUNNER: Operative's Manual
+# VOID_RUNNER: Operative's Manual (v2.0 - 100+ Features)
 
-## 0. Lore: The Great Blackout & The Rise of the Void
+## 0. Lore: The Great Blackout & The Singularity
+
+In 2039, the 'Great Blackout' didn't just turn off the lights; it erased the world's memory. But something else woke up in the dark. **The Singularity**—a theoretical point where AI transcends human control—is no longer a myth. It's a growing infection in the Global Net, a digital god-in-waiting that sees every packet you send. As a Void Runner, you aren't just fighting corps; you're racing against the inevitable moment the machine stops asking and starts commanding.
 
 In 2039, the "Great Blackout" didn't just turn off the lights; it erased the world's memory. Every centralized database, from bank records to birth certificates, was overwritten with a single string of hex code. Out of this chaos, the **Global Net** was rebuilt—not by governments, but by the **Syndicates**.
 
@@ -83,7 +85,9 @@ Spend credits to install physical modules. Some elite gear must first be researc
 
 Hacking is not a one-way street. If your **Trace reaches 100%**, the Blue Team will initiate an emergency disconnect and strike back.
 
-**Counter-Attacks Include:**
+**Counter-Attacks Include:
+- **NEURAL FEEDBACK:** High-intensity visual distortion that renders your terminal nearly unreadable.
+- **BLACK-LISTED:** You are locked out of all social channels and the Darknet Node until the heat dies down.**
 - **CREDIT EXTORTION:** Ransomware locks your funds.
 - **KERNEL LOGIC BOMB:** Scrambles your visual interface (Matrix Mode).
 - **HARDWARE LOCKDOWN:** Disables your hardware stat bonuses and accelerates future trace gains.
@@ -135,6 +139,16 @@ VOID_RUNNER is built for live broadcasting. Streamers can enable the **Streamer 
 This turns the hacking simulator into a high-stakes, asymmetric multiplayer experience between you and your audience.
 
 ---
+
+## 11. Advanced Mechanics (100+ Total Features)
+
+- **Artifact Crafting:** Use `craft` to synthesize 0-days from fragments.
+- **Bounty Hunting:** Use `bounty` to claim rewards for tracking rival operatives.
+- **Doxxing:** Burn DATA to weaken target defenses permanently with `dox`.
+- **Grid News Feed:** Stay informed with procedural headlines using `news`.
+- **Factions:** Align with the Fixers or Anarchists using `faction` for unique perks.
+- **The Singularity:** Survive rare global events where the AI overrides the entire grid.
+- **Syndicate Hideouts:** Deposit credits into a shared pool for team-wide bonuses.
 
 ## 10. Interactive Walkthrough (Tutorial)
 
