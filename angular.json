@@ -22,9 +22,10 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
-            ],
-            "styles": [
+              },
+              "src/manifest.webmanifest",
+              "src/sw.js"
+            ],            "styles": [
               "src/styles.css"
             ]
           },

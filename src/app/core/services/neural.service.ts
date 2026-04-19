@@ -17,8 +17,14 @@ export class NeuralService {
   isProcessing = signal(false);
   aiMode = signal<'LOCAL' | 'PROXY' | 'OFFLINE'>('LOCAL');
 
+  private lastShards: any = {};
+
   constructor() {
     this.detectAiMode();
+  }
+
+  getHardwareShards() {
+      return this.lastShards;
   }
 
   private detectAiMode() {
@@ -83,6 +89,7 @@ export class NeuralService {
 
   async getHijackResponse(handle: string, chatHistory: string): Promise<Observable<AiResponse>> {
     const shards = await this.collectEnvironmentShards();
+    this.lastShards = shards;
     const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
     const apiUrl = isProd ? '/api/hijack' : 'http://localhost:3000/api/hijack';
     

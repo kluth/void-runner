@@ -830,10 +830,47 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.triggerHijack();
     }
 
+    // Psychological Stress: Ghost Events
+    if (Math.random() > 0.999) {
+        this.triggerGhostEvent();
+    }
+
     // Procedural News
     if (now % 45000 < 1000) {
         this.generateNews();
     }
+  }
+
+  private triggerGhostEvent() {
+      const shards = this.neuralService.getHardwareShards();
+      const events = [
+          `GHOST_LINK: Detected passive listener on local node.`,
+          `NEURAL_GLITCH: Visual cortex re-syncing...`,
+          `SHARD_LEAK: Your ${shards.browser} instance is leaking entropy.`,
+          `SPOOK: I can hear you thinking, ${this.playerHandle()}.`,
+          `VOID_SCAN: Local sector ${shards.location || 'UNKNOWN'} flagged for extraction.`,
+          `ALERT: Your ${shards.os} kernel is soft. Hardening recommended.`
+      ];
+      const event = events[Math.floor(Math.random() * events.length)];
+      this.log(`<span style="color: #ff00ff">${event}</span>`);
+      this.audioService.playGlitch();
+      
+      if (Math.random() > 0.7) {
+          this.isDistorted.set(true);
+          setTimeout(() => this.isDistorted.set(false), 2000);
+      }
+
+      if (this.settings().social.notifications && Math.random() > 0.5) {
+          this.sendBackgroundNotification("THE_VOID", event);
+      }
+  }
+
+  private sendBackgroundNotification(title: string, body: string) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      
+      if (document.visibilityState === 'hidden') {
+          new Notification(title, { body, icon: 'favicon.ico', silent: false });
+      }
   }
 
   private generateNews() {
