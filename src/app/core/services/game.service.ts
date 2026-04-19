@@ -827,6 +827,17 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       }
     }
 
+    // Natural Trace Cooldown: Passive heat dissipation when system is idle
+    // Checks if missions are being displayed but not currently active
+    if (this.detectionLevel() > 0 && now % 5000 < 1000) {
+        const stealthBonus = this.inventory().filter(i => i.bonusType === 'stealth').reduce((a, b) => a + b.bonusValue, 0);
+        const cooldownBase = 0.2;
+        const finalCooldown = cooldownBase + (stealthBonus / 100);
+        
+        // Only cooldown if not actively in a mission (detection level normally rises here)
+        this.detectionLevel.update(d => Math.max(0, Number((d - finalCooldown).toFixed(1))));
+    }
+
     // Auto-Wipe Logic
     if (this.settings().general.auto_wipe && this.detectionLevel() >= 90) {
         const wiper = this.installedSoftware().find(s => s.id === 'wiper' && s.installed);
