@@ -523,8 +523,12 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     }
   }
 
-  private restoreFullState(player: PlayerData) {
-    this.playerData.set(player);
+  private restoreFullState(player: any) {
+    // Preserve existing handle/username if the incoming packet is a tactical mirror (may lack identity shards)
+    const current = this.playerData();
+    const merged = { ...current, ...player };
+    this.playerData.set(merged);
+    
     this.credits.set(player.credits);
     this.experience.set(player.experience);
     this.botnetSize.set(player.botnetSize);

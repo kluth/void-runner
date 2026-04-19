@@ -200,7 +200,11 @@ export class GameService {
         });
         
         // Mirror updated state to ALL devices owned by this user
-        this.io.to(`user_${decoded.id}`).emit('state_mirror', data);
+        // Ensure username is preserved in the mirror packet
+        this.io.to(`user_${decoded.id}`).emit('state_mirror', {
+            ...data,
+            username: decoded.username
+        });
         
         this.io.emit('leaderboard_update', await this.getLeaderboard());
       });
