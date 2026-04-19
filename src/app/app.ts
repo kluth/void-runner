@@ -139,6 +139,14 @@ import { CommonModule } from '@angular/common';
             <span class="label">OPERATIVES</span>
             <span class="value" style="color: #00ff00">{{ gameService.activeOperatives() }}</span>
           </div>
+          <div class="stat-box">
+            <span class="label">IDENTITY_UPLINK</span>
+            @if (gameService.isAuthenticated()) {
+              <span class="value" style="color: #00ff00; text-shadow: 0 0 10px #0f0;">VERIFIED [{{ gameService.playerData()?.username }}]</span>
+            } @else {
+              <span class="value" style="color: #ffaa00">GHOST (UNSYNCED)</span>
+            }
+          </div>
           <div class="music-player">
             <span class="label">NEURAL_AUDIO_STREAM</span>
             <span class="track-name">{{ audioService.currentTrack() }}</span>
