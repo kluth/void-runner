@@ -13,27 +13,30 @@ RUN npm install -g pnpm
 COPY package.json .
 COPY pnpm-lock.yaml .
 
-# Install dependencies
+# Install dependencies (including openssl for prisma generation)
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN pnpm install
 
 # Copy application files
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client for multiple potential targets
 RUN pnpm prisma generate
+
+# Compile TypeScript
+RUN pnpm run build
 
 # Runtime stage
 FROM node:20-bookworm-slim AS runtime
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y openssl curl && rm -rf /var/lib/apt/lists/*
-RUN npm install -g pnpm
+# Install runtime dependencies (OpenSSL 3 is standard in Bookworm)
+RUN apt-get update && apt-get install -y openssl libssl3 ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app
 
-# Copy application files
+# Copy only necessary files from build stage
+# We copy the whole /app to ensure dist/ and node_modules/ are present
 COPY --from=build /app .
 
 # Expose port
