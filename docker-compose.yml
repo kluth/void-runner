@@ -4,8 +4,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: void_runner_backend
-    ports:
-      - "3000:3000"
+    # No public ports, only accessible via frontend proxy or internal network
     volumes:
       - ./server/prisma:/app/prisma
       - .env:/app/.env
@@ -13,7 +12,7 @@ services:
       - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
       - PRISMA_CLIENT_ENGINE_TYPE=binary
       - DATABASE_URL=file:/app/prisma/dev.db
-      - FRONTEND_URL=http://72.61.80.234:8081
+      - FRONTEND_URL=https://void.kluth.cloud
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -25,12 +24,17 @@ services:
   frontend:
     build: .
     container_name: void_runner_frontend
-    ports:
-      - "8081:80"
+    # No public ports, accessible via Traefik
     depends_on:
       backend:
         condition: service_healthy
     restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.void.rule=Host(`void.kluth.cloud`)"
+      - "traefik.http.routers.void.entrypoints=websecure"
+      - "traefik.http.routers.void.tls.certresolver=letsencrypt"
+      - "traefik.http.services.void.loadbalancer.server.port=80"
 
   chroma:
     image: chromadb/chroma:latest
