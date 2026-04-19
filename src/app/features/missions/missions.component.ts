@@ -115,18 +115,23 @@ import { FormsModule } from '@angular/forms';
             <!-- Buffer Overflow -->
             @else if (activeMission()?.type === 'buffer-overflow') {
               <div class="overflow-game">
-                <div class="game-info">STACK_ALIGNMENT_PAYLOAD</div>
+                <div class="game-info">MEMORY_HEX_EDITOR</div>
+                <div class="byte-selector">
+                  <button [class.active]="selectedByte === '90'" (click)="selectedByte = '90'">[90] NOP</button>
+                  <button [class.active]="selectedByte === 'E'" (click)="selectedByte = 'E'">[E] JMP</button>
+                  <button [class.active]="selectedByte === 'F'" (click)="selectedByte = 'F'">[F] ESP</button>
+                </div>
                 <div class="stack-view">
                   @for (cell of stack(); track $index) {
-                    <div class="stack-cell" [class.eip]="$index === eipOffset()" [class.overwritten]="cell !== '00'">
+                    <div class="stack-cell" 
+                         [class.eip]="$index === eipOffset() || $index === eipOffset() + 1" 
+                         [class.overwritten]="cell !== '00'"
+                         (click)="injectByte($index)">
                       {{ cell }}
                     </div>
                   }
                 </div>
-                <div class="overflow-controls">
-                  <input type="text" [(ngModel)]="overflowInput" placeholder="OFFSET_DATA..." (keyup.enter)="executeOverflow()">
-                  <button (click)="executeOverflow()">INJECT</button>
-                </div>
+                <button class="launch-btn" (click)="checkOverflow()">EXECUTE_PAYLOAD</button>
               </div>
             }
 
@@ -145,19 +150,21 @@ import { FormsModule } from '@angular/forms';
             <!-- OSINT Research -->
             @else if (activeMission()?.type === 'osint-research') {
               <div class="osint-game">
-                <div class="game-info">SCRAPE_VICTIM_IDENTITY</div>
-                <div class="profile-card">
-                  @for (fact of osintFacts(); track $index) {
-                    <div class="fact-line" [class.hidden]="!fact.revealed">
-                      <span class="f-label">{{ fact.label }}:</span>
-                      <span class="f-val">{{ fact.revealed ? fact.value : '[[ BLOCKED ]]' }}</span>
-                      @if (!fact.revealed) { <button class="reveal-btn" (click)="revealOsint($index)">SCRAPE</button> }
-                    </div>
-                  }
+                <div class="game-info">GRID_SOCIAL_FEED_ANALYSIS</div>
+                <div class="social-feed">
+                  <div class="feed-header"><span style="color: #0ff">@{{ targetHandle }}</span> // BLEETER_PROFILE</div>
+                  <div class="posts-container">
+                    @for (post of socialPosts; track $index) {
+                      <div class="social-post">
+                        <div class="post-meta">{{ post.date }}</div>
+                        <div class="post-content">{{ post.text }}</div>
+                      </div>
+                    }
+                  </div>
                 </div>
                 <div class="security-questions">
-                  <input type="text" [(ngModel)]="osintAnswer" placeholder="RECOVERED_PET_NAME...">
-                  <button (click)="checkOsint()">VALIDATE</button>
+                  <input type="text" [(ngModel)]="osintAnswer" placeholder="ENTER_PASSWORD_HINT (e.g. Pet's Name)..." (keyup.enter)="checkOsint()">
+                  <button (click)="checkOsint()">BRUTE_FORCE</button>
                 </div>
               </div>
             }
@@ -165,26 +172,52 @@ import { FormsModule } from '@angular/forms';
             <!-- Phishing Campaign -->
             @else if (activeMission()?.type === 'phishing-campaign') {
               <div class="phishing-game">
-                <div class="game-info">SOCIAL_PSYCH_ENGINEERING</div>
-                <div class="phishing-setup">
-                  <div class="setup-group">
-                    <label>SENDER_ID</label>
-                    <select [(ngModel)]="phishSender">
-                      <option value="IT">IT_ROOT</option>
-                      <option value="HR">HR_GLOBAL</option>
-                      <option value="CEO">ADMIN_DIRECT</option>
-                    </select>
+                <div class="game-info">EMAIL_SPOOFING_TOOL_V2</div>
+                <div class="email-client">
+                  <div class="e-header">
+                    <div class="e-row"><span class="e-label">FROM:</span> 
+                      <select [(ngModel)]="phishSender" (change)="updatePhishPreview()">
+                        <option value="IT">IT_Support@corp.net</option>
+                        <option value="HR">HR_Dept@corp.net</option>
+                        <option value="CEO">Executive_Office@corp.net</option>
+                      </select>
+                    </div>
+                    <div class="e-row"><span class="e-label">TO:</span> TARGET_LIST_04</div>
+                    <div class="e-row"><span class="e-label">SUBJECT:</span> 
+                      <select [(ngModel)]="phishLure" (change)="updatePhishPreview()">
+                        <option value="URGENCY">ACTION REQUIRED: Password Expiry</option>
+                        <option value="FEAR">TERMINATION NOTICE: Immediate Action</option>
+                        <option value="CURIOSITY">Confidential: Q3 Bonus Structure</option>
+                      </select>
+                    </div>
                   </div>
-                  <div class="setup-group">
-                    <label>PSYCH_LURE</label>
-                    <select [(ngModel)]="phishLure">
-                      <option value="URGENCY">URGENCY</option>
-                      <option value="FEAR">THREAT</option>
-                      <option value="CURIOSITY">CURIOSITY</option>
-                    </select>
+                  <div class="e-body">
+                    <textarea readonly [value]="phishPreviewText"></textarea>
+                  </div>
+                  <div class="e-footer">
+                     <span class="spam-score" [class.high-score]="spamScore > 70">SPAM_FILTER_EVASION: {{ spamScore }}%</span>
+                     <button class="launch-btn" (click)="launchPhishing()">TRANSMIT_PAYLOAD</button>
                   </div>
                 </div>
-                <button class="launch-btn" (click)="launchPhishing()">LAUNCH_CAMPAIGN</button>
+              </div>
+            }
+
+            <!-- MITM Attack -->
+            @else if (activeMission()?.type === 'mitm-attack') {
+              <div class="mitm-game">
+                <div class="game-info">PACKET_SNIFFER_ACTIVE</div>
+                <div class="packet-stream">
+                  @for (packet of activePackets; track packet.id) {
+                    <div class="packet" 
+                         [style.left.%]="packet.x" 
+                         [style.top.%]="packet.y" 
+                         [class.encrypted]="packet.isTarget"
+                         (click)="interceptPacket(packet)">
+                      {{ packet.text }}
+                    </div>
+                  }
+                </div>
+                <div class="progress-info">INTERCEPTED: {{ mitmCaptured }}/3</div>
               </div>
             }
           </div>
@@ -254,35 +287,51 @@ import { FormsModule } from '@angular/forms';
     .rfid-tile.active { color: #ff00ff; border-color: #ff00ff; box-shadow: 0 0 15px #f0f; transform: scale(1.05); }
     .progress-info { font-size: 0.6rem; color: #ff00ff; font-weight: bold; }
 
-    .stack-view { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.25rem; width: 100%; max-width: 300px; margin: 1.5rem auto; }
+    .stack-view { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.25rem; width: 100%; max-width: 300px; margin: 1.5rem auto; cursor: crosshair; }
     @media (max-width: 400px) { .stack-view { grid-template-columns: repeat(4, 1fr); } }
-    .stack-cell { font-size: 0.55rem; padding: 0.4rem; border: 1px solid #111; color: #333; text-align: center; }
-    .stack-cell.eip { border-color: #ff00ff; color: #ff00ff; font-weight: bold; }
+    .stack-cell { font-size: 0.55rem; padding: 0.4rem; border: 1px solid #111; color: #333; text-align: center; transition: all 0.2s; }
+    .stack-cell:hover { background: rgba(255,0,255,0.2); }
+    .stack-cell.eip { border-color: #ff00ff; color: #ff00ff; font-weight: bold; box-shadow: 0 0 5px rgba(255,0,255,0.5); }
     .stack-cell.overwritten { background: #1a001a; color: #ff00ff; }
     
-    .overflow-controls { display: flex; gap: 0.5rem; width: 100%; max-width: 300px; }
-    .overflow-controls input { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; font-size: 0.7rem; font-family: inherit; flex-grow: 1; outline: none; }
-    .overflow-controls input:focus { border-color: #ff00ff; }
+    .byte-selector { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+    .byte-selector button { padding: 0.5rem; border: 1px solid #333; background: #000; color: #888; }
+    .byte-selector button.active { border-color: #ff00ff; color: #ff00ff; background: rgba(255,0,255,0.1); }
 
     .xss-controls { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
     .xss-controls textarea { width: 100%; height: 80px; background: #000; border: 1px solid #222; color: #fff; font-size: 0.7rem; padding: 0.75rem; font-family: inherit; resize: none; outline: none; }
     .xss-controls textarea:focus { border-color: #00ffff; }
     .render-view { width: 100%; max-width: 400px; border: 1px dashed #222; min-height: 50px; margin-top: 0.75rem; padding: 0.75rem; font-size: 0.6rem; color: #555; text-align: left; }
 
-    .osint-game { width: 100%; max-width: 400px; }
-    .osint-game .profile-card { background: #050505; border: 1px solid #111; padding: 1rem; text-align: left; margin-top: 1rem; width: 100%; }
-    .fact-line { font-size: 0.7rem; color: #00ff00; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-    .f-label { color: #006600; min-width: 4rem; font-weight: bold; }
-    .f-val { flex-grow: 1; color: #fff; }
-    .reveal-btn { padding: 0.2rem 0.5rem; font-size: 0.5rem; }
-    .security-questions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+    .osint-game { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 1rem; }
+    .social-feed { background: #050505; border: 1px solid #111; display: flex; flex-direction: column; max-height: 200px; overflow-y: auto; text-align: left; }
+    .feed-header { background: #111; padding: 0.5rem; font-size: 0.6rem; border-bottom: 1px solid #222; font-weight: bold; position: sticky; top: 0; }
+    .posts-container { padding: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .social-post { border-left: 2px solid #004400; padding-left: 0.5rem; }
+    .post-meta { font-size: 0.45rem; color: #555; margin-bottom: 0.2rem; }
+    .post-content { font-size: 0.6rem; color: #ccc; line-height: 1.3; }
+    .security-questions { display: flex; gap: 0.5rem; }
     .security-questions input { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; flex-grow: 1; font-size: 0.7rem; outline: none; }
     .security-questions input:focus { border-color: #00ff00; }
 
-    .phishing-setup { display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-top: 1rem; width: 100%; max-width: 300px; }
-    .setup-group label { font-size: 0.5rem; color: #444; margin-bottom: 0.25rem; display: block; }
-    .setup-group select { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; width: 100%; font-size: 0.7rem; font-family: inherit; outline: none; }
-    .launch-btn { width: 100%; margin-top: 1.5rem; background: #ff00ff; color: #fff; }
+    .phishing-game { width: 100%; max-width: 400px; }
+    .email-client { background: #050505; border: 1px solid #222; display: flex; flex-direction: column; text-align: left; margin-top: 1rem; }
+    .e-header { padding: 0.5rem; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 0.25rem; background: #0a0a0a; }
+    .e-row { font-size: 0.6rem; display: flex; align-items: center; }
+    .e-label { color: #555; min-width: 3.5rem; }
+    .e-row select { background: transparent; border: 1px dashed #333; color: #0ff; font-family: inherit; font-size: 0.6rem; outline: none; cursor: pointer; }
+    .e-body { padding: 0; }
+    .e-body textarea { width: 100%; height: 100px; background: transparent; border: none; color: #aaa; font-family: inherit; font-size: 0.6rem; padding: 0.75rem; resize: none; outline: none; }
+    .e-footer { padding: 0.5rem; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: #111; }
+    .spam-score { font-size: 0.6rem; color: #ff0000; font-weight: bold; }
+    .spam-score.high-score { color: #00ff00; }
+    
+    .mitm-game { width: 100%; max-width: 400px; height: 200px; position: relative; overflow: hidden; background: #000; border: 1px solid #111; }
+    .packet-stream { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .packet { position: absolute; padding: 0.25rem 0.5rem; font-size: 0.5rem; background: #050505; border: 1px solid #222; color: #444; cursor: crosshair; user-select: none; transition: transform 0.1s; }
+    .packet:hover { transform: scale(1.1); border-color: #fff; color: #fff; }
+    .packet.encrypted { border-color: #00ff00; color: #00ff00; text-shadow: 0 0 5px #0f0; box-shadow: 0 0 10px rgba(0,255,0,0.2); }
+    .launch-btn { width: 100%; margin-top: 1rem; background: #ff00ff; color: #fff; }
 
     .abort-btn { background: #1a1a1a; color: #00ff00; margin-top: 1rem; padding: 0.75rem 1.5rem; font-size: 0.7rem; border: 1px solid #333; }
     .abort-btn:hover { background: #300; color: #f00; border-color: #f00; }
@@ -302,21 +351,28 @@ export class MissionComponent implements OnDestroy {
 
   stack = signal<string[]>(new Array(32).fill('00'));
   eipOffset = signal(Math.floor(Math.random() * 20) + 8);
-  overflowInput = '';
+  selectedByte = '90';
 
   xssPayload = '';
   sanitizedView = signal<string>('SAFE_RENDER_OUTPUT');
 
-  osintFacts = signal<{label: string, value: string, revealed: boolean}[]>([]);
+  targetHandle = '';
+  socialPosts: {date: string, text: string}[] = [];
   osintAnswer = '';
   private correctPet = '';
 
   phishSender = 'IT';
   phishLure = 'URGENCY';
+  phishPreviewText = '';
+  spamScore = 0;
+
+  activePackets: {id: number, text: string, isTarget: boolean, x: number, y: number}[] = [];
+  mitmCaptured = 0;
 
   private sqlInterval: any;
   private detectionInterval: any;
   private rfidInterval: any;
+  private mitmInterval: any;
 
   constructor() {
     effect(() => {
@@ -334,6 +390,7 @@ export class MissionComponent implements OnDestroy {
     clearInterval(this.sqlInterval);
     clearInterval(this.detectionInterval);
     clearInterval(this.rfidInterval);
+    clearInterval(this.mitmInterval);
   }
 
   startMission(m: Mission) {
@@ -523,19 +580,20 @@ export class MissionComponent implements OnDestroy {
   private initOverflow(difficulty: number) {
     this.stack.set(new Array(32).fill('00'));
     this.eipOffset.set(12 + difficulty * 2);
-    this.overflowInput = '';
+    this.selectedByte = '90';
   }
 
-  executeOverflow() {
-    this.audioService.playGlitch();
-    const input = this.overflowInput;
-    const newStack = new Array(32).fill('00');
-    for (let i = 0; i < input.length && i < 32; i++) {
-      newStack[i] = input[i].toUpperCase();
-    }
-    this.stack.set(newStack);
+  injectByte(index: number) {
+    this.audioService.playClick();
+    const current = [...this.stack()];
+    current[index] = this.selectedByte;
+    this.stack.set(current);
+  }
 
-    if (newStack[this.eipOffset()] === 'E' && newStack[this.eipOffset() + 1] === 'F') {
+  checkOverflow() {
+    this.audioService.playGlitch();
+    const current = this.stack();
+    if (current[this.eipOffset()] === 'E' && current[this.eipOffset() + 1] === 'F') {
       this.gameService.log('EIP_OVERWRITE_SUCCESS');
       this.winMission();
     } else {
@@ -559,22 +617,23 @@ export class MissionComponent implements OnDestroy {
   }
 
   initOsint() {
-    const petNames = ['Ghost', 'Viper', 'Cypher', 'Neon', 'Static'];
+    const petNames = ['Ghost', 'Viper', 'Cypher', 'Neon', 'Static', 'Buster', 'Rex', 'Bella', 'Luna', 'Max'];
+    const cities = ['Neo-Tokyo', 'Night City', 'Sector 7', 'The Sprawl', 'Zion'];
+    const hobbies = ['surfing the net', 'modding my cyberdeck', 'drinking synth-caf', 'watching braindances'];
+    
     this.correctPet = petNames[Math.floor(Math.random() * petNames.length)];
-    this.osintFacts.set([
-      { label: 'SOCIAL', value: `Missing my dog ${this.correctPet}...`, revealed: false },
-      { label: 'LOC', value: 'Neo-Tokyo, Sector 7', revealed: false },
-      { label: 'ROLE', value: 'Senior DevOps @ CorpNode', revealed: false }
-    ]);
+    this.targetHandle = 'CorpSlave_' + Math.floor(Math.random() * 9999);
+    
+    const posts = [
+      { date: '2 DAYS AGO', text: `Just transferred to the new branch in ${cities[Math.floor(Math.random() * cities.length)]}. The commute is terrible.` },
+      { date: '5 DAYS AGO', text: `Can't believe the weather today. Perfect for ${hobbies[Math.floor(Math.random() * hobbies.length)]}.` },
+      { date: '1 WEEK AGO', text: `Took my dog ${this.correctPet} to the vet. He hates his new cybernetic leg.` },
+      { date: '2 WEEKS AGO', text: `Sysadmin keeps changing the password policy. I just use my pet's name now, I don't care anymore.` },
+      { date: '1 MONTH AGO', text: `Does anyone know a good place to get ramen?` }
+    ];
+    
+    this.socialPosts = posts.sort(() => Math.random() - 0.5);
     this.osintAnswer = '';
-  }
-
-  revealOsint(index: number) {
-    this.audioService.playClick();
-    const current = this.osintFacts();
-    current[index].revealed = true;
-    this.osintFacts.set([...current]);
-    this.gameService.increaseDetection(8);
   }
 
   checkOsint() {
@@ -587,16 +646,63 @@ export class MissionComponent implements OnDestroy {
     }
   }
 
+  updatePhishPreview() {
+     let text = '';
+     if (this.phishSender === 'IT') text += "Dear User,\n\nYour account password will expire in 24 hours. ";
+     else if (this.phishSender === 'HR') text += "Attention Employee,\n\nPlease review the attached policy changes immediately. ";
+     else if (this.phishSender === 'CEO') text += "Team,\n\nI need you to review this confidential document before the board meeting. ";
+
+     if (this.phishLure === 'URGENCY') { text += "Failure to comply will result in immediate lockout."; this.spamScore = 65; }
+     else if (this.phishLure === 'FEAR') { text += "This is your final warning before disciplinary action is taken."; this.spamScore = 40; }
+     else if (this.phishLure === 'CURIOSITY') { text += "You won't believe what is in this file."; this.spamScore = 85; }
+     
+     if (this.phishSender === 'IT' && this.phishLure === 'FEAR') this.spamScore = 95;
+     if (this.phishSender === 'HR' && this.phishLure === 'URGENCY') this.spamScore = 80;
+     if (this.phishSender === 'CEO' && this.phishLure === 'CURIOSITY') this.spamScore = 90;
+
+     this.phishPreviewText = text + "\n\nClick here to proceed: [MALICIOUS_LINK]\n\nRegards,\nThe Management";
+  }
+
   launchPhishing() {
     this.audioService.playClick();
     this.gameService.log('INJECTING_CAMPAIGN...');
-    let successChance = 0.3;
-    if (this.phishSender === 'IT' && this.phishLure === 'FEAR') successChance = 0.8;
-    if (this.phishSender === 'HR' && this.phishLure === 'URGENCY') successChance = 0.7;
-    if (this.phishSender === 'CEO' && this.phishLure === 'CURIOSITY') successChance = 0.6;
+    let successChance = this.spamScore / 100;
     successChance += (this.gameService.totalSocialBonus() / 100);
     if (Math.random() < successChance) this.winMission();
     else { this.audioService.playError(); this.gameService.increaseDetection(30); }
+  }
+
+  startMitmGame(difficulty: number) {
+    this.mitmCaptured = 0;
+    this.activePackets = [];
+    this.mitmInterval = setInterval(() => {
+        const isTarget = Math.random() < 0.2;
+        const newPacket = {
+            id: Math.random(),
+            text: isTarget ? 'ENCRYPTED_HANDSHAKE' : 'TCP_KEEPALIVE',
+            isTarget,
+            x: -20,
+            y: Math.floor(Math.random() * 80) + 10
+        };
+        this.activePackets.push(newPacket);
+        
+        // Move packets
+        this.activePackets.forEach(p => p.x += (5 + difficulty));
+        this.activePackets = this.activePackets.filter(p => p.x < 120);
+    }, 400 - (difficulty * 50));
+  }
+
+  interceptPacket(packet: any) {
+      if (packet.isTarget) {
+          this.audioService.playClick();
+          this.mitmCaptured++;
+          packet.text = 'DECRYPTED';
+          packet.isTarget = false; // Prevent double click
+          if (this.mitmCaptured >= 3) this.winMission();
+      } else {
+          this.audioService.playError();
+          this.gameService.increaseDetection(15);
+      }
   }
 
   private winMission() { 

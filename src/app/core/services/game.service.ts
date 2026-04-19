@@ -131,7 +131,7 @@ export interface Mission {
   target: string;
   difficulty: number;
   reward: number;
-  type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering' | 'physical-infiltration' | 'drone-hijacking' | 'stock-manipulation' | 'dark-web-hit' | 'corporate-espionage' | 'undersea-tap' | 'satellite-hacking' | 'bgp-hijacking' | 'election-interference' | 'hacker-takedown';
+  type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'mitm-attack' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering' | 'physical-infiltration' | 'drone-hijacking' | 'stock-manipulation' | 'dark-web-hit' | 'corporate-espionage' | 'undersea-tap' | 'satellite-hacking' | 'bgp-hijacking' | 'election-interference' | 'hacker-takedown';
   isHoneypot: boolean;
   isEntryPoint?: boolean;
 }
@@ -1076,7 +1076,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   addRandomMission() {
-    const types: Mission['type'][] = ['port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign', 'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering', 'physical-infiltration', 'drone-hijacking', 'stock-manipulation', 'dark-web-hit', 'corporate-espionage', 'undersea-tap', 'satellite-hacking', 'bgp-hijacking', 'election-interference', 'hacker-takedown'];
+    const types: Mission['type'][] = ['port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign', 'mitm-attack', 'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering', 'physical-infiltration', 'drone-hijacking', 'stock-manipulation', 'dark-web-hit', 'corporate-espionage', 'undersea-tap', 'satellite-hacking', 'bgp-hijacking', 'election-interference', 'hacker-takedown'];
     const type = types[Math.floor(Math.random() * types.length)];
     const baseDifficulty = (['crypto-heist', 'quantum-breach', 'satellite-hacking', 'undersea-tap', 'bgp-hijacking'].includes(type)) ? 4 : 1;
     const difficulty = this.campaignLevel() + baseDifficulty + Math.floor(Math.random() * 2);

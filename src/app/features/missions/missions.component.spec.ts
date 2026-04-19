@@ -45,8 +45,11 @@ describe('MissionComponent Mastery', () => {
 
     // 2. Buffer Overflow
     component.startMission({ type: 'buffer-overflow', difficulty: 1 } as any);
-    component.overflowInput = 'A'.repeat(component.eipOffset()) + 'EF';
-    component.executeOverflow();
+    component.selectedByte = 'E';
+    component.injectByte(component.eipOffset());
+    component.selectedByte = 'F';
+    component.injectByte(component.eipOffset() + 1);
+    component.checkOverflow();
     expect(gameService.completeMission).toHaveBeenCalled();
 
     // 3. XSS
@@ -56,14 +59,20 @@ describe('MissionComponent Mastery', () => {
 
     // 4. OSINT
     component.startMission({ type: 'osint-research', difficulty: 1 } as any);
-    component.revealOsint(0);
     component.osintAnswer = (component as any).correctPet;
     component.checkOsint();
 
     // 5. Phishing
     component.startMission({ type: 'phishing-campaign', difficulty: 1 } as any);
-    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    vi.spyOn(Math, 'random').mockReturnValue(0.01);
+    component.spamScore = 100;
     component.launchPhishing();
+
+    // 6. MITM
+    component.startMission({ type: 'mitm-attack', difficulty: 1 } as any);
+    component.interceptPacket({ isTarget: true });
+    component.interceptPacket({ isTarget: true });
+    component.interceptPacket({ isTarget: true });
   });
 
   it('should handle blue team sabotage', () => {
