@@ -259,8 +259,11 @@ export class GameService {
     return prisma.player.findMany({
       orderBy: { reputation: 'desc' },
       take: 10,
-      select: { id: true, name: true, reputation: true, score: true }
-    });
+      select: { id: true, username: true, reputation: true, score: true }
+    }).then(players => players.map(p => ({
+        ...p,
+        name: p.username // Force UI to use username as the display name
+    })));
   }
 
   private async getChatHistory() {
