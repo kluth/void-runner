@@ -29,8 +29,8 @@ RUN pnpm run build
 # Expose backend port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=5s --retries=5 CMD curl -f http://localhost:3000/api/config/status || exit 1
+# Health check with increased start period
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD curl -f http://localhost:3000/api/config/status || exit 1
 
 # Start the application
 CMD ["pnpm", "start"]
