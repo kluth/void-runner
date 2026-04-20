@@ -273,9 +273,12 @@ export class TerminalComponent implements AfterViewChecked {
 'vault': [
     'NAME: vault - access the asset storage',
     'DESCRIPTION: Manage artifacts and zero-day exploits.'
+],
+'reset-ui': [
+    'NAME: reset-ui - restore default workstation interface',
+    'DESCRIPTION: Clears local state and reloads the design system to default spec.'
 ]
-};
-  constructor() {
+};  constructor() {
     this.gameService.socket.on('dossier_data', (data: { dossier: string }) => {
         this.gameService.log('--- OPERATIVE_DOSSIER_DECRYPTED ---');
         this.gameService.log(data.dossier);
@@ -601,6 +604,11 @@ export class TerminalComponent implements AfterViewChecked {
         this.gameService.activeTab.set('HARDWARE');
         this.gameService.log('UPLINK: Accessing ASSET_VAULT...');
         this.audioService.playClick();
+        break;
+
+      case 'reset-ui':
+        this.gameService.log('SYSTEM: Purging local state and re-syncing templates...');
+        setTimeout(() => this.gameService.resetUI(), 1000);
         break;
 
       case 'matrix':

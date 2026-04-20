@@ -209,13 +209,18 @@ export class GameService {
   // Settings State
   settings = signal<GameSettings>({
     audio: { volume: 50, speech: true, ambient: true, music_complexity: 50 },
-    video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11, opacity: 100, crt_curvature: true, view_mode: 'SINGLE' },
+    video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11, opacity: 100, crt_curvature: true, view_mode: 'TABBED' },
     social: { notifications: true, public_profile: true, incognito: false, broadcast_location: false, status: 'ONLINE' },
     beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false },
-    general: { auto_wipe: false, auto_analysis: false, theme: 'CLASSIC', language: 'EN', tutorial_completed: false, wake_lock: false },
+    general: { auto_wipe: false, auto_analysis: false, theme: 'OMEGA', language: 'EN', tutorial_completed: false, wake_lock: false },
     control: { autocomplete: true, scroll_speed: 100, vibe_intensity: 100 },
     streamer: { enabled: false, platform: 'TWITCH' }
   });
+
+  resetUI() {
+      localStorage.removeItem('VOID_RUNNER_STATE');
+      window.location.reload();
+  }
 
   // Tab Notification State
   tabNotifications = signal<Record<string, number>>({
