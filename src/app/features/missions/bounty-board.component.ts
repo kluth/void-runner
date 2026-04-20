@@ -45,7 +45,6 @@ export interface Bounty {
     .bounty-container {
       padding: 1.5rem;
       background: var(--layer-1);
-      border: var(--ghost-border);
       height: 100%;
       overflow-y: auto;
     }
@@ -54,61 +53,62 @@ export interface Bounty {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.8rem;
       font-weight: 900;
-      letter-spacing: 4px;
-      color: var(--tactical-cyan);
+      letter-spacing: 2px;
+      color: var(--primary);
+      background: var(--layer-2);
+      padding: 0.75rem;
       margin-bottom: 1.5rem;
-      border-bottom: var(--ghost-border);
-      padding-bottom: 0.5rem;
+      text-transform: uppercase;
     }
 
     .bounty-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.5rem;
     }
 
     .bounty-item {
-      background: var(--layer-0);
-      border: var(--ghost-border);
-      padding: 1.25rem;
+      background: var(--layer-2);
+      padding: 1.5rem;
       display: flex;
       align-items: center;
       gap: 2rem;
-      transition: all 0.2s ease;
+      transition: all 0.05s steps(2);
     }
 
     .bounty-item:hover {
-      border-color: var(--tactical-cyan);
-      background: var(--layer-2);
+      background: var(--layer-4);
+      box-shadow: var(--neon-shadow);
     }
 
     .b-main { flex: 1; }
-    .b-target { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 0.25rem; }
-    .b-meta { font-size: 0.6rem; color: #666; font-weight: 700; display: flex; gap: 1rem; }
-    .b-type { color: var(--matrix-green); }
+    .b-target { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .b-meta { font-size: 0.6rem; color: var(--primary); opacity: 0.4; font-weight: 900; display: flex; gap: 1.5rem; font-family: 'JetBrains Mono', monospace; }
+    .b-type { color: var(--secondary); opacity: 1; }
 
-    .b-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 100px; }
-    .b-reward { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--matrix-green); }
-    .b-diff { font-size: 0.55rem; font-weight: 900; padding: 2px 6px; background: #222; }
-    .b-diff.hard { color: var(--warning-magenta); border: 1px solid var(--warning-magenta); }
-    .b-diff.elite { color: var(--critical-error); border: 1px solid var(--critical-error); }
-    .b-timer { font-size: 0.5rem; color: #444; }
+    .b-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 120px; }
+    .b-reward { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--secondary); }
+    .b-diff { font-size: 0.55rem; font-weight: 900; padding: 4px 8px; background: var(--layer-0); color: var(--primary); }
+    .b-diff.hard { color: #ffaa00; box-shadow: inset 0 0 5px #ffaa00; }
+    .b-diff.elite { color: var(--tertiary); box-shadow: inset 0 0 5px var(--tertiary); }
+    .b-timer { font-size: 0.55rem; color: var(--primary); opacity: 0.3; font-family: 'JetBrains Mono', monospace; }
 
     .accept-btn {
-      background: transparent;
-      border: 1px solid var(--tactical-cyan);
-      color: var(--tactical-cyan);
-      padding: 0.75rem 1.5rem;
+      background: var(--layer-4);
+      border: var(--ghost-border);
+      color: var(--primary);
+      padding: 1rem 2rem;
       font-size: 0.65rem;
       font-weight: 900;
       cursor: pointer;
-      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.05s steps(2);
     }
 
     .accept-btn:hover {
-      background: var(--tactical-cyan);
-      color: #000;
-      box-shadow: 0 0 15px rgba(0, 251, 251, 0.4);
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: 0 0 20px var(--primary);
     }
   `
 })

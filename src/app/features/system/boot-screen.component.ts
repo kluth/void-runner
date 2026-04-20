@@ -29,27 +29,27 @@ import { CommonModule } from '@angular/common';
   styles: `
     .boot-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-      background: #000; z-index: 20000;
+      background: var(--layer-0); z-index: 20000;
       display: flex; align-items: center; justify-content: center;
-      color: #00ff00; font-family: 'JetBrains Mono', monospace;
+      color: var(--secondary); font-family: 'JetBrains Mono', monospace;
       padding: 1rem;
     }
     .boot-box { 
       width: 100%; 
       max-width: 40rem; 
       padding: 2.5rem; 
-      border: 1px solid #111; 
-      background: rgba(5,5,5,0.8);
-      box-shadow: 0 0 20px rgba(0,255,0,0.05);
+      border: var(--ghost-border); 
+      background: var(--layer-1);
+      box-shadow: var(--neon-shadow);
     }
-    .boot-logo { font-size: clamp(1.5rem, 8vw, 2.5rem); font-weight: 900; letter-spacing: 10px; margin-bottom: 0.75rem; color: #fff; text-shadow: 0 0 10px #00ff00; text-align: center; }
-    .boot-version { font-size: 0.6rem; color: #008800; margin-bottom: 2.5rem; border-bottom: 1px solid #222; padding-bottom: 0.75rem; text-align: center; }
+    .boot-logo { font-size: clamp(1.5rem, 8vw, 2.5rem); font-weight: 900; letter-spacing: 10px; margin-bottom: 0.75rem; color: #fff; text-shadow: 0 0 10px var(--secondary); text-align: center; }
+    .boot-version { font-size: 0.6rem; color: var(--secondary); margin-bottom: 2.5rem; border-bottom: var(--ghost-border); padding-bottom: 0.75rem; text-align: center; opacity: 0.6; }
     
     .log-stream { display: flex; flex-direction: column; gap: 0.4rem; height: 15rem; overflow: hidden; mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
     .log-entry { font-size: 0.7rem; line-height: 1.4; }
     .status { color: #fff; font-weight: bold; margin-right: 0.75rem; }
     
-    .success-line { margin-top: 2rem; font-size: 0.8rem; color: #00ffff; animation: blink 1s infinite; text-align: center; }
+    .success-line { margin-top: 2rem; font-size: 0.8rem; color: var(--primary); animation: blink 1s steps(2) infinite; text-align: center; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
     @media (max-width: 480px) {

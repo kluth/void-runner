@@ -70,126 +70,117 @@ import { FormsModule } from '@angular/forms';
   styles: `
     .hijack-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: #000; z-index: 10000;
+      background: var(--layer-0); z-index: 10000;
       display: flex; align-items: center; justify-content: center;
-      color: #f00; font-family: 'JetBrains Mono', monospace;
+      color: var(--tertiary); font-family: 'JetBrains Mono', monospace;
       overflow: hidden;
     }
 
     .ascii-background {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
-      opacity: 0.25; font-size: 0.7vw; line-height: 1.1;
+      opacity: 0.15; font-size: 0.7vw; line-height: 1.1;
       pointer-events: none; user-select: none;
       animation: flicker 0.15s infinite;
-      color: #f00;
+      color: var(--tertiary);
     }
 
     @keyframes flicker {
-      0% { opacity: 0.20; transform: skewX(-1deg); }
-      50% { opacity: 0.30; transform: skewX(1deg); }
-      100% { opacity: 0.25; transform: skewX(0); }
+      0% { opacity: 0.10; transform: skewX(-1deg); }
+      50% { opacity: 0.20; transform: skewX(1deg); }
+      100% { opacity: 0.15; transform: skewX(0); }
     }
 
     .debugger-hint {
-        background: rgba(0, 255, 255, 0.1);
-        border: 1px solid #0ff;
-        color: #0ff;
-        padding: 10px;
-        font-size: 0.7em;
-        margin-bottom: 20px;
+        background: var(--layer-2);
+        border: var(--ghost-border);
+        color: var(--primary);
+        padding: 15px;
+        font-size: 0.7rem;
+        margin-bottom: 2rem;
         text-align: left;
     }
-    .debugger-hint .tag { font-weight: bold; margin-right: 5px; }
+    .debugger-hint .tag { font-weight: 900; margin-right: 8px; }
 
-    .initiate-help { color: #0f0; margin-top: 5px; font-size: 1.1em; }
+    .initiate-help { color: var(--secondary); margin-top: 8px; font-size: 1rem; font-family: 'Space Grotesk', sans-serif; font-weight: 900; }
 
     .glitch-overlay {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: repeating-linear-gradient(0deg, rgba(255,0,0,0.08) 0px, rgba(255,0,0,0.08) 1px, transparent 2px, transparent 4px);
+      background: repeating-linear-gradient(0deg, rgba(193, 0, 20, 0.08) 0px, rgba(193, 0, 20, 0.08) 1px, transparent 2px, transparent 4px);
       pointer-events: none; z-index: 5;
     }
     
     .hijack-content { 
-    position: relative; z-index: 10;
-    text-align: center; max-width: 800px; padding: 40px; 
-    border: 2px solid #f00; box-shadow: 0 0 120px rgba(255,0,0,0.4); 
-    background: rgba(0,0,0,0.92);
-    backdrop-filter: blur(8px);
-    }
-
-    .digital-tear { animation: tear 0.15s infinite; }
-    @keyframes tear {
-    0% { transform: translateX(0); clip-path: inset(0 0 0 0); }
-    20% { transform: translateX(-5px); clip-path: inset(10% 0 85% 0); }
-    40% { transform: translateX(5px); clip-path: inset(80% 0 5% 0); }
-    60% { transform: translateX(-2px); filter: hue-rotate(90deg); }
-    80% { transform: translateX(2px); clip-path: inset(45% 0 45% 0); }
-    100% { transform: translateX(0); clip-path: inset(0 0 0 0); }
+      position: relative; z-index: 10;
+      text-align: center; max-width: 800px; padding: 3rem; 
+      border: 2px solid var(--tertiary); box-shadow: 0 0 150px rgba(193, 0, 20, 0.3); 
+      background: rgba(14, 14, 14, 0.95);
+      backdrop-filter: blur(20px);
     }
     
     .system-guide {
-      border: 1px solid #f00;
-      background: rgba(255, 0, 0, 0.1);
-      padding: 10px;
-      font-size: 0.7em;
-      margin-bottom: 20px;
-      line-height: 1.4;
+      background: var(--layer-2);
+      padding: 15px;
+      font-size: 0.7rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+      border-left: 4px solid var(--tertiary);
     }
 
     .system-guide .pulse {
       display: inline-block;
       width: 10px;
       height: 10px;
-      background: #f00;
-      border-radius: 50%;
+      background: var(--tertiary);
       margin-right: 10px;
-      animation: guide-pulse 0.8s infinite;
+      animation: guide-pulse 0.8s steps(2) infinite;
     }
 
     @keyframes guide-pulse {
       0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(2.5); opacity: 0; }
+      100% { transform: scale(2); opacity: 0; }
     }
 
-    .warning-text { font-size: 0.8em; letter-spacing: 4px; margin-bottom: 20px; color: #800; font-weight: bold; }
+    .warning-text { font-size: 0.7rem; letter-spacing: 4px; margin-bottom: 1rem; color: var(--tertiary); font-weight: 900; opacity: 0.6; }
     .anonymous-header { 
-      font-size: 1.8em; font-weight: 900; margin-bottom: 30px; 
-      text-transform: uppercase; letter-spacing: -2px;
-      text-shadow: 0 0 15px #f00, 0 0 30px #f00;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem; font-weight: 900; margin-bottom: 2.5rem; 
+      text-transform: uppercase; letter-spacing: -0.05em;
+      color: #fff;
+      text-shadow: 0 0 15px var(--tertiary);
     }
 
-    .message-stream { font-size: 1.2em; line-height: 1.5; margin-bottom: 40px; min-height: 100px; color: #fff; }
-    .cursor { animation: blink 0.5s infinite; color: #f00; }
+    .message-stream { font-size: 1.1rem; line-height: 1.6; margin-bottom: 3rem; min-height: 100px; color: #fff; }
+    .cursor { animation: blink 0.5s steps(2) infinite; color: var(--tertiary); }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
-    .challenge-box { margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-    .challenge-box label { font-size: 0.7em; color: #800; font-weight: bold; letter-spacing: 2px; }
+    .challenge-box { margin-bottom: 3rem; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .challenge-box label { font-size: 0.6rem; color: var(--tertiary); font-weight: 900; letter-spacing: 2px; }
     .challenge-box input { 
-        background: rgba(40,0,0,0.3); border: 2px solid #800; color: #f00; padding: 15px; 
-        font-family: inherit; font-size: 1.4em; text-align: center; width: 100%;
+        background: var(--layer-0); border: var(--ghost-border); color: var(--tertiary); padding: 1.5rem; 
+        font-family: inherit; font-size: 1.4rem; text-align: center; width: 100%;
         outline: none; text-transform: uppercase;
     }
-    .challenge-box input:focus { border-color: #f00; box-shadow: 0 0 20px #f00; }
-    .challenge-box .hint { font-size: 0.6em; color: #800; font-style: italic; }
+    .challenge-box input:focus { border-color: var(--tertiary); box-shadow: 0 0 20px rgba(193, 0, 20, 0.2); }
+    .challenge-box .hint { font-size: 0.6rem; color: var(--tertiary); opacity: 0.4; font-style: italic; }
 
-    .actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    .actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
     .release-btn, .replay-btn, .force-btn {
-      background: transparent; border: 2px solid #f00; color: #f00;
-      padding: 12px 30px; cursor: pointer; font-family: inherit; font-size: 0.8em;
-      transition: all 0.3s; font-weight: 900; text-transform: uppercase;
+      background: transparent; border: var(--ghost-border); color: var(--tertiary);
+      padding: 1rem 2rem; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem;
+      transition: all 0.05s steps(2); font-weight: 900; text-transform: uppercase;
     }
-    .release-btn:hover:not(:disabled), .replay-btn:hover { background: #f00; color: #000; box-shadow: 0 0 30px #f00; }
-    .release-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .release-btn:hover:not(:disabled), .replay-btn:hover { background: var(--tertiary); color: #fff; box-shadow: 0 0 30px var(--tertiary); }
+    .release-btn:disabled { opacity: 0.2; cursor: not-allowed; }
     
-    .force-btn { border-color: #ffaa00; color: #ffaa00; }
+    .force-btn { color: #ffaa00; border-color: #ffaa00; }
     .force-btn:hover { background: #ffaa00; color: #000; box-shadow: 0 0 30px #ffaa00; }
 
     .status-bars {
       position: absolute; bottom: 0; left: 0; width: 100%; 
-      display: flex; justify-content: space-between; padding: 25px;
-      font-size: 0.7em; color: #600; font-weight: bold;
+      display: flex; justify-content: space-between; padding: 2rem;
+      font-size: 0.6rem; color: var(--tertiary); opacity: 0.4; font-weight: 900;
     }
   `
 })

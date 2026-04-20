@@ -24,9 +24,9 @@ import { CommonModule } from '@angular/common';
           <div class="debuff-card" [class]="debuff.type">
             <div class="d-top">
               <span class="d-icon">
-                @if (debuff.type === 'RANSOM') { 💸 }
-                @else if (debuff.type === 'GLITCH') { ☣️ }
-                @else if (debuff.type === 'LOCK') { 🔒 }
+                @if (debuff.type === 'RANSOM') { [PAY] }
+                @else if (debuff.type === 'GLITCH') { [VIR] }
+                @else if (debuff.type === 'LOCK') { [LOK] }
               </span>
               <span class="d-name">{{ debuff.name }}</span>
             </div>
@@ -39,29 +39,29 @@ import { CommonModule } from '@angular/common';
     </div>
   `,
   styles: `
-    .integrity-container { background: rgba(15, 0, 0, 0.9); border: 1px solid #400; padding: 15px; margin-bottom: 15px; }
-    .sec-header { font-size: 0.7em; color: #ff0000; border-bottom: 1px solid #400; padding-bottom: 8px; margin-bottom: 12px; letter-spacing: 2px; font-weight: bold; }
+    .integrity-container { background: var(--layer-1); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--neon-shadow); }
+    .sec-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; color: var(--tertiary); background: var(--layer-2); padding: 0.75rem; margin-bottom: 1.5rem; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
     
-    .status-bar { margin-bottom: 15px; }
-    .integrity-val { font-size: 0.8em; font-weight: bold; color: #00ff00; margin-bottom: 5px; font-family: monospace; }
-    .integrity-val.low { color: #ff0000; animation: blink 1s infinite; }
-    .bar-bg { width: 100%; height: 10px; background: #200; border: 1px solid #400; }
-    .bar-fg { height: 100%; background: #00ff00; transition: width 0.3s; }
-    .bar-fg.low { background: #ff0000; box-shadow: 0 0 10px #f00; }
+    .status-bar { margin-bottom: 1.5rem; background: var(--layer-2); padding: 1rem; }
+    .integrity-val { font-size: 0.8rem; font-weight: 900; color: var(--secondary); margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; }
+    .integrity-val.low { color: var(--tertiary); animation: blink 0.5s steps(2) infinite alternate; }
+    .bar-bg { width: 100%; height: 2px; background: var(--layer-0); }
+    .bar-fg { height: 100%; background: var(--secondary); transition: width 0.3s steps(4); }
+    .bar-fg.low { background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); }
 
-    .debuff-list { display: flex; flex-direction: column; gap: 8px; }
-    .debuff-card { background: #000; border: 1px solid #444; padding: 8px; position: relative; overflow: hidden; }
-    .debuff-card.RANSOM { border-color: #ffaa00; }
-    .debuff-card.GLITCH { border-color: #ff00ff; }
-    .debuff-card.LOCK { border-color: #ff0000; }
+    .debuff-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .debuff-card { background: var(--layer-2); padding: 1rem; position: relative; overflow: hidden; }
+    .debuff-card.RANSOM { border-left: 4px solid #ffaa00; }
+    .debuff-card.GLITCH { border-left: 4px solid #ff00ff; }
+    .debuff-card.LOCK { border-left: 4px solid var(--tertiary); }
     
-    .d-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-    .d-icon { font-size: 1em; }
-    .d-name { font-size: 0.6em; font-weight: bold; color: #fff; }
-    .d-timer { font-size: 0.5em; color: #888; font-family: monospace; }
+    .d-top { display: flex; align-items: center; gap: 12px; margin-bottom: 0.5rem; }
+    .d-icon { font-size: 0.6rem; font-family: 'JetBrains Mono', monospace; font-weight: 900; color: var(--primary); }
+    .d-name { font-size: 0.7rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+    .d-timer { font-size: 0.55rem; color: var(--primary); opacity: 0.4; font-family: 'JetBrains Mono', monospace; }
 
-    .clean-status { font-size: 0.6em; color: #004400; text-align: center; padding: 5px; }
-    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .clean-status { font-size: 0.65rem; color: var(--secondary); opacity: 0.4; text-align: center; padding: 1rem; font-weight: 900; }
+    @keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
   `
 })
 export class SystemIntegrityComponent {

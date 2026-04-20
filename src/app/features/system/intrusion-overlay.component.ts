@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
       <div class="intrusion-overlay">
         <div class="warning-banner">SYSTEM BREACH IN PROGRESS</div>
         <div class="intrusion-content">
-          <div class="alert-icon">⚠️</div>
+          <div class="alert-icon">[!]</div>
           <div class="info">
             <div class="label">INCOMING ACCESS ATTEMPT</div>
             <div class="target">NEURAL_CORE // SECTOR_7</div>
@@ -36,11 +36,11 @@ import { CommonModule } from '@angular/common';
       left: 50%;
       transform: translate(-50%, -50%);
       width: 400px;
-      background: rgba(20, 0, 0, 0.95);
-      border: 2px solid #ff0000;
-      box-shadow: 0 0 30px #f00;
+      background: var(--layer-1);
+      border: 2px solid var(--tertiary);
+      box-shadow: 0 0 50px var(--tertiary);
       z-index: 9999;
-      padding-bottom: 20px;
+      padding-bottom: 2rem;
       animation: shake 0.5s infinite;
     }
     
@@ -52,22 +52,22 @@ import { CommonModule } from '@angular/common';
       100% { transform: translate(-50%, -50%) rotate(0deg); }
     }
 
-    .warning-banner { background: #ff0000; color: #fff; text-align: center; font-weight: bold; padding: 5px; font-size: 0.8em; letter-spacing: 3px; }
+    .warning-banner { background: var(--tertiary); color: #fff; text-align: center; font-weight: 900; padding: 8px; font-size: 0.8rem; letter-spacing: 3px; font-family: 'Space Grotesk', sans-serif; }
     
-    .intrusion-content { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .alert-icon { font-size: 3em; margin-bottom: 15px; }
+    .intrusion-content { padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+    .alert-icon { font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--tertiary); font-family: 'JetBrains Mono', monospace; font-weight: 900; }
     
-    .info { text-align: center; margin-bottom: 20px; }
-    .info .label { font-size: 0.6em; color: #ff8888; }
-    .info .target { font-size: 1em; font-weight: bold; color: #fff; margin-top: 5px; }
+    .info { text-align: center; margin-bottom: 2rem; }
+    .info .label { font-size: 0.6rem; color: var(--tertiary); opacity: 0.6; font-weight: 900; }
+    .info .target { font-size: 1rem; font-weight: 900; color: #fff; margin-top: 8px; font-family: 'Space Grotesk', sans-serif; }
     
-    .progress-section { width: 100%; margin-bottom: 20px; }
-    .progress-bar-bg { width: 100%; height: 15px; background: #300; border: 1px solid #500; }
-    .progress-bar-fg { height: 100%; background: #ff0000; box-shadow: 0 0 10px #f00; transition: width 0.1s; }
-    .progress-val { font-size: 0.7em; color: #ff0000; font-weight: bold; margin-top: 5px; text-align: right; }
+    .progress-section { width: 100%; margin-bottom: 2rem; }
+    .progress-bar-bg { width: 100%; height: 2px; background: var(--layer-0); }
+    .progress-bar-fg { height: 100%; background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); transition: width 0.1s steps(4); }
+    .progress-val { font-size: 0.75rem; color: var(--tertiary); font-weight: 900; margin-top: 8px; text-align: right; font-family: 'JetBrains Mono', monospace; }
     
-    .defend-btn { background: #ff0000; color: #fff; border: none; padding: 12px 24px; font-family: inherit; font-weight: bold; cursor: pointer; font-size: 0.8em; }
-    .defend-btn:hover { background: #fff; color: #ff0000; }
+    .defend-btn { background: var(--tertiary); color: #fff; border: none; padding: 1rem 2rem; font-family: 'Space Grotesk', sans-serif; font-weight: 900; cursor: pointer; font-size: 0.8rem; transition: all 0.05s steps(2); }
+    .defend-btn:hover { background: #fff; color: var(--tertiary); }
   `
 })
 export class IntrusionOverlayComponent {

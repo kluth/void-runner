@@ -49,77 +49,68 @@ import { AudioService } from '../../core/services/audio.service';
   `,
   styles: `
     .network-container {
-      background: #050505;
-      border: 1px solid #00ffff;
-      color: #00ffff;
+      background: var(--layer-1);
+      color: var(--primary);
       padding: 15px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
-    h3 { margin-top: 0; border-bottom: 1px solid #00ffff; padding-bottom: 10px; margin-bottom: 15px; font-size: 0.75rem; letter-spacing: 1px;}
+    h3 { margin-top: 0; background: var(--layer-2); padding: 10px; margin-bottom: 15px; font-size: 0.75rem; letter-spacing: 1px; font-family: 'Space Grotesk', sans-serif; font-weight: 900; }
     
     .botnet-panel {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #001111;
-      border: 1px solid #008888;
-      padding: 10px;
+      background: var(--layer-2);
+      padding: 12px;
       margin-bottom: 15px;
       flex-wrap: wrap;
       gap: 10px;
     }
-    .botnet-stats { font-family: monospace; }
-    .botnet-label { color: #00ffff; font-size: 0.6em; }
-    .botnet-count { color: #fff; font-size: 1em; font-weight: bold; margin-left: 5px; text-shadow: 0 0 5px #00ffff;}
+    .botnet-stats { font-family: 'JetBrains Mono', monospace; }
+    .botnet-label { color: var(--primary); opacity: 0.5; font-size: 0.6em; }
+    .botnet-count { color: #fff; font-size: 1em; font-weight: bold; margin-left: 5px; }
     .ddos-btn {
-      background: #ff0000;
+      background: var(--tertiary);
       color: #fff;
-      border: 1px solid #ff4444;
-      padding: 6px 12px;
+      border: none;
+      padding: 8px 16px;
       font-size: 0.5rem;
-      font-weight: bold;
+      font-weight: 900;
       cursor: pointer;
-      font-family: inherit;
+      font-family: 'Space Grotesk', sans-serif;
       flex-grow: 1;
     }
 
-    .routing-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
+    .routing-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
     button.routing-btn {
-      background: #000;
-      border: 1px solid #004444;
-      color: #00ffff;
-      padding: 8px 4px;
+      background: var(--layer-2);
+      border: var(--ghost-border);
+      color: var(--primary);
+      padding: 12px 4px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: inherit;
-      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.05s steps(2);
       min-width: 0;
     }
     button.active {
-      background: #00ffff;
-      color: #000;
-      border-color: #fff;
-      box-shadow: 0 0 10px rgba(0,255,255,0.3);
+      background: var(--layer-5);
+      color: #fff;
+      box-shadow: var(--neon-shadow);
     }
-    .btn-label { font-size: 0.55rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-    .sub { font-size: 0.45rem; margin-top: 4px; opacity: 0.7; white-space: nowrap; }
+    .btn-label { font-size: 0.55rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-transform: uppercase; }
+    .sub { font-size: 0.45rem; margin-top: 4px; opacity: 0.4; white-space: nowrap; }
 
-    .active-path-wrapper { border-top: 1px dashed #004444; padding-top: 10px; overflow: hidden; }
-    .active-path { font-size: 0.6rem; color: #fff; font-family: monospace; white-space: nowrap; overflow-x: auto; display: flex; align-items: center; gap: 5px; }
-    .path-label { color: #008888; font-weight: bold; margin-right: 5px; }
-    .path-node { color: #00ff00; }
-    .arrow { color: #444; font-size: 0.5rem; }
-
-    @media (max-width: 400px) {
-        .sub { display: none; }
-        .routing-modes { gap: 2px; }
-        button.routing-btn { padding: 12px 2px; }
-    }
+    .active-path-wrapper { background: var(--layer-0); padding: 10px; overflow: hidden; }
+    .active-path { font-size: 0.6rem; color: #fff; font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow-x: auto; display: flex; align-items: center; gap: 8px; }
+    .path-label { color: var(--primary); opacity: 0.5; font-weight: bold; }
+    .path-node { color: var(--secondary); }
+    .arrow { color: var(--layer-4); font-size: 0.5rem; }
   `
 })
 export class NetworkComponent {

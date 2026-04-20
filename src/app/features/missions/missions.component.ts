@@ -338,10 +338,9 @@ import { FormsModule } from '@angular/forms';
   `,
   styles: `
     .missions-container { 
-      background: var(--layer-0); 
-      border: var(--ghost-border); 
+      background: var(--layer-1); 
       padding: 24px; 
-      color: var(--matrix-green);
+      color: var(--primary);
       box-shadow: var(--neon-shadow);
       position: relative;
       overflow: hidden;
@@ -350,93 +349,89 @@ import { FormsModule } from '@angular/forms';
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      border-bottom: 1px solid rgba(0, 255, 0, 0.1); 
+      background: var(--layer-2);
       margin-bottom: 2rem; 
-      padding-bottom: 1rem; 
+      padding: 1.5rem; 
       flex-wrap: wrap; 
       gap: 1.5rem; 
     }
-    h3 { font-family: 'Space Grotesk', sans-serif; margin: 0; font-size: 0.9rem; font-weight: 900; color: var(--matrix-green); letter-spacing: 4px; }
-    .sub { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--matrix-green); opacity: 0.6; }
+    h3 { font-family: 'Space Grotesk', sans-serif; margin: 0; font-size: 0.9rem; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+    .sub { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--primary); opacity: 0.4; }
 
     .detection-meter { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: 1; min-width: 150px; }
-    .detection-meter .label { font-size: 0.5rem; color: var(--critical-error); font-weight: 900; letter-spacing: 1px; }
-    .bar-bg { width: 100%; max-width: 180px; height: 4px; background: #200; border: 0.5px solid #400; border-radius: 0px; }
-    .bar-fg { height: 100%; background: #ff0000; box-shadow: 0 0 15px #f00; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .det-val { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #ff0000; font-weight: 700; }
+    .detection-meter .label { font-size: 0.5rem; color: var(--tertiary); font-weight: 900; letter-spacing: 1px; }
+    .bar-bg { width: 100%; max-width: 180px; height: 2px; background: var(--layer-0); }
+    .bar-fg { height: 100%; background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); transition: width 0.3s steps(4); }
+    .det-val { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--tertiary); font-weight: 700; }
 
     .mission-list { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); 
-      gap: 2rem; 
+      gap: 1.5rem; 
       align-items: start;
     }
     @media (max-width: 600px) { .mission-list { grid-template-columns: 1fr; } }
     
     .mission-card { 
-      background: var(--layer-1); 
-      border: var(--ghost-border); 
+      background: var(--layer-2); 
       padding: 1.5rem; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      transition: all 0.05s steps(2); 
       display: flex; 
       flex-direction: column; 
-      border-radius: 0px;
       position: relative;
     }
     
-    /* Asymmetric Widths Protocol */
+    /* ASYMMETRIC GRID protocol from Design System */
     .mission-card:nth-child(odd) { width: 102%; margin-left: -1%; }
     .mission-card:nth-child(even) { width: 98%; margin-left: 1%; }
     
     .mission-card:hover { 
-      border-color: var(--matrix-green); 
-      background: var(--layer-2); 
-      transform: translateY(-5px) scale(1.02); 
+      background: var(--layer-4); 
       z-index: 10;
       box-shadow: var(--neon-shadow);
     }
     
     .m-top { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.65rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
-    .m-type { color: var(--tactical-cyan); letter-spacing: 1px; }
-    .m-reward { color: #fff; text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
-    .m-name { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 900; color: #fff; margin-bottom: 0.4rem; letter-spacing: 1px; }
-    .m-target { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #888; margin-bottom: 1.5rem; flex-grow: 1; font-style: italic; }
+    .m-type { color: var(--secondary); letter-spacing: 1px; }
+    .m-reward { color: #fff; }
+    .m-name { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 900; color: #fff; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+    .m-target { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--primary); opacity: 0.5; margin-bottom: 1.5rem; flex-grow: 1; }
     
     .m-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .m-actions button { flex: 1; min-width: 7rem; padding: 12px; font-size: 0.6rem; font-weight: 900; letter-spacing: 1px; }
+    .m-actions button { flex: 1; min-width: 7rem; padding: 10px; font-size: 0.6rem; font-weight: 900; }
     
     button { 
-      background: var(--matrix-green); 
-      color: var(--layer-0); 
+      background: var(--layer-4); 
+      color: var(--primary); 
       border: var(--ghost-border); 
       padding: 0.75rem 1.5rem; 
       font-size: 0.7rem; 
       font-weight: 900; 
       cursor: pointer; 
-      font-family: 'JetBrains Mono', monospace; 
-      transition: all 0.1s step-end; 
+      font-family: 'Space Grotesk', sans-serif; 
+      transition: all 0.05s steps(2); 
       text-transform: uppercase;
     }
     button:hover:not(:disabled) { 
-      background: var(--tactical-cyan); 
-      color: var(--layer-0); 
-      box-shadow: 0 0 20px rgba(0, 251, 251, 0.4); 
+      background: var(--primary); 
+      color: var(--on-primary); 
+      box-shadow: 0 0 20px var(--primary); 
     }
+    button:active { background: var(--on-primary) !important; color: var(--primary) !important; }
     button:disabled { opacity: 0.2; cursor: not-allowed; }
 
-    .init-btn { background: var(--matrix-green); }
-    .zero-day-btn { background: var(--warning-magenta); color: #fff; }
-    .one-day-btn { background: var(--tactical-cyan); color: #000; }
+    .init-btn { background: var(--secondary); color: var(--on-primary); border: none; }
+    .zero-day-btn { background: var(--tertiary); color: #fff; border: none; }
+    .one-day-btn { background: var(--primary); color: #000; border: none; }
 
-    .active-mission-view { text-align: center; background: var(--layer-2); padding: 2rem; border: var(--ghost-border); }
-    .active-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 900; color: var(--matrix-green); margin-bottom: 1.5rem; letter-spacing: 2px; }
-    .technique-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--tactical-cyan); font-weight: 700; margin-top: 8px; letter-spacing: 2px; opacity: 0.8; }
-    .blink { animation: blink 0.8s infinite; color: #ff0000; margin-right: 8px; }
+    .active-mission-view { text-align: center; background: var(--layer-3); padding: 2rem; }
+    .active-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 900; color: var(--primary); margin-bottom: 1.5rem; letter-spacing: 2px; }
+    .technique-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--secondary); font-weight: 700; margin-top: 8px; letter-spacing: 2px; opacity: 0.8; }
+    .blink { animation: blink 0.8s steps(2) infinite; color: var(--tertiary); margin-right: 8px; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
     .mini-game-container { 
       background: var(--layer-0); 
-      border: 1px solid rgba(0, 255, 0, 0.05); 
       padding: 2.5rem 1.5rem; 
       min-height: 350px; 
       position: relative; 
@@ -448,112 +443,76 @@ import { FormsModule } from '@angular/forms';
       width: 100%; 
       box-sizing: border-box; 
       overflow: hidden; 
-      background-image: linear-gradient(rgba(0, 255, 0, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 0, 0.02) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(13, 242, 242, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(13, 242, 242, 0.02) 1px, transparent 1px);
       background-size: 40px 40px;
     }
-    .game-info { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--matrix-green); opacity: 0.4; position: absolute; top: 0.75rem; left: 1rem; letter-spacing: 2px; font-weight: 700; }
+    .game-info { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--primary); opacity: 0.4; position: absolute; top: 0.75rem; left: 1rem; letter-spacing: 2px; font-weight: 700; }
 
     .ports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr)); gap: 0.5rem; width: 100%; margin-top: 1rem; }
-    .port-tile { font-size: 0.65rem; padding: 0.75rem 0.25rem; border: 1px solid #222; cursor: pointer; color: #444; transition: all 0.2s; background: rgba(0, 0, 0, 0.3); }
-    .port-tile.scanned { background: #050505; color: #222; }
-    .port-tile.open { background: var(--matrix-green) !important; color: #000 !important; border-color: #fff; box-shadow: 0 0 15px var(--matrix-green); }
+    .port-tile { font-size: 0.65rem; padding: 0.75rem 0.25rem; border: var(--ghost-border); cursor: pointer; color: #444; transition: all 0.05s steps(2); background: var(--layer-2); }
+    .port-tile.scanned { background: var(--layer-1); color: var(--layer-4); }
+    .port-tile.open { background: var(--secondary) !important; color: var(--on-primary) !important; border: none; box-shadow: 0 0 15px var(--secondary); }
 
-    .code-display { font-size: clamp(1.5rem, 6vw, 2.5rem); letter-spacing: 0.6rem; color: #fff; margin: 2rem 0; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px var(--matrix-green); }
+    .code-display { font-size: clamp(1.5rem, 6vw, 2.5rem); letter-spacing: 0.6rem; color: #fff; margin: 2rem 0; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px var(--primary); }
     .input-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.4rem; width: 100%; max-width: 400px; }
-    @media (max-width: 450px) { .input-grid { grid-template-columns: repeat(4, 1fr); } }
-    .code-btn { padding: 0.75rem 0.25rem; font-size: 0.75rem; border: 1px solid rgba(0, 255, 0, 0.2); background: #000; color: var(--matrix-green); }
+    .code-btn { padding: 0.75rem 0.25rem; font-size: 0.75rem; border: var(--ghost-border); background: var(--layer-2); color: var(--primary); }
 
     .sql-stream { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; margin-top: 1rem; }
-    .sql-item { font-size: 0.7rem; padding: 0.75rem; border: 1px solid #111; cursor: pointer; text-align: left; transition: all 0.2s; background: rgba(0, 20, 0, 0.2); color: #666; }
-    .sql-item.vuln { color: var(--matrix-green); border-color: var(--matrix-green); background: rgba(0, 255, 0, 0.1); box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2); }
+    .sql-item { font-size: 0.7rem; padding: 0.75rem; background: var(--layer-2); cursor: pointer; text-align: left; color: #666; }
+    .sql-item.vuln { color: var(--primary); background: var(--layer-4); box-shadow: inset 0 0 10px rgba(13, 242, 242, 0.1); }
 
     .rfid-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; width: 100%; max-width: 300px; margin: 1.5rem auto; }
-    .rfid-tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #050505; border: 1px solid #222; color: #222; font-size: 0.7rem; cursor: pointer; transition: all 0.1s; }
-    .rfid-tile.active { color: var(--warning-magenta); border-color: var(--warning-magenta); box-shadow: 0 0 20px var(--warning-magenta); transform: scale(1.1); }
-    .progress-info { font-size: 0.7rem; color: var(--warning-magenta); font-weight: bold; text-shadow: 0 0 5px var(--warning-magenta); }
+    .rfid-tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: var(--layer-2); color: var(--layer-4); font-size: 0.7rem; cursor: pointer; }
+    .rfid-tile.active { color: var(--tertiary); background: var(--layer-4); box-shadow: 0 0 20px var(--tertiary); }
+    .progress-info { font-size: 0.7rem; color: var(--tertiary); font-weight: bold; }
 
-    .stack-view { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.35rem; width: 100%; max-width: 350px; margin: 2rem auto; cursor: crosshair; }
-    @media (max-width: 450px) { .stack-view { grid-template-columns: repeat(4, 1fr); } }
-    .stack-cell { font-size: 0.6rem; padding: 0.6rem; border: 1px solid #111; color: #333; text-align: center; transition: all 0.2s; background: #000; }
-    .stack-cell:hover { background: rgba(172, 0, 172, 0.1); }
-    .stack-cell.eip { border-color: var(--warning-magenta); color: var(--warning-magenta); font-weight: bold; box-shadow: 0 0 10px var(--warning-magenta); }
-    .stack-cell.overwritten { background: #1a001a; color: var(--warning-magenta); }
+    .stack-view { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.35rem; width: 100%; max-width: 350px; margin: 2rem auto; }
+    .stack-cell { font-size: 0.6rem; padding: 0.6rem; background: var(--layer-2); color: #333; text-align: center; }
+    .stack-cell.eip { background: var(--tertiary); color: #fff; font-weight: bold; box-shadow: 0 0 10px var(--tertiary); }
+    .stack-cell.overwritten { background: var(--layer-4); color: var(--tertiary); }
     
     .byte-selector { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1rem; }
-    .byte-selector button { padding: 0.6rem 1rem; border: 1px solid #333; background: #000; color: #555; }
-    .byte-selector button.active { border-color: var(--warning-magenta); color: var(--warning-magenta); background: rgba(172, 0, 172, 0.1); }
+    .byte-selector button { padding: 0.6rem 1rem; background: var(--layer-2); color: #555; border: var(--ghost-border); }
+    .byte-selector button.active { color: var(--tertiary); background: var(--layer-4); border-color: var(--tertiary); }
 
-    .xss-controls { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
-    .xss-controls textarea { width: 100%; height: 100px; background: #000; border: 1px solid #222; color: #fff; font-size: 0.75rem; padding: 1rem; font-family: 'JetBrains Mono', monospace; resize: none; outline: none; }
-    .xss-controls textarea:focus { border-color: var(--tactical-cyan); }
-    .render-view { width: 100%; max-width: 450px; border: 1px dashed #222; min-height: 60px; margin-top: 1rem; padding: 1rem; font-size: 0.65rem; color: #555; text-align: left; background: rgba(0, 0, 0, 0.2); }
+    .xss-controls textarea { width: 100%; height: 100px; background: var(--layer-1); border: var(--ghost-border); color: #fff; font-size: 0.75rem; padding: 1rem; font-family: 'JetBrains Mono', monospace; outline: none; }
+    .render-view { width: 100%; max-width: 450px; background: var(--layer-1); min-height: 60px; margin-top: 1rem; padding: 1rem; font-size: 0.65rem; color: #555; text-align: left; }
 
-    .osint-game { width: 100%; max-width: 100%; display: flex; flex-direction: column; gap: 1.5rem; }
-    .social-feed { background: #050505; border: 1px solid #111; display: flex; flex-direction: column; max-height: 250px; overflow-y: auto; text-align: left; }
-    .feed-header { background: #111; padding: 0.75rem; font-size: 0.65rem; border-bottom: 1px solid #222; font-weight: bold; position: sticky; top: 0; color: var(--tactical-cyan); }
-    .posts-container { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-    .social-post { border-left: 2px solid var(--matrix-green); padding-left: 0.75rem; opacity: 0.8; }
-    .post-meta { font-size: 0.5rem; color: #555; margin-bottom: 0.25rem; }
-    .post-content { font-size: 0.65rem; color: #ccc; line-height: 1.4; }
-    .security-questions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
-    .security-questions input { background: #000; border: 1px solid #222; color: #fff; padding: 0.75rem; flex-grow: 1; font-size: 0.75rem; outline: none; font-family: 'JetBrains Mono', monospace; }
-    .security-questions input:focus { border-color: var(--matrix-green); }
+    .social-feed { background: var(--layer-1); display: flex; flex-direction: column; max-height: 250px; overflow-y: auto; text-align: left; }
+    .feed-header { background: var(--layer-3); padding: 0.75rem; font-size: 0.65rem; font-weight: bold; position: sticky; top: 0; color: var(--primary); }
+    .social-post { border-left: 2px solid var(--secondary); padding-left: 0.75rem; margin-bottom: 1rem; }
+    .security-questions input { background: var(--layer-1); border: var(--ghost-border); color: #fff; padding: 0.75rem; flex-grow: 1; font-size: 0.75rem; outline: none; }
 
-    .phishing-game { width: 100%; max-width: 100%; }
-    .email-client { background: #050505; border: 1px solid #222; display: flex; flex-direction: column; text-align: left; margin-top: 1rem; }
-    .e-header { padding: 0.75rem; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 0.5rem; background: #0a0a0a; }
-    .e-row { font-size: 0.65rem; display: flex; align-items: center; }
-    .e-label { color: #555; min-width: 4rem; }
-    .e-row select { background: transparent; border: 1px dashed #333; color: var(--tactical-cyan); font-family: inherit; font-size: 0.65rem; outline: none; cursor: pointer; padding: 2px; }
-    .e-body { padding: 0; }
-    .e-body textarea { width: 100%; height: 120px; background: transparent; border: none; color: #999; font-family: inherit; font-size: 0.65rem; padding: 1rem; resize: none; outline: none; line-height: 1.5; }
-    .e-footer { padding: 0.75rem; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: #111; }
-    .spam-score { font-size: 0.65rem; color: #ff0000; font-weight: bold; }
-    .spam-score.high-score { color: var(--matrix-green); }
+    .email-client { background: var(--layer-1); display: flex; flex-direction: column; text-align: left; margin-top: 1rem; }
+    .e-header { padding: 0.75rem; background: var(--layer-2); display: flex; flex-direction: column; gap: 0.5rem; }
+    .e-footer { padding: 0.75rem; background: var(--layer-3); display: flex; justify-content: space-between; align-items: center; }
     
-    .mitm-game { width: 100%; max-width: 100%; height: 250px; position: relative; overflow: hidden; background: #000; border: 1px solid #111; }
-    .packet-stream { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    .packet { position: absolute; padding: 0.35rem 0.75rem; font-size: 0.55rem; background: #050505; border: 1px solid #222; color: #444; cursor: crosshair; user-select: none; transition: transform 0.1s; }
-    .packet:hover { transform: scale(1.1); border-color: #fff; color: #fff; z-index: 5; }
-    .packet.encrypted { border-color: var(--matrix-green); color: var(--matrix-green); text-shadow: 0 0 8px var(--matrix-green); box-shadow: 0 0 12px rgba(0, 255, 0, 0.2); }
-    .launch-btn { width: 100%; margin-top: 1.5rem; background: var(--warning-magenta); color: #fff; border: none; padding: 1rem; }
+    .mitm-game { width: 100%; max-width: 100%; height: 250px; position: relative; overflow: hidden; background: var(--layer-0); }
+    .packet { position: absolute; padding: 0.35rem 0.75rem; font-size: 0.55rem; background: var(--layer-3); color: var(--layer-5); cursor: crosshair; }
+    .packet.encrypted { color: var(--secondary); box-shadow: 0 0 12px var(--secondary); }
 
-    .abort-btn { background: #1a1a1a; color: var(--matrix-green); margin-top: 1.5rem; padding: 0.75rem 2rem; font-size: 0.75rem; border: 1px solid #333; }
-    .abort-btn:hover { background: #300; color: #f00; border-color: #f00; }
+    .hash-block { background: var(--layer-2); padding: 1rem; font-size: 0.65rem; color: var(--layer-4); cursor: pointer; transition: all 0.05s steps(2); }
+    .hash-block.target { color: var(--secondary); }
+    .hash-block.matched { background: var(--secondary); color: var(--on-primary); box-shadow: 0 0 15px var(--secondary); }
 
-    /* New Game Styles */
-    .hash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; width: 100%; margin-top: 1rem; }
-    .hash-block { background: #050505; border: 1px solid #222; padding: 1rem; font-size: 0.65rem; color: #444; cursor: pointer; transition: all 0.2s; word-break: break-all; font-family: 'JetBrains Mono', monospace; }
-    .hash-block.target { border-color: var(--matrix-green); color: var(--matrix-green); box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); }
-    .hash-block.matched { background: rgba(0, 68, 0, 0.3); color: #fff; border-color: var(--matrix-green); box-shadow: 0 0 15px var(--matrix-green); }
+    .qubit-path { height: 2px; background: var(--layer-4); position: relative; margin-bottom: 1rem; }
+    .qubit { position: absolute; top: -11px; width: 24px; height: 24px; background: var(--primary); box-shadow: 0 0 20px var(--primary); }
+    .qubit.unstable { background: var(--tertiary); box-shadow: 0 0 20px var(--tertiary); }
 
-    .quantum-waves { display: flex; flex-direction: column; gap: 2rem; width: 100%; margin-top: 2rem; }
-    .qubit-path { height: 24px; background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 251, 251, 0.2); position: relative; border-radius: 12px; }
-    .qubit { position: absolute; top: 0; width: 24px; height: 100%; background: var(--tactical-cyan); border-radius: 50%; box-shadow: 0 0 20px var(--tactical-cyan); transition: left 0.3s; }
-    .qubit.unstable { background: #ff0000; box-shadow: 0 0 20px #f00; }
-    .qubit-path .controls { position: absolute; right: -90px; top: -5px; display: flex; gap: 8px; }
-    .qubit-path button { padding: 6px 12px; font-size: 0.6rem; background: #002222; border: 1px solid var(--tactical-cyan); color: var(--tactical-cyan); }
+    .node-map { width: 100%; max-width: 350px; aspect-ratio: 3/2; background: var(--layer-0); position: relative; overflow: hidden; margin: 1.5rem auto; }
+    .iot-node { position: absolute; width: 34px; height: 34px; background: var(--layer-2); color: var(--layer-4); display: flex; align-items: center; justify-content: center; font-size: 0.55rem; cursor: pointer; }
+    .iot-node.active { color: var(--secondary); box-shadow: 0 0 12px var(--secondary); }
+    .iot-node.linked { background: var(--secondary); color: var(--on-primary); }
 
-    .node-map { width: 100%; max-width: 350px; aspect-ratio: 3/2; height: auto; background: #050505; border: 1px solid #111; position: relative; overflow: hidden; margin: 1.5rem auto; }
-    .iot-node { position: absolute; width: 34px; height: 34px; border: 1px solid #444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: #444; cursor: pointer; transition: all 0.2s; background: #000; }
-    .iot-node.active { border-color: var(--matrix-green); color: var(--matrix-green); box-shadow: 0 0 12px var(--matrix-green); }
-    .iot-node.linked { background: rgba(0, 68, 0, 0.4); color: #fff; border-color: var(--matrix-green); }
+    .radar-view { width: 220px; height: 220px; border: 1px solid var(--layer-4); position: relative; overflow: hidden; background: var(--layer-0); margin: 1.5rem auto; }
+    .drone-target { position: absolute; width: 12px; height: 12px; background: var(--tertiary); transform: translate(-50%, -50%); box-shadow: 0 0 12px var(--tertiary); }
+    .crosshair { position: absolute; width: 50px; height: 50px; border: 1px dashed var(--secondary); transform: translate(-50%, -50%); }
 
-    .radar-view { width: 220px; height: 220px; border: 2px solid rgba(0, 255, 0, 0.2); border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, rgba(0, 30, 0, 0.3) 0%, #000 100%); margin: 1.5rem auto; }
-    .drone-target { position: absolute; width: 12px; height: 12px; background: #ff0000; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 12px #f00; transition: all 0.5s linear; }
-    .crosshair { position: absolute; width: 50px; height: 50px; border: 1px dashed var(--matrix-green); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: inset 0 0 15px var(--matrix-green); pointer-events: none; }
-    .radar-controls { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 1.5rem; }
-    .radar-controls .h-row { display: flex; gap: 25px; }
-    .radar-controls button { width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border-color: var(--matrix-green); color: var(--matrix-green); background: transparent; }
+    .stock-graph { width: 100%; height: 180px; background: var(--layer-0); position: relative; margin-top: 1.5rem; overflow: hidden; }
+    .graph-line { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--secondary); opacity: 0.2; }
+    .sell-zone { position: absolute; left: 0; width: 100%; background: rgba(193, 0, 20, 0.1); border-top: 1px dashed var(--tertiary); border-bottom: 1px dashed var(--tertiary); }
 
-    .stock-graph { width: 100%; height: 180px; background: #050505; border: 1px solid #111; position: relative; margin-top: 1.5rem; overflow: hidden; }
-    .graph-line { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--matrix-green); opacity: 0.2; transition: height 0.1s linear; }
-    .sell-zone { position: absolute; left: 0; width: 100%; background: rgba(172, 0, 172, 0.1); border-top: 1px dashed var(--warning-magenta); border-bottom: 1px dashed var(--warning-magenta); }
-
-    .sat-orbits { display: flex; gap: 1.5rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
-    .orbit { position: relative; width: 90px; height: 90px; border: 1px solid #222; border-radius: 50%; display: flex; flex-direction: column; align-items: center; }
-    .satellite { position: absolute; top: 0; left: 50%; width: 12px; height: 12px; background: #fff; box-shadow: 0 0 12px #fff; transform-origin: 0 45px; transition: transform 0.5s ease; }
-    .orbit button { position: absolute; bottom: -45px; white-space: nowrap; font-size: 0.5rem; padding: 6px; color: var(--tactical-cyan); border-color: var(--tactical-cyan); background: transparent; }
+    .satellite { position: absolute; top: 0; left: 50%; width: 12px; height: 12px; background: #fff; box-shadow: 0 0 12px #fff; transform-origin: 0 45px; }
   `
 })
 export class MissionComponent implements OnDestroy {

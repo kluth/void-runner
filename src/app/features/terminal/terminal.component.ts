@@ -24,13 +24,16 @@ import { FormsModule } from '@angular/forms';
         }
         <div class="input-line">
           <span class="prompt">{{ gameService.playerHandle() }}@void:~$</span>
-          <input type="text" 
-                 #cmdInputRef
-                 [(ngModel)]="cmdInput" 
-                 (keyup.enter)="handleCmd()"
-                 (keydown.arrowUp)="navigateHistory(1)"
-                 (keydown.arrowDown)="navigateHistory(-1)"
-                 autofocus>
+          <div class="input-wrapper">
+            <input type="text" 
+                   #cmdInputRef
+                   [(ngModel)]="cmdInput" 
+                   (keyup.enter)="handleCmd()"
+                   (keydown.arrowUp)="navigateHistory(1)"
+                   (keydown.arrowDown)="navigateHistory(-1)"
+                   autofocus>
+            <span class="cursor-block"></span>
+          </div>
           @if (gameService.detectedOS() === 'ANDROID' || gameService.detectedOS() === 'IOS') {
             <button class="mobile-send" (click)="handleCmd()">SEND</button>
           }
@@ -51,7 +54,7 @@ import { FormsModule } from '@angular/forms';
   `,
   styles: `
     .terminal-container { 
-      background: var(--layer-0); 
+      background: var(--layer-1); 
       border: var(--ghost-border); 
       height: 100%; 
       display: flex; 
@@ -61,9 +64,8 @@ import { FormsModule } from '@angular/forms';
       border-radius: 0px;
     }
     .terminal-header { 
-      background: rgba(0, 255, 0, 0.05); 
-      backdrop-filter: var(--glass-filter);
-      color: var(--matrix-green); 
+      background: var(--layer-2); 
+      color: var(--primary); 
       padding: 10px 16px; 
       display: flex; 
       justify-content: space-between; 
@@ -72,9 +74,18 @@ import { FormsModule } from '@angular/forms';
       border-bottom: var(--ghost-border);
       letter-spacing: 2px;
     }
-    .terminal-body { flex-grow: 1; padding: 24px; overflow-y: auto; color: #fff; display: flex; flex-direction: column; background-image: radial-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px); background-size: 30px 30px; }
+    .terminal-body { 
+      flex-grow: 1; 
+      padding: 24px; 
+      overflow-y: auto; 
+      color: #fff; 
+      display: flex; 
+      flex-direction: column; 
+      background-image: radial-gradient(rgba(13, 242, 242, 0.03) 1px, transparent 1px); 
+      background-size: 30px 30px; 
+    }
     .log-line { font-size: 0.75rem; margin-bottom: 0.5rem; display: flex; gap: 14px; line-height: 1.6; }
-    .log-line.glitch-error { animation: line-glitch 0.2s 3; color: var(--critical-error) !important; text-shadow: 0 0 10px var(--critical-error); }
+    .log-line.glitch-error { animation: line-glitch 0.2s 3; color: var(--tertiary) !important; text-shadow: 0 0 10px var(--tertiary); }
     
     @keyframes line-glitch {
         0% { transform: translateX(0); }
@@ -84,19 +95,45 @@ import { FormsModule } from '@angular/forms';
         80% { transform: translateX(3px); }
         100% { transform: translateX(0); }
     }
-    .timestamp { color: #006600; min-width: 90px; opacity: 0.5; font-size: 0.65rem; font-weight: 700; }
+    .timestamp { color: var(--secondary); min-width: 90px; opacity: 0.5; font-size: 0.65rem; font-weight: 700; }
     .message { word-break: break-all; }
-    .input-line { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.5rem; border-top: 1px solid rgba(0,255,0,0.05); padding-top: 1.5rem; }
-    .prompt { color: var(--matrix-green); font-size: 0.75rem; font-weight: 900; white-space: nowrap; }
-    input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: 0.75rem; flex-grow: 1; outline: none; caret-color: var(--matrix-green); }
+    
+    .input-line { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.5rem; border-top: 1px solid rgba(13, 242, 242, 0.05); padding-top: 1.5rem; }
+    .input-wrapper { display: flex; flex-grow: 1; align-items: center; position: relative; }
+    .prompt { color: var(--primary); font-size: 0.75rem; font-weight: 900; white-space: nowrap; }
+    
+    input { 
+      background: transparent; 
+      border: none; 
+      color: #fff; 
+      font-family: inherit; 
+      font-size: 0.75rem; 
+      width: 100%;
+      outline: none; 
+      caret-color: transparent; /* Hide standard cursor */
+    }
     input:disabled { opacity: 0.5; cursor: wait; }
 
-    .mobile-send { background: var(--layer-1); border: var(--ghost-border); color: var(--matrix-green); font-family: inherit; font-size: 0.65rem; padding: 8px 16px; cursor: pointer; font-weight: 900; letter-spacing: 1px; }
+    .cursor-block {
+      width: 8px;
+      height: 1.2em;
+      background: var(--primary);
+      animation: blink 0.8s steps(2) infinite;
+      margin-left: -100%; /* Overlay on input text */
+      position: absolute;
+      left: 0;
+      pointer-events: none;
+    }
+
+    /* Proper positioning of block cursor based on input text length is complex with CSS only, 
+       but we can simulate it by putting it at the end of the line or using a simple block. */
+
+    .mobile-send { background: var(--layer-2); border: var(--ghost-border); color: var(--primary); font-family: inherit; font-size: 0.65rem; padding: 8px 16px; cursor: pointer; font-weight: 900; letter-spacing: 1px; }
     .mobile-shortcuts { display: flex; gap: 10px; margin-top: 24px; overflow-x: auto; padding-bottom: 12px; flex-shrink: 0; }
     .mobile-shortcuts button { 
-        background: var(--layer-1); 
+        background: var(--layer-2); 
         border: var(--ghost-border); 
-        color: var(--tactical-cyan); 
+        color: var(--primary); 
         padding: 12px 24px; 
         font-family: inherit; 
         font-size: 0.65rem; 
@@ -106,7 +143,7 @@ import { FormsModule } from '@angular/forms';
         white-space: nowrap; 
         transition: all 0.05s step-end;
     }
-    .mobile-shortcuts button:active { background: var(--matrix-green); color: var(--layer-0); box-shadow: var(--neon-shadow); }
+    .mobile-shortcuts button:active { background: var(--secondary); color: var(--layer-1); box-shadow: var(--neon-shadow); }
 
     .terminal-body::-webkit-scrollbar { width: 4px; }
     .terminal-body::-webkit-scrollbar-track { background: var(--layer-0); }

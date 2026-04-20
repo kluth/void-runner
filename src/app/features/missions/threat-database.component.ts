@@ -49,7 +49,6 @@ export interface Threat {
     .threat-container {
       padding: 1.5rem;
       background: var(--layer-1);
-      border: var(--ghost-border);
       height: 100%;
       overflow-y: auto;
     }
@@ -58,11 +57,12 @@ export interface Threat {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.8rem;
       font-weight: 900;
-      letter-spacing: 4px;
-      color: var(--warning-magenta);
+      letter-spacing: 2px;
+      color: var(--tertiary);
       margin-bottom: 1.5rem;
-      border-bottom: var(--ghost-border);
-      padding-bottom: 0.5rem;
+      background: var(--layer-2);
+      padding: 0.75rem;
+      text-transform: uppercase;
     }
 
     .threat-grid {
@@ -72,68 +72,66 @@ export interface Threat {
     }
 
     .threat-card {
-      background: var(--layer-0);
-      border: var(--ghost-border);
+      background: var(--layer-2);
       position: relative;
       padding: 1.5rem;
       display: flex;
       gap: 1.5rem;
-      transition: all 0.2s ease;
+      transition: all 0.05s steps(2);
       overflow: hidden;
     }
 
     .threat-card:hover {
-      background: var(--layer-2);
-      transform: scale(1.02);
+      background: var(--layer-4);
       box-shadow: var(--neon-shadow);
     }
 
     .risk-indicator {
       width: 4px;
       height: 100%;
-      background: var(--matrix-green);
+      background: var(--secondary);
       position: absolute;
       left: 0;
       top: 0;
     }
 
-    .threat-card.high .risk-indicator { background: var(--warning-magenta); }
-    .threat-card.extreme .risk-indicator { background: var(--critical-error); animation: pulse 0.5s infinite alternate; }
+    .threat-card.high .risk-indicator { background: var(--tertiary); opacity: 0.6; }
+    .threat-card.extreme .risk-indicator { background: var(--tertiary); animation: pulse 0.5s steps(2) infinite alternate; }
 
-    @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+    @keyframes pulse { from { opacity: 1; } to { opacity: 0.3; } }
 
     .threat-info { flex: 1; }
-    .t-top { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 900; margin-bottom: 0.5rem; }
-    .t-type { color: var(--tactical-cyan); }
-    .t-risk { color: var(--warning-magenta); }
-    .t-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: 1px; }
-    .t-status { font-size: 0.65rem; color: #888; margin-bottom: 1rem; }
-    .t-status .active { color: var(--critical-error); font-weight: 900; }
-    .t-desc { font-size: 0.7rem; color: #ccc; line-height: 1.4; margin-bottom: 1rem; }
+    .t-top { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 900; margin-bottom: 0.75rem; font-family: 'JetBrains Mono', monospace; }
+    .t-type { color: var(--primary); opacity: 0.5; }
+    .t-risk { color: var(--tertiary); }
+    .t-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .t-status { font-size: 0.6rem; color: var(--primary); opacity: 0.4; margin-bottom: 1rem; font-weight: 900; }
+    .t-status .active { color: var(--tertiary); opacity: 1; }
+    .t-desc { font-size: 0.7rem; color: #fff; opacity: 0.6; line-height: 1.6; margin-bottom: 1.5rem; }
     
     .t-vuln {
-      background: rgba(0, 255, 0, 0.05);
-      padding: 0.5rem;
-      border-left: 2px solid var(--matrix-green);
+      background: var(--layer-0);
+      padding: 1rem;
+      border-left: 2px solid var(--secondary);
     }
-    .vuln-text { font-size: 0.65rem; color: var(--matrix-green); display: block; margin-top: 4px; font-style: italic; }
+    .vuln-text { font-size: 0.65rem; color: var(--secondary); display: block; margin-top: 4px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
 
     .action-overlay {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8);
+        background: rgba(14,14,14,0.9);
         display: flex;
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transition: opacity 0.2s ease;
+        transition: opacity 0.1s steps(2);
     }
 
     .threat-card:hover .action-overlay { opacity: 1; }
 
-    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: var(--layer-0); }
-    ::-webkit-scrollbar-thumb { background: var(--layer-3); }
+    ::-webkit-scrollbar-thumb { background: var(--layer-5); }
   `
 })
 export class ThreatDatabaseComponent {

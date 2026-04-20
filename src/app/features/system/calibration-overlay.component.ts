@@ -45,34 +45,34 @@ import { CommonModule } from '@angular/common';
   styles: `
     .calib-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 10, 0, 0.98); z-index: 11000;
+      background: rgba(14, 14, 14, 0.98); z-index: 11000;
       display: flex; align-items: center; justify-content: center;
-      color: #00ff00; font-family: 'JetBrains Mono', monospace;
+      color: var(--secondary); font-family: 'Space Grotesk', sans-serif;
     }
     .calib-content {
-      width: 500px; padding: 30px; border: 1px solid #00ff00;
-      background: #000; box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+      width: 500px; padding: 3rem; border: var(--ghost-border);
+      background: var(--layer-1); box-shadow: var(--neon-shadow);
     }
-    .header { font-size: 1em; font-weight: bold; margin-bottom: 5px; letter-spacing: 2px; }
-    .sub-header { font-size: 0.55em; color: #008800; margin-bottom: 30px; }
+    .header { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 2px; text-transform: uppercase; }
+    .sub-header { font-size: 0.6rem; color: var(--primary); opacity: 0.4; margin-bottom: 3rem; font-weight: 900; }
     
-    .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
-    .step { font-size: 0.7em; color: #004400; transition: all 0.3s; }
-    .step.active { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+    .steps { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 3rem; }
+    .step { font-size: 0.75rem; color: var(--primary); opacity: 0.2; transition: all 0.05s steps(2); font-weight: 900; }
+    .step.active { opacity: 1; color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
     
-    .desc { font-size: 0.65em; color: #888; line-height: 1.5; margin-bottom: 20px; min-height: 50px; }
+    .desc { font-size: 0.7rem; color: #fff; opacity: 0.6; line-height: 1.6; margin-bottom: 2rem; min-height: 60px; }
     
     .calib-btn {
-      width: 100%; background: transparent; border: 1px solid #00ff00;
-      color: #00ff00; padding: 12px; cursor: pointer; font-family: inherit;
-      font-size: 0.7em; font-weight: bold; transition: all 0.3s;
+      width: 100%; background: var(--layer-4); border: var(--ghost-border);
+      color: var(--primary); padding: 1rem; cursor: pointer; font-family: inherit;
+      font-size: 0.75rem; font-weight: 900; transition: all 0.05s steps(2); text-transform: uppercase;
     }
-    .calib-btn:hover { background: #00ff00; color: #000; box-shadow: 0 0 20px #00ff00; }
-    .calib-btn.finish { border-color: #00ffff; color: #00ffff; }
-    .calib-btn.finish:hover { background: #00ffff; color: #000; box-shadow: 0 0 20px #00ffff; }
+    .calib-btn:hover { background: var(--primary); color: var(--on-primary); box-shadow: 0 0 20px var(--primary); }
+    .calib-btn.finish { background: var(--secondary); color: var(--on-primary); border: none; }
+    .calib-btn.finish:hover { filter: brightness(1.2); box-shadow: 0 0 20px var(--secondary); }
 
-    .error-msg { font-size: 0.55em; color: #ff0000; margin-top: 20px; text-align: center; }
-    .success-msg { color: #00ffff; font-size: 0.7em; text-align: center; margin-bottom: 20px; }
+    .error-msg { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--tertiary); margin-top: 2rem; text-align: center; font-weight: 900; }
+    .success-msg { color: var(--secondary); font-size: 0.8rem; text-align: center; margin-bottom: 2rem; font-weight: 900; }
   `
 })
 export class CalibrationOverlayComponent {

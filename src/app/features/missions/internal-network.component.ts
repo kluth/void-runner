@@ -37,21 +37,21 @@ import { CommonModule } from '@angular/common';
     }
   `,
   styles: `
-    .internal-container { background: #050505; border: 1px double #00ff00; padding: 15px; margin-bottom: 15px; }
-    .sec-header { font-size: 0.75em; color: #00ff00; border-bottom: 1px solid #004400; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
+    .internal-container { background: var(--layer-1); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--neon-shadow); }
+    .sec-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; color: var(--primary); background: var(--layer-2); padding: 0.75rem; margin-bottom: 1.5rem; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
     
-    .targets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .target-card { background: #000; border: 1px solid #1a1a1a; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .target-card.compromised { border-color: #00ff00; background: #001100; }
+    .targets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .target-card { background: var(--layer-2); padding: 1.25rem; display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.05s steps(2); }
+    .target-card.compromised { border-left: 2px solid var(--secondary); background: var(--layer-3); }
     
-    .t-icon { font-size: 1.5em; margin-bottom: 10px; }
-    .t-info { margin-bottom: 12px; }
-    .t-name { font-size: 0.7em; font-weight: bold; color: #fff; display: block; }
-    .t-type { font-size: 0.5em; color: #008800; }
+    .t-icon { font-size: 0.6rem; color: var(--primary); opacity: 0.4; font-family: 'JetBrains Mono', monospace; font-weight: 900; margin-bottom: 1rem; }
+    .t-info { margin-bottom: 1.25rem; }
+    .t-name { font-size: 0.75rem; font-weight: 900; color: #fff; display: block; }
+    .t-type { font-size: 0.55rem; color: var(--secondary); font-family: 'JetBrains Mono', monospace; font-weight: 900; opacity: 0.6; }
     
-    .pivot-btn { width: 100%; border: 1px solid #008800; background: transparent; color: #00ff00; padding: 6px; font-size: 0.6em; cursor: pointer; font-family: inherit; }
-    .pivot-btn:hover:not(:disabled) { background: #00ff00; color: #000; }
-    .pivot-btn:disabled { color: #004400; border-color: #002200; cursor: default; }
+    .pivot-btn { width: 100%; border: var(--ghost-border); background: var(--layer-4); color: var(--primary); padding: 10px; font-size: 0.6rem; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 900; transition: all 0.05s steps(2); }
+    .pivot-btn:hover:not(:disabled) { background: var(--primary); color: var(--on-primary); }
+    .pivot-btn:disabled { opacity: 0.2; }
   `
 })
 export class InternalNetworkComponent {

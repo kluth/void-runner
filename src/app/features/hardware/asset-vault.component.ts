@@ -60,15 +60,17 @@ import { CommonModule } from '@angular/common';
     .vault-container {
       padding: 1.5rem;
       background: var(--layer-1);
-      border: var(--ghost-border);
     }
     .sec-header {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.8rem;
       font-weight: 900;
-      letter-spacing: 4px;
-      color: var(--tactical-cyan);
+      letter-spacing: 2px;
+      color: var(--primary);
+      background: var(--layer-2);
+      padding: 0.75rem;
       margin-bottom: 2rem;
+      text-transform: uppercase;
     }
     .vault-grid {
       display: grid;
@@ -78,32 +80,34 @@ import { CommonModule } from '@angular/common';
     @media (max-width: 800px) { .vault-grid { grid-template-columns: 1fr; } }
     
     .v-section { display: flex; flex-direction: column; gap: 1rem; }
-    .v-title { font-size: 0.65rem; font-weight: 900; color: #666; letter-spacing: 2px; border-bottom: 1px solid #222; padding-bottom: 0.5rem; }
+    .v-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem; font-weight: 900; color: var(--primary); opacity: 0.4; letter-spacing: 2px; border-bottom: var(--ghost-border); padding-bottom: 0.5rem; }
     
-    .art-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 400px; overflow-y: auto; }
-    .art-item { background: var(--layer-0); border: var(--ghost-border); padding: 1rem; }
-    .art-item.analyzed { border-color: var(--matrix-green); }
+    .art-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 400px; overflow-y: auto; }
+    .art-item { background: var(--layer-2); padding: 1.25rem; transition: all 0.05s steps(2); }
+    .art-item.analyzed { border-left: 2px solid var(--secondary); background: var(--layer-3); }
     .a-name { font-size: 0.75rem; font-weight: 900; color: #fff; }
-    .a-type { font-size: 0.55rem; color: #666; margin-bottom: 0.5rem; }
-    .bar-bg { width: 100%; height: 2px; background: #222; }
-    .bar-fg { height: 100%; background: var(--tactical-cyan); }
-    .a-ready { font-size: 0.6rem; color: var(--matrix-green); font-weight: 900; margin-top: 0.5rem; }
+    .a-type { font-size: 0.55rem; color: var(--primary); opacity: 0.4; margin-bottom: 0.75rem; font-family: 'JetBrains Mono', monospace; font-weight: 900; }
+    .bar-bg { width: 100%; height: 2px; background: var(--layer-0); }
+    .bar-fg { height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+    .a-ready { font-size: 0.6rem; color: var(--secondary); font-weight: 900; margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; }
     
-    .shard-stats { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
-    .s-card { background: var(--layer-0); border: var(--ghost-border); padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-    .s-card .l { font-size: 0.6rem; font-weight: 900; color: #666; }
-    .s-card .v { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--matrix-green); }
+    .shard-stats { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+    .s-card { background: var(--layer-2); padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+    .s-card .l { font-size: 0.6rem; font-weight: 900; color: var(--primary); opacity: 0.5; }
+    .s-card .v { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--secondary); }
     
-    .vault-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    .vault-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem; }
     .vault-actions button { 
-      background: transparent; border: 1px solid var(--tactical-cyan); color: var(--tactical-cyan); 
+      background: var(--layer-4); border: var(--ghost-border); color: var(--primary); 
       padding: 1rem; font-size: 0.65rem; font-weight: 900; cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif; transition: all 0.05s steps(2);
     }
-    .vault-actions button:hover { background: var(--tactical-cyan); color: #000; }
+    .vault-actions button:hover { background: var(--primary); color: var(--on-primary); }
     
     .craft-btn {
-      background: var(--warning-magenta); color: #fff; border: none; padding: 1rem; font-size: 0.65rem; font-weight: 900; cursor: pointer;
+      background: var(--tertiary); color: #fff; border: none; padding: 1.25rem; font-size: 0.65rem; font-weight: 900; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.05s steps(2);
     }
+    .craft-btn:hover { box-shadow: 0 0 20px var(--tertiary); }
   `
 })
 export class AssetVaultComponent {

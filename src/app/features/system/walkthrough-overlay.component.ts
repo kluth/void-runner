@@ -43,26 +43,26 @@ interface WalkthroughStep {
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(14, 14, 14, 0.6);
       z-index: 5000;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(2px);
-      font-family: 'JetBrains Mono', monospace;
-      pointer-events: none; /* Let clicks pass through to highlighted elements if needed, but the card will override this */
+      backdrop-filter: blur(4px);
+      font-family: 'Space Grotesk', sans-serif;
+      pointer-events: none;
     }
 
     .tutorial-card {
       pointer-events: all;
       width: 500px;
-      max-width: 90vw;
-      background: #050505;
-      border: 2px solid #00ff00;
-      box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
+      max-width: 95vw;
+      background: var(--layer-1);
+      border: 2px solid var(--secondary);
+      box-shadow: 0 0 100px rgba(47, 248, 1, 0.15);
       display: flex;
       flex-direction: column;
-      animation: slide-up 0.5s ease-out;
+      animation: slide-up 0.5s steps(4) ease-out;
     }
 
     @keyframes slide-up {
@@ -71,73 +71,76 @@ interface WalkthroughStep {
     }
 
     .card-header {
-      background: #00ff00;
-      color: #000;
-      padding: 8px 15px;
+      background: var(--secondary);
+      color: var(--on-primary);
+      padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       font-size: 0.7rem;
-      font-weight: bold;
+      font-weight: 900;
+      text-transform: uppercase;
     }
 
     .card-body {
-      padding: 25px;
+      padding: 2.5rem;
       color: #fff;
     }
 
     .card-body h3 {
-      color: #00ff00;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--secondary);
       margin-top: 0;
-      font-size: 1.2rem;
-      letter-spacing: 2px;
-      border-bottom: 1px solid #111;
-      padding-bottom: 10px;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
     }
 
     .card-body p {
       line-height: 1.6;
-      font-size: 0.9rem;
-      color: #ccc;
+      font-size: 0.95rem;
+      color: #fff;
+      opacity: 0.8;
     }
 
     .card-footer {
-      padding: 15px 25px;
+      padding: 1.5rem 2.5rem;
       display: flex;
       justify-content: space-between;
-      border-top: 1px solid #111;
+      background: var(--layer-0);
     }
 
     button {
-      padding: 10px 25px;
-      font-family: inherit;
-      font-size: 0.7rem;
+      padding: 12px 24px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 900;
       cursor: pointer;
       text-transform: uppercase;
-      transition: all 0.3s ease;
+      transition: all 0.05s steps(2);
     }
 
     .next-btn {
-      background: #00ff00;
-      border: 1px solid #00ff00;
-      color: #000;
-      font-weight: 900;
-      letter-spacing: 1px;
+      background: var(--secondary);
+      border: none;
+      color: var(--on-primary);
     }
 
     .next-btn:hover {
-      background: #00cc00;
-      box-shadow: 0 0 20px #00ff00;
+      filter: brightness(1.2);
+      box-shadow: 0 0 20px var(--secondary);
     }
 
     .skip-btn {
       background: transparent;
-      border: 1px solid #333;
-      color: #666;
+      border: var(--ghost-border);
+      color: var(--primary);
+      opacity: 0.4;
     }
 
     .skip-btn:hover {
-      border-color: #ff0000;
-      color: #ff0000;
+      opacity: 1;
+      background: var(--layer-2);
     }
   `
 })

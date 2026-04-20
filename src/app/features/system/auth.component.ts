@@ -44,7 +44,7 @@ import { ActivatedRoute } from '@angular/router';
   styles: `
     .auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.9); z-index: 12000;
+      background: rgba(14, 14, 14, 0.95); z-index: 12000;
       display: flex; align-items: center; justify-content: center;
       font-family: 'JetBrains Mono', monospace;
       padding: 20px;
@@ -52,40 +52,33 @@ import { ActivatedRoute } from '@angular/router';
     }
     .auth-box {
       width: 100%;
-      max-width: 400px; padding: clamp(15px, 5vw, 30px); border: 1px solid #00ff00;
-      box-shadow: 0 0 30px rgba(0, 255, 0, 0.1); background: #050505;
-      max-height: 90vh; overflow-y: auto;
+      max-width: 400px; padding: 2.5rem; border: var(--ghost-border);
+      box-shadow: var(--neon-shadow); background: var(--layer-1);
     }
-    .header { color: #00ff00; font-size: clamp(0.7em, 2vw, 0.9em); font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; text-align: center; }
-    .auth-desc { font-size: 0.5em; color: #008800; text-align: center; margin-bottom: 25px; line-height: 1.4; }
+    .header { font-family: 'Space Grotesk', sans-serif; color: var(--primary); font-size: 1rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: 2px; text-align: center; }
+    .auth-desc { font-size: 0.6rem; color: var(--primary); opacity: 0.4; text-align: center; margin-bottom: 2rem; line-height: 1.6; }
     
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #111; padding-bottom: 10px; }
-    .tab { font-size: 0.6em; color: #004400; cursor: pointer; }
-    .tab.active { color: #00ff00; font-weight: bold; }
-
-    .auth-form { display: flex; flex-direction: column; gap: 15px; }
-    input { background: #000; border: 1px solid #004444; color: #fff; padding: 10px; font-size: 0.7em; font-family: inherit; outline: none; width: 100%; box-sizing: border-box; }
-    input:focus { border-color: #00ff00; }
+    .auth-form { display: flex; flex-direction: column; gap: 1rem; }
+    input { background: var(--layer-0); border: var(--ghost-border); color: #fff; padding: 12px; font-size: 0.75rem; font-family: inherit; outline: none; width: 100%; box-sizing: border-box; }
+    input:focus { border-color: var(--primary); }
     
-    .auth-btn { background: #004444; border: 1px solid #00ff00; color: #00ff00; padding: 12px; font-size: 0.6em; font-weight: bold; cursor: pointer; font-family: inherit; width: 100%; }
-    .auth-btn:hover { background: #00ff00; color: #000; }
+    .auth-btn { background: var(--layer-4); color: var(--primary); border: var(--ghost-border); padding: 12px; font-size: 0.65rem; font-weight: 900; cursor: pointer; transition: all 0.05s steps(2); }
+    .auth-btn:hover { background: var(--primary); color: var(--on-primary); }
     
-    .oauth-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-    .oa-btn { background: transparent; border: 2px solid #222; color: #888; padding: 15px; font-size: 0.7em; cursor: pointer; font-family: inherit; font-weight: 900; letter-spacing: 2px; }
+    .oauth-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 2rem; }
+    .oa-btn { background: var(--layer-2); border: var(--ghost-border); color: var(--primary); padding: 1rem; font-size: 0.7rem; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 900; letter-spacing: 1px; transition: all 0.05s steps(2); }
     
     .oa-btn.google.active-uplink { 
-      border-color: #4285F4; color: #fff; background: rgba(66, 133, 244, 0.1); 
-      box-shadow: 0 0 20px rgba(66, 133, 244, 0.3);
+      background: var(--layer-4); border-color: #4285F4; color: #fff;
     }
     .oa-btn.google.active-uplink:hover { 
-      background: #4285F4; color: #fff; 
-      box-shadow: 0 0 40px rgba(66, 133, 244, 0.6);
+      background: #4285F4; box-shadow: 0 0 30px rgba(66, 133, 244, 0.4);
     }
 
-    .label { font-size: 0.6em; color: #008800; margin-bottom: 5px; }
-    .mfa-setup { margin-top: 20px; text-align: center; border-top: 1px dashed #004444; padding-top: 20px; }
-    .mfa-setup img { width: 150px; height: 150px; border: 5px solid #fff; margin-bottom: 15px; }
-    .mfa-setup p { font-size: 0.5em; color: #888; margin-bottom: 15px; }
+    .label { font-size: 0.6rem; color: var(--secondary); margin-bottom: 8px; font-weight: 900; }
+    .mfa-setup { margin-top: 2rem; text-align: center; border-top: var(--ghost-border); padding-top: 2rem; }
+    .mfa-setup img { width: 150px; height: 150px; margin-bottom: 1.5rem; filter: brightness(0.8) contrast(1.2); }
+    .mfa-setup p { font-size: 0.6rem; color: var(--primary); opacity: 0.5; margin-bottom: 1.5rem; }
   `
 })
 export class AuthComponent implements OnInit {

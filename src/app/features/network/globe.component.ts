@@ -85,7 +85,7 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
 
     const gridGeo = new THREE.SphereGeometry(100, 32, 32);
     const gridMat = new THREE.MeshBasicMaterial({ 
-      color: 0x00ff00, 
+      color: 0x0df2f2, // primary
       wireframe: true, 
       transparent: true, 
       opacity: 0.05 

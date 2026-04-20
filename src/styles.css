@@ -1,175 +1,166 @@
-/* VOID_RUNNER: Synthetic Consciousness Design System (v3.1.1) */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700;900&family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+/* VOID_RUN: The Brutalist Monolith Redesign (v4.0) */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* VOID_INTERFACE_CMD: Tonal Layering (Brutalist Architecture) */
-  --layer-0: #0e0e0e; /* surface_container_lowest: The Void */
-  --layer-1: #1c1b1b; /* surface_container_low: Modular Grid containers */
-  --layer-2: #201f1f; /* surface_container: Standard surfaces */
-  --layer-3: #2a2a2a; /* surface_container_high: Floating HUD elements */
-  --layer-4: #3a3939; /* surface_bright: Active overlays */
+  /* NEURAL_VOID Core Palette - Exact Spec */
+  --layer-0: #0e0e0e; /* surface_container_lowest: The absolute void */
+  --layer-1: #131313; /* surface: The canvas */
+  --layer-2: #1b1b1b; /* surface_container_low: Structural panels */
+  --layer-3: #1f1f1f; /* surface_container: Standard surfaces */
+  --layer-4: #2a2a2a; /* surface_container_high: Active sub-panels */
+  --layer-5: #353535; /* surface_container_highest: Highlighted data */
 
-  /* Semantic Mapping for AppComponent */
-  --surface-low: var(--layer-1);
-  --surface-high: var(--layer-3);
-  --primary: #00ff00; /* Matrix Green */
-  --secondary: #00fbfb; /* Tactical Cyan */
-  --tertiary: #ac00ac; /* Warning Magenta */
-  --error: #ffb4ab;
+  /* NEURAL_VOID Accents */
+  --primary: #0df2f2; /* Electric Cyan */
+  --secondary: #2ff801; /* Neon Green (Updated) */
+  --tertiary: #c10014; /* Error Red (Updated) */
+  --on-primary: #000000;
   
-  /* Accent Shards (High-Frequency Neon) */
-  --matrix-green: var(--primary);
-  --tactical-cyan: var(--secondary);
+  /* Semantic Mappings */
+  --matrix-green: var(--secondary);
+  --tactical-cyan: var(--primary);
   --warning-magenta: var(--tertiary);
-  --critical-error: var(--error);
+  --critical-error: var(--tertiary);
   
-  /* Tactical Constants */
-  --ghost-border: 0.5px solid rgba(132, 150, 124, 0.2);
-  --neon-shadow: 0 0 12px rgba(0, 255, 0, 0.25);
-  --glass-filter: blur(20px) saturate(1.5) contrast(1.2);
-  --scanline-opacity: 0.051;
-
-  /* Reset all roundness to 0px per the "No Softness" protocol */
+  /* Design System Constraints */
   --roundness: 0px;
+  --ghost-border: solid 0.5px rgba(132, 148, 147, 0.15); /* Ghost Border */
+  --neon-shadow: 0 0 15px rgba(13, 242, 242, 0.15);
+  --glass-filter: blur(20px);
+  --scanline-opacity: 0.035;
 }
 
+/* GLOBAL ENFORCEMENT: The Brutalist Monolith Protocol */
 *, ::before, ::after {
-  border-radius: 0px !important; /* GLOBAL ENFORCEMENT */
+  border-radius: 0px !important; /* NO SOFTNESS */
+  transition-timing-function: steps(4, end) !important; /* Stepped animations for CRT feel */
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--layer-0);
-  color: var(--matrix-green);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--layer-1); /* surface */
+  color: var(--primary);
+  font-family: 'Space Grotesk', sans-serif;
   overflow: hidden;
   height: 100vh;
+  cursor: crosshair;
 }
 
-/* Global CRT Overlay (The "Simulated Light" Protocol) */
+/* THE NO-LINE RULE: Sectioning via Background Color Shifts */
+.hud-panel {
+  background: var(--layer-3); /* surface_container */
+  border: none; /* strictly prohibited for sectioning */
+  position: relative;
+}
+
+.hud-panel-nested {
+  background: var(--layer-5); /* surface_container_highest */
+}
+
+/* CRT SCANLINE OVERLAY */
 body::after {
   content: " ";
   display: block;
   position: fixed;
   top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
-              linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
   z-index: 9999;
-  background-size: 100% 4px, 4px 100%;
+  background-size: 100% 3px, 3px 100%;
   pointer-events: none;
   opacity: var(--scanline-opacity);
+  animation: flicker 0.15s infinite;
 }
 
-/* Typography Hierarchy */
+@keyframes flicker {
+  0% { opacity: 0.030; }
+  50% { opacity: 0.038; }
+  100% { opacity: 0.032; }
+}
+
+/* Typography Spec */
 h1, h2, h3, .display-lg {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 6px;
-  text-shadow: 1px 0 var(--warning-magenta), -1px 0 var(--tactical-cyan);
+  letter-spacing: -0.05em; /* Intentional density */
+  position: relative;
 }
 
-.mono {
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 1px;
+/* Glitch Effect: DISPLAY ONLY */
+.glitch-title {
+  text-shadow: 2px 0 var(--tertiary), -2px 0 var(--primary);
+  animation: glitch-skew 4s infinite linear alternate-reverse;
 }
 
-.label-tactical {
-  font-size: 0.65rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--tactical-cyan);
-  opacity: 0.8;
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  20% { transform: skew(1deg); }
+  21% { transform: skew(-3deg); }
+  22% { transform: skew(0deg); }
+  100% { transform: skew(0deg); }
 }
 
-/* --- COMPONENTS --- */
-
-/* HUD Panels (Glassmorphism) */
-.hud-panel {
-  background: rgba(32, 31, 31, 0.6);
-  backdrop-filter: var(--glass-filter);
-  border: var(--ghost-border);
-  box-shadow: var(--neon-shadow);
-}
-
-/* Tactile Triggers (Buttons) */
 button {
   border-radius: 0px !important;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 900;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  transition: all 0.05s step-end;
-  cursor: pointer;
-  border: var(--ghost-border);
+  padding: 12px 24px;
+  border: var(--ghost-border); /* Fallback only */
+  background: var(--layer-2);
+  color: var(--primary);
+  transition: all 0.05s steps(2);
 }
 
 button.primary {
-  background: var(--matrix-green);
-  color: var(--layer-0);
-  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none;
 }
 
-button:hover {
-  background: var(--tactical-cyan);
-  color: var(--layer-0);
-  box-shadow: 0 0 20px rgba(0, 251, 251, 0.6);
+button.primary:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 20px rgba(13, 242, 242, 0.4); /* Glow Drop */
 }
 
-/* Static Click Animation */
 button:active {
-  animation: static-click 0.05s infinite;
+  background: var(--on-primary) !important;
+  color: var(--primary) !important;
+  transform: scale(1); /* No soft movement */
 }
 
-@keyframes static-click {
-  0% { opacity: 1; transform: translate(1px, 1px); }
-  50% { opacity: 0.7; transform: translate(-1px, -1px); }
-  100% { opacity: 1; transform: translate(0, 0); }
+/* SYSTEM NOISE: Abstract Metadata */
+[data-noise]::after {
+  content: "[" attr(data-noise) "]";
+  font-size: 0.5rem;
+  opacity: 0.2;
+  margin-left: 8px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-/* Asymmetric Data Modules */
-.data-card {
-  background: var(--layer-1);
-  padding: 1.5rem;
-  border: var(--ghost-border);
-  position: relative;
+/* Input Cursor: Blinking Solid Block */
+.cursor-block {
+  display: inline-block;
+  width: 8px;
+  height: 1.2em;
+  background: var(--primary);
+  animation: blink 0.8s steps(2) infinite;
+  vertical-align: middle;
 }
 
-.data-card:nth-child(even) {
-  width: 98%; /* Intentional Asymmetry */
+@keyframes blink {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-.data-card:nth-child(odd) {
-  width: 102%; /* Intentional Asymmetry */
-}
-
-/* Progress Bars (Holographic) */
-.tactical-progress {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--matrix-green);
-  box-shadow: 0 0 15px var(--matrix-green);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.progress-fill.warning {
-  background: var(--warning-magenta);
-  box-shadow: 0 0 15px var(--warning-magenta);
-}
-
-/* Webkit Scrollbar Protocol */
-::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: var(--layer-0); }
-::-webkit-scrollbar-thumb { background: var(--layer-3); }
+::-webkit-scrollbar-thumb { background: var(--layer-5); }
+

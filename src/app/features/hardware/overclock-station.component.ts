@@ -45,15 +45,17 @@ import { FormsModule } from '@angular/forms';
     .overclock-container {
       padding: 2rem;
       background: var(--layer-1);
-      border: var(--ghost-border);
     }
     .sec-header {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.8rem;
       font-weight: 900;
-      letter-spacing: 4px;
-      color: var(--warning-magenta);
+      letter-spacing: 2px;
+      color: var(--primary);
+      background: var(--layer-2);
+      padding: 0.75rem;
       margin-bottom: 2rem;
+      text-transform: uppercase;
     }
     .station-main {
       display: flex;
@@ -64,39 +66,39 @@ import { FormsModule } from '@angular/forms';
     }
     .hardware-preview {
       text-align: center;
-      background: var(--layer-0);
-      padding: 2rem;
-      border: var(--ghost-border);
+      background: var(--layer-2);
+      padding: 2.5rem;
     }
-    .h-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--matrix-green); }
-    .h-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; }
-    .h-desc { font-size: 0.7rem; color: #666; }
+    .h-icon { font-size: 2rem; margin-bottom: 1.5rem; color: var(--secondary); font-family: 'JetBrains Mono', monospace; font-weight: 900; }
+    .h-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .h-desc { font-size: 0.65rem; color: #fff; opacity: 0.4; line-height: 1.6; }
 
-    .tuning-grid { display: flex; flex-direction: column; gap: 1rem; }
-    .tune-card { background: var(--layer-2); padding: 1rem; border: var(--ghost-border); display: flex; align-items: center; gap: 1rem; }
-    .tune-card .label { font-size: 0.6rem; font-weight: 900; min-width: 80px; }
-    .tune-card input { flex: 1; }
-    .tune-card .val { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--matrix-green); min-width: 60px; text-align: right; }
+    .tuning-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+    .tune-card { background: var(--layer-2); padding: 1.25rem; display: flex; align-items: center; gap: 1rem; }
+    .tune-card .label { font-size: 0.6rem; font-weight: 900; min-width: 90px; color: var(--primary); opacity: 0.5; }
+    .tune-card input { flex: 1; accent-color: var(--primary); }
+    .tune-card .val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--primary); min-width: 70px; text-align: right; font-weight: 900; }
 
-    .risk-meter { display: flex; flex-direction: column; gap: 0.5rem; }
-    .risk-meter .label { font-size: 0.6rem; font-weight: 900; color: var(--critical-error); }
-    .bar-bg { width: 100%; height: 4px; background: #200; }
-    .bar-fg { height: 100%; background: var(--critical-error); box-shadow: 0 0 10px #f00; transition: width 0.2s ease; }
-    .risk-meter .val { font-size: 0.75rem; color: var(--critical-error); text-align: right; font-weight: 900; }
+    .risk-meter { display: flex; flex-direction: column; gap: 0.75rem; background: var(--layer-0); padding: 1.25rem; }
+    .risk-meter .label { font-size: 0.6rem; font-weight: 900; color: var(--tertiary); letter-spacing: 1px; }
+    .bar-bg { width: 100%; height: 2px; background: rgba(193, 0, 20, 0.1); }
+    .bar-fg { height: 100%; background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); transition: width 0.1s steps(4); }
+    .risk-meter .val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--tertiary); text-align: right; font-weight: 900; }
 
     .apply-btn {
-      background: var(--matrix-green);
-      color: #000;
+      background: var(--secondary);
+      color: var(--on-primary);
       border: none;
-      padding: 1rem;
-      font-size: 0.7rem;
+      padding: 1.25rem;
+      font-size: 0.75rem;
       font-weight: 900;
       cursor: pointer;
-      letter-spacing: 1px;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.05s steps(2);
     }
     .apply-btn:hover:not(:disabled) {
-      background: #fff;
-      box-shadow: 0 0 20px var(--matrix-green);
+      filter: brightness(1.2);
+      box-shadow: 0 0 20px var(--secondary);
     }
     .apply-btn:disabled { opacity: 0.2; cursor: not-allowed; }
   `
