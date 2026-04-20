@@ -60,6 +60,15 @@ export class VectorService {
     }
   }
 
+  async getRiddleCount() {
+    try {
+        const collection = await this.client.getCollection({ name: 'hijack_riddles' });
+        return await collection.count();
+    } catch (e) {
+        return 0;
+    }
+  }
+
   async getRandomRiddle(): Promise<{q: string, a: string} | null> {
     try {
         const collection = await this.client.getCollection({ name: 'hijack_riddles' });

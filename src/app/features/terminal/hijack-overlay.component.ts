@@ -196,10 +196,38 @@ export class HijackOverlayComponent implements OnInit, OnDestroy {
   currentAsciiIndex = signal(0);
   showHint = computed(() => this.timeElapsed() >= 25);
   showForcePurge = computed(() => this.timeElapsed() >= 50);
+private asciiArts = [
+  `
+         .u888888888u.
+       .888888888888888.
+      d88888888P"Y888888b
+      8888888P'   \`888888
+      \`Y88888P     d88888
+        \`Y8888.   .88888P
+          \`Y888   8888P'
+            Y88   88P'
+            |88   88|
+            |88   88|
+            j88   88k
+           .88P   Y88.
+           d88'   \`88b
+          .88P     Y88.
+          d88'     \`88b
+         .88P       Y88.
+         888         888
+         Y88b       d88P
+          "Y888888888P"
+            \`"Y888P"'
 
-  private asciiArts = [
-    `
-                 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+              .8888.
+             d888888b
+             88888888
+             Y888888P
+              \`Y88P'
+  `,
+  `
+               MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+...
              MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
           MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
         MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM

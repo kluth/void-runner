@@ -355,16 +355,13 @@ export class GameService {
 
   private async populateRiddleArchive() {
       try {
-          const riddle = await vectorService.getRandomRiddle();
-          if (!riddle) {
-              console.log('[VECTOR] Riddle archive empty. Initiating 1000+ shard population...');
+          const riddleCount = await vectorService.getRiddleCount();
+          if (riddleCount < 10000) {
+              console.log(`[VECTOR] Riddle archive count: ${riddleCount}. Scaling to 10,000+...`);
               
-              // 1. Existing Data
-              const existing = firstNames; // Mistake in previous thought, I need the actual RIDDLES from frontend or re-import
-              // Actually, I will generate a fresh set of 1000 since I don't have access to the frontend constant easily here
-              const prompt = `Generate 500 unique technical/hacker/Matrix riddles. 
-              Format: JSON array of {q: "The question", a: "The short uppercase answer"}.
-              Themes: CS, Matrix, Ready Player One, Cybersecurity.`;
+              const prompt = `Generate 1000 unique technical/hacker/Matrix/ReadyPlayerOne riddles. 
+              Variations should include architecture, obscure port numbers, 80s icons, and deep cyber-lore.
+              Format: JSON array of {q: "The question", a: "The short uppercase answer"}.`;
               
               const res = await aiService.processQuery(prompt);
               const match = res.response.match(/\[.*\]/s);
