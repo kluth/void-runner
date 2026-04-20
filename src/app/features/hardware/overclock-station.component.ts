@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-overclock-station',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="overclock-container hud-panel">
       <div class="sec-header">HARDWARE_LAB // OVERCLOCK_STATION</div>

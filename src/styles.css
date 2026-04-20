@@ -1,9 +1,9 @@
 /* VOID_RUNNER: Synthetic Consciousness Design System (v3.1) */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700;900&family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700;900&family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
   /* Surface Shards (Tonal Layering) */

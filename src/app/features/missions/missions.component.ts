@@ -111,7 +111,7 @@ import { FormsModule } from '@angular/forms';
                     </div>
                   }
                 </div>
-                <div class="progress-info">CAP: {{ rfidCaptured }}/5</div>
+                <div class="progress-info">CAP: {{ rfidCaptured() }}/5</div>
               </div>
             }
 

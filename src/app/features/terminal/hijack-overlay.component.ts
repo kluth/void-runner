@@ -108,8 +108,8 @@ import { FormsModule } from '@angular/forms';
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: repeating-linear-gradient(0deg, rgba(255,0,0,0.08) 0px, rgba(255,0,0,0.08) 1px, transparent 2px, transparent 4px);
       pointer-events: none; z-index: 5;
-    <div class="hijack-content digital-tear">
-    ...
+    }
+    
     .hijack-content { 
     position: relative; z-index: 10;
     text-align: center; max-width: 800px; padding: 40px; 
