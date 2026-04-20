@@ -12,7 +12,8 @@ export class VectorService {
   private async init() {
     try {
       await this.client.getOrCreateCollection({ name: 'operative_dossiers' });
-      console.log('[VECTOR] ChromaDB initialized: operative_dossiers collection ready.');
+      await this.client.getOrCreateCollection({ name: 'hijack_riddles' });
+      console.log('[VECTOR] ChromaDB initialized: operative_dossiers and hijack_riddles collections ready.');
     } catch (e) {
       console.warn('[VECTOR] Warning: Could not connect to ChromaDB.');
     }
@@ -26,7 +27,6 @@ export class VectorService {
         documents: [dossier],
         metadatas: [metadata]
       });
-      console.log(`[VECTOR] Case File archived for Operative ${playerId}`);
     } catch (e) {
       console.error('[VECTOR] Archive failure:', e);
     }
@@ -39,6 +39,49 @@ export class VectorService {
       return result.documents.length > 0 ? result.documents[0] : null;
     } catch (e) {
       return null;
+    }
+  }
+
+  async storeRiddles(riddles: {q: string, a: string}[]) {
+    try {
+      const collection = await this.client.getCollection({ name: 'hijack_riddles' });
+      const ids = riddles.map((_, i) => `riddle_${Date.now()}_${i}`);
+      const docs = riddles.map(r => r.q);
+      const metadatas = riddles.map(r => ({ answer: r.a }));
+
+      await collection.add({
+        ids,
+        documents: docs,
+        metadatas
+      });
+      console.log(`[VECTOR] Archived ${riddles.length} riddles.`);
+    } catch (e) {
+      console.error('[VECTOR] Riddle storage failed:', e);
+    }
+  }
+
+  async getRandomRiddle(): Promise<{q: string, a: string} | null> {
+    try {
+        const collection = await this.client.getCollection({ name: 'hijack_riddles' });
+        // Query with a random number to get a "random" entry
+        const count = await collection.count();
+        if (count === 0) return null;
+        
+        const randomIdx = Math.floor(Math.random() * count);
+        const result = await collection.get({
+            limit: 1,
+            offset: randomIdx
+        });
+
+        if (result.documents.length > 0) {
+            return {
+                q: result.documents[0] as string,
+                a: (result.metadatas[0] as any).answer
+            };
+        }
+        return null;
+    } catch (e) {
+        return null;
     }
   }
 }

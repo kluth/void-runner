@@ -488,6 +488,27 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         this.userMedia.set(media);
     });
 
+    this.socket.on('hijack_data', async (riddle: { q: string, a: string }) => {
+        const level = this.campaignLevel();
+        let clarityInstruction = '';
+
+        if (level <= 3) clarityInstruction = "You MUST DIRECTLY tell the user the answer in a clear way.";
+        else if (level <= 7) clarityInstruction = "You MUST hint strongly at the answer but do not state it directly.";
+        else clarityInstruction = "You MUST be very cryptic and make the answer hard to find in your message.";
+
+        const puzzlePrompt = `Riddle: "${riddle.q}". The answer is "${riddle.a}". Pose this riddle to the user. ${clarityInstruction}`;
+        this.hijackUnlockCode.set(riddle.a);
+
+        const history = this.teamMessages().map(m => m.text).join(' ');
+        const augmentedHistory = `${history} [SYSTEM_SECURITY_PUZZLE: ${puzzlePrompt}]`;
+        
+        const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
+        obs.subscribe(res => {
+          this.hijackMessage.set(res.response);
+          this.audioService.speakCreepy(res.response);
+        });
+    });
+
     // Attack Sync: Server-driven high-stress events
     this.socket.on('server_attack', (data: { type: 'HIJACK' | 'INTRUSION' }) => {
         if (data.type === 'HIJACK') {
@@ -1002,65 +1023,9 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   async triggerHijack() {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
-
-    const level = this.campaignLevel();
-    const puzzleTypes = ['MATH', 'HEX', 'BINARY', 'WORD', 'RIDDLE'];
-    const pType = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
-    let code = '';
-    let puzzlePrompt = '';
-    let clarityInstruction = '';
-
-    // Adjust clarity based on level
-    if (level <= 3) clarityInstruction = "You MUST DIRECTLY tell the user the answer in a clear way.";
-    else if (level <= 7) clarityInstruction = "You MUST hint strongly at the answer but do not state it directly.";
-    else clarityInstruction = "You MUST be very cryptic and make the answer hard to find in your message.";
-
-    if (pType === 'MATH') {
-        if (level <= 3) {
-            const a = Math.floor(Math.random() * 9) + 1;
-            const b = Math.floor(Math.random() * 9) + 1;
-            code = (a + b).toString();
-            puzzlePrompt = `Ask what is ${a} + ${b}. Result is ${code}. ${clarityInstruction}`;
-        } else {
-            const a = Math.floor(Math.random() * 90) + 10;
-            const b = Math.floor(Math.random() * 90) + 10;
-            code = (a + b).toString();
-            puzzlePrompt = `Pose a math challenge: ${a} + ${b}. Result is ${code}. ${clarityInstruction}`;
-        }
-    } else if (pType === 'HEX') {
-        const num = level <= 5 ? Math.floor(Math.random() * 15) + 1 : Math.floor(Math.random() * 255) + 16;
-        code = num.toString(16).toUpperCase();
-        puzzlePrompt = `Challenge: Convert ${num} to Hex. Result is ${code}. ${clarityInstruction}`;
-    } else if (pType === 'BINARY') {
-        const num = level <= 5 ? Math.floor(Math.random() * 7) + 1 : Math.floor(Math.random() * 15) + 8;
-        code = num.toString(2);
-        puzzlePrompt = `Challenge: Convert ${num} to Binary. Result is ${code}. ${clarityInstruction}`;
-    } else if (pType === 'WORD') {
-        const words = level <= 4 ? ['VOID', 'NULL', 'ROOT', 'DATA'] : ['SINGULARITY', 'BLACKOUT', 'PROTOCOL', 'OVERRIDE'];
-        const word = words[Math.floor(Math.random() * words.length)];
-        code = word.split('').reverse().join('');
-        puzzlePrompt = `Challenge: Spell '${word}' backwards. Result is ${code}. ${clarityInstruction}`;
-    } else {
-        const r = HIJACK_RIDDLES[Math.floor(Math.random() * HIJACK_RIDDLES.length)];
-        code = r.a;
-        puzzlePrompt = `Riddle: "${r.q}". The answer is "${r.a}". Pose this riddle to the user. ${clarityInstruction}`;
-    }
-
-    this.hijackUnlockCode.set(code);
-
-    const history = this.teamMessages().map(m => m.text).join(' ');
-    const augmentedHistory = `${history} [SYSTEM_SECURITY_PUZZLE: ${puzzlePrompt}]`;
     
-    const obs = await this.neuralService.getHijackResponse(this.playerHandle(), augmentedHistory);
-    obs.subscribe(res => {
-      this.hijackMessage.set(res.response);
-      if (this.settings().audio.speech) {
-          this.audioService.speakCreepy(res.response);
-      }
-      if (this.settings().beta.neural_vibration && 'vibrate' in navigator) {
-        navigator.vibrate([200, 100, 200, 500, 200, 100, 200]);
-      }
-    });
+    // Request riddle from Neural Vector Archive (Backend)
+    this.socket.emit('trigger_hijack', { token: this.authToken() });
   }
 
   private economyTick() {

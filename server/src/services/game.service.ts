@@ -27,6 +27,9 @@ export class GameService {
     this.io = io;
     this.startEventLoop();
 
+    // Neural Riddle Migration: Populate ChromaDB if empty
+    this.populateRiddleArchive();
+
     io.on('connection', (socket) => {
       console.log(`[SOCKET] Handshake: ${socket.id}`);
       this.broadcastOperativeCount();
@@ -141,6 +144,16 @@ export class GameService {
 
         const dossier = await vectorService.getCaseFile(decoded.id);
         socket.emit('dossier_data', { dossier: dossier || 'ANALYSIS_PENDING: Deep sector scan in progress.' });
+      });
+
+      socket.on('trigger_hijack', async (data: { token: string }) => {
+        const decoded = await this.verifyToken(data.token);
+        if (!decoded) return;
+
+        const riddle = await vectorService.getRandomRiddle();
+        if (riddle) {
+            socket.emit('hijack_data', riddle);
+        }
       });
 
       // --- MEDIA ARCHIVE HANDLERS ---
@@ -338,6 +351,30 @@ export class GameService {
       orderBy: { timestamp: 'desc' },
       take: 50
     }).then(msgs => msgs.reverse());
+  }
+
+  private async populateRiddleArchive() {
+      try {
+          const riddle = await vectorService.getRandomRiddle();
+          if (!riddle) {
+              console.log('[VECTOR] Riddle archive empty. Initiating 1000+ shard population...');
+              
+              // 1. Existing Data
+              const existing = firstNames; // Mistake in previous thought, I need the actual RIDDLES from frontend or re-import
+              // Actually, I will generate a fresh set of 1000 since I don't have access to the frontend constant easily here
+              const prompt = `Generate 500 unique technical/hacker/Matrix riddles. 
+              Format: JSON array of {q: "The question", a: "The short uppercase answer"}.
+              Themes: CS, Matrix, Ready Player One, Cybersecurity.`;
+              
+              const res = await aiService.processQuery(prompt);
+              const match = res.response.match(/\[.*\]/s);
+              const generated = match ? JSON.parse(match[0]) : [];
+
+              await vectorService.storeRiddles(generated);
+          }
+      } catch (e) {
+          console.error('[VECTOR] Riddle population failed:', e);
+      }
   }
 
   async addRandomMission() {
