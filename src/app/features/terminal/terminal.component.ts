@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   template: `
     <div class="terminal-container">
       <div class="terminal-header">
-        <span class="noise-data">STATION_ID: {{ gameService.playerHandle() }}</span>
+        <span class="noise-data" (click)="triggerEasterEgg()" style="cursor:pointer;" title="STATION_ID">STATION_ID: {{ gameService.playerHandle() }}</span>
         <span class="term-title">0x_TERMINAL_V4.0 // NEURAL_UPLINK</span>
         <span class="noise-data">LATENCY: 14ms</span>
       </div>
@@ -42,12 +42,15 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       @if (gameService.detectedOS() === 'ANDROID' || gameService.detectedOS() === 'IOS') {
-         <div class="mobile-controls">
-            <button (click)="handleCmd()">EXECUTE</button>
-            <div class="shortcuts">
-               <button (click)="cmdInput = 'help'; handleCmd()">HELP</button>
-               <button (click)="cmdInput = 'ls'; handleCmd()">LS</button>
-               <button (click)="cmdInput = 'wipe'; handleCmd()">WIPE</button>
+         <div class="mobile-controls bottom-sheet" role="dialog" aria-label="Quick Commands">
+            <div class="sheet-handle"></div>
+            <button class="primary execute-btn" (click)="handleCmd()" aria-label="Execute Command">EXECUTE</button>
+            <div class="shortcuts" role="list">
+               <button role="listitem" (click)="cmdInput = 'help'; handleCmd()">HELP</button>
+               <button role="listitem" (click)="cmdInput = 'ls'; handleCmd()">LS</button>
+               <button role="listitem" (click)="cmdInput = 'status'; handleCmd()">STATUS</button>
+               <button role="listitem" (click)="cmdInput = 'cooldown'; handleCmd()">COOL</button>
+               <button role="listitem" (click)="cmdInput = 'wipe'; handleCmd()">WIPE</button>
             </div>
          </div>
       }
@@ -61,6 +64,7 @@ import { FormsModule } from '@angular/forms';
       flex-direction: column; 
       font-family: 'JetBrains Mono', monospace; 
       overflow: hidden;
+      position: relative;
     }
 
     .terminal-header { 
@@ -150,20 +154,29 @@ import { FormsModule } from '@angular/forms';
        margin-left: 2px;
     }
 
-    .mobile-controls {
+    .bottom-sheet {
        background: var(--layer-3);
        padding: 15px;
        display: flex;
        flex-direction: column;
-       gap: 10px;
+       gap: 15px;
+       border-top: 2px solid var(--layer-5);
+       border-radius: 12px 12px 0 0 !important;
+       box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+       margin-top: auto;
     }
+    .sheet-handle { width: 40px; height: 4px; background: var(--layer-5); margin: 0 auto; border-radius: 2px; }
 
-    .shortcuts { display: flex; gap: 8px; overflow-x: auto; }
+    .execute-btn { padding: 12px; font-size: 0.8rem; width: 100%; }
+
+    .shortcuts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+    .shortcuts::-webkit-scrollbar { display: none; }
     .shortcuts button { 
-       flex: 1; 
-       padding: 8px; 
-       font-size: 0.6rem; 
+       flex: 1 0 auto; 
+       padding: 10px 15px; 
+       font-size: 0.65rem; 
        background: var(--layer-4);
+       border: var(--ghost-border);
     }
   `
 })
@@ -177,6 +190,7 @@ export class TerminalComponent implements AfterViewChecked {
   cmdInput = '';
   historyIndex = -1;
   autoScroll = true;
+  easterEggClicks = 0;
 
   constructor() {
     effect(() => {
@@ -185,6 +199,17 @@ export class TerminalComponent implements AfterViewChecked {
         setTimeout(() => this.scrollToBottom(), 0);
       }
     });
+  }
+
+  triggerEasterEgg() {
+    this.easterEggClicks++;
+    if (this.easterEggClicks === 5) {
+       this.gameService.log('<span style="color: var(--secondary)">[RECURSIVE_BREACH] FOUNDATION LAYER ACCESSED. Developer backdoor triggered. +5000cr</span>');
+       this.gameService.credits.update(c => c + 5000);
+       this.audioService.playSuccess();
+       this.gameService.triggerVisualEvent(0, 0, 'burst', '#2ff801');
+       this.easterEggClicks = 0;
+    }
   }
 
   ngAfterViewChecked() {

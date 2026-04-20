@@ -19,6 +19,15 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
 
+      <div class="status-bar" style="margin-bottom: 2rem;">
+        <div class="integrity-val" [class.high]="gameService.systemHeat() > 80" style="color: var(--primary);">
+          SYS_HEAT: {{ gameService.systemHeat() }}%
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fg heat-fill" [style.width.%]="gameService.systemHeat()" [class.high]="gameService.systemHeat() > 80"></div>
+        </div>
+      </div>
+
       <div class="debuff-list">
         @for (debuff of gameService.activeDebuffs(); track debuff.id) {
           <div class="debuff-card" [class]="debuff.type">
@@ -45,9 +54,12 @@ import { CommonModule } from '@angular/common';
     .status-bar { margin-bottom: 1.5rem; background: var(--layer-2); padding: 1rem; }
     .integrity-val { font-size: 0.8rem; font-weight: 900; color: var(--secondary); margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; }
     .integrity-val.low { color: var(--tertiary); animation: blink 0.5s steps(2) infinite alternate; }
+    .integrity-val.high { color: var(--tertiary) !important; animation: blink 0.5s steps(2) infinite alternate; }
     .bar-bg { width: 100%; height: 2px; background: var(--layer-0); }
     .bar-fg { height: 100%; background: var(--secondary); transition: width 0.3s steps(4); }
     .bar-fg.low { background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); }
+    .heat-fill { background: var(--primary); }
+    .heat-fill.high { background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); }
 
     .debuff-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .debuff-card { background: var(--layer-2); padding: 1rem; position: relative; overflow: hidden; }

@@ -110,6 +110,7 @@ export interface GameSettings {
     language: 'EN' | 'DE' | 'SV' | 'HEX';
     tutorial_completed: boolean;
     wake_lock: boolean;
+    stability_mode: boolean;
   };
   control: {
     autocomplete: boolean;
@@ -231,7 +232,7 @@ export class GameService {
     video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11, opacity: 100, crt_curvature: true, view_mode: 'TABBED' },
     social: { notifications: true, public_profile: true, incognito: false, broadcast_location: false, status: 'ONLINE' },
     beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false },
-    general: { auto_wipe: false, auto_analysis: false, theme: 'OMEGA', language: 'EN', tutorial_completed: false, wake_lock: false },
+    general: { auto_wipe: false, auto_analysis: false, theme: 'OMEGA', language: 'EN', tutorial_completed: false, wake_lock: false, stability_mode: false },
     control: { autocomplete: true, scroll_speed: 100, vibe_intensity: 100 },
     streamer: { enabled: false, platform: 'TWITCH' }
   });
@@ -290,6 +291,11 @@ export class GameService {
   detectionLevel = signal(0);
   matrixMode = signal(false);
   secretsFound = signal<string[]>([]);
+  systemHeat = signal(0);
+  
+  purgeActive = signal(false);
+  purgeTimer = signal(0);
+  purgeCode = signal('');
 
   // Advanced Mechanics State
   botnetSize = signal(0);
@@ -883,10 +889,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
 
     switch (base) {
       case 'help':
-        this.log('AVAILABLE_PROTOCOLS: help, ls, clear, status, scan, wipe, buy, install, routing');
+        this.log('AVAILABLE_PROTOCOLS: help, ls, clear, status, scan, wipe, buy, install, routing, cooldown, abort_purge');
         break;
       case 'status':
-        this.log(`SYSTEM_HEALTH: ${this.systemIntegrity()}% | TRACE_LEVEL: ${this.detectionLevel()}%`);
+        this.log(`SYSTEM_HEALTH: ${this.systemIntegrity()}% | TRACE_LEVEL: ${this.detectionLevel()}% | HEAT: ${this.systemHeat()}%`);
         break;
       case 'wipe':
         if (this.installedSoftware().find(s => s.id === 'wiper' && s.installed)) {
@@ -899,6 +905,36 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       case 'clear':
         this.terminalLogs.set([]);
         break;
+      case 'cooldown':
+        if (this.systemHeat() > 0) {
+           this.systemHeat.update(h => Math.max(0, h - 30));
+           this.log('THERMAL_CONTROL: Coolant injected. Heat reduced.');
+        } else {
+           this.log('THERMAL_CONTROL: System already at optimal temperature.');
+        }
+        break;
+      case 'abort_purge':
+        if (this.purgeActive() && parts[1] === this.purgeCode()) {
+           this.purgeActive.set(false);
+           this.detectionLevel.update(d => Math.max(0, d - 20));
+           this.log('SYSTEM_OVERRIDE: Purge sequence aborted.');
+        } else if (this.purgeActive()) {
+           this.log('ERR: INVALID_PURGE_CODE. Sequence continuing.');
+        } else {
+           this.log('ERR: No active purge sequence to abort.');
+        }
+        break;
+      case 'neural_dive':
+        if (parts[1] === '--deep') {
+           this.log('<span style="color: var(--secondary)">[VOIDSIGHT_PROTOCOL_INITIATED]</span>');
+           this.log('<span style="color: var(--secondary)">Warning: Sensory overload imminent.</span>');
+           this.detectionLevel.update(d => Math.max(0, d - 50));
+           this.isDistorted.set(true);
+           setTimeout(() => this.isDistorted.set(false), 10000);
+        } else {
+           this.log('ERR: Invalid syntax. Usage: neural_dive --deep');
+        }
+        break;
       default:
         this.log(`ERR: COMMAND_NOT_FOUND: ${base}`);
     }
@@ -908,12 +944,48 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   private gameTick() {
     const now = Date.now();
     const det = this.detectionLevel();
-    this.difficultyMultiplier.set(1.0 + (det / 50)); 
+    this.difficultyMultiplier.set(1.0 + (det / 50));
     this.isDistorted.set(det > 75);
     this.blueTeamActive.set(det > 85);
 
-    if (Notification.permission === 'granted' && Math.random() > 0.998 && !this.isHijacked()) {
-      this.triggerFakedSystemAlert();
+    // Heat Logic
+    if (this.systemHeat() > 0) {
+        this.systemHeat.update(h => Math.max(0, h - 1)); // Decay heat
+    }
+    if (this.systemHeat() >= 100) {
+        this.activeDebuffs.update(d => {
+            if (!d.find(x => x.type === 'GLITCH')) {
+                return [...d, { id: 'thermal_lock', name: 'THERMAL_OVERLOAD', type: 'GLITCH', expiresAt: Date.now() + 10000 }];
+            }
+            return d;
+        });
+        this.systemHeat.set(80); // Reset slightly so they can recover
+    }
+
+    // Purge Logic
+    if (det >= 100 && !this.purgeActive()) {
+        this.purgeActive.set(true);
+        this.purgeTimer.set(30);
+        this.purgeCode.set(Math.random().toString(36).substring(7).toUpperCase());
+        this.log(`<span style="color: var(--tertiary)">!!! CRITICAL TRACE: PURGE IMMINENT !!!</span>`);
+        this.log(`<span style="color: var(--tertiary)">Type 'abort_purge ${this.purgeCode()}' to stop sequence.</span>`);
+    } else if (this.purgeActive()) {
+        this.purgeTimer.update(t => t - 1);
+        if (this.purgeTimer() <= 0) {
+            this.purgeActive.set(false);
+            this.detectionLevel.set(0);
+            this.credits.set(0);
+            this.reputation.set(0);
+            if (this.activeMissions().length > 0) {
+                this.activeMissions.set([]);
+                this.log('<span style="color: var(--tertiary)">PURGE EXECUTED. Credits wiped. Rep wiped. Missions aborted.</span>');
+            } else {
+                this.log('<span style="color: var(--tertiary)">PURGE EXECUTED. System wiped.</span>');
+            }
+        }
+    }
+
+    if (Notification.permission === 'granted' && Math.random() > 0.998 && !this.isHijacked()) {      this.triggerFakedSystemAlert();
     }
 
     if (!this.hasDarknetAccess() && this.reputation() >= 1000) {
@@ -1547,6 +1619,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     if (this.botnetSize() >= 10) {
       this.botnetSize.update(b => b - Math.floor(b * 0.5));
       this.detectionLevel.update(d => Math.max(0, d - 40));
+      this.systemHeat.update(h => Math.min(100, h + 25));
       this.log('DDoS LAUNCHED.');
 
       // Multiple random bursts
@@ -1564,6 +1637,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     if (this.botnetSize() >= 15) {
       this.botnetSize.update(b => b - 15);
       this.activeRansoms.update(r => r + 1);
+      this.systemHeat.update(h => Math.min(100, h + 25));
       this.log('RANSOMWARE DEPLOYED.');
 
       // Trigger visual attack

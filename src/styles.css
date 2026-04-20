@@ -70,6 +70,34 @@
   border-width: 0;
 }
 
+/* STABILITY MODE (A11y Override) */
+.stability-mode *, .stability-mode ::before, .stability-mode ::after {
+  animation: none !important;
+  transition: none !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+.stability-mode .noise-data, .stability-mode .timestamp, .stability-mode .version {
+  opacity: 1 !important;
+}
+.stability-mode::after {
+  display: none !important;
+}
+.stability-mode input {
+  caret-color: var(--primary) !important;
+}
+
+/* HAPTIC GLITCH INTERACTION (Mobile First) */
+@media (hover: none) and (pointer: coarse) {
+  button:active, .haptic-glitch:active {
+    background: var(--primary) !important;
+    color: var(--layer-1) !important;
+    transform: skewX(-2deg) scale(0.98);
+    transition: transform 0.05s steps(2) !important;
+    box-shadow: 0 0 15px var(--primary) !important;
+  }
+}
+
 /* GLOBAL ENFORCEMENT */
 *, ::before, ::after {
   border-radius: 0px !important;

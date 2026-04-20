@@ -26,6 +26,7 @@ import { ThreatDatabaseComponent } from './features/missions/threat-database.com
 import { BountyBoardComponent } from './features/missions/bounty-board.component';
 import { OverclockStationComponent } from './features/hardware/overclock-station.component';
 import { AssetVaultComponent } from './features/hardware/asset-vault.component';
+import { PurgeOverlayComponent } from './features/system/purge-overlay.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -55,7 +56,8 @@ import { CommonModule } from '@angular/common';
     ThreatDatabaseComponent,
     BountyBoardComponent,
     OverclockStationComponent,
-    AssetVaultComponent
+    AssetVaultComponent,
+    PurgeOverlayComponent
   ],
   template: `
     <h1 class="sr-only">VOID_RUN Protocol - High Density Operational Interface</h1>
@@ -80,12 +82,14 @@ import { CommonModule } from '@angular/common';
     <app-hijack-overlay />
     <app-calibration-overlay />
     <app-walkthrough-overlay />
+    <app-purge-overlay />
     
     <div class="game-wrapper" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
          [class.trace-high-glitch]="gameService.detectionLevel() > 70"
          [class.walkthrough-active]="gameService.tutorialActive()"
-         [class.mobile-sidebar-open]="mobileSidebarOpen()">
+         [class.mobile-sidebar-open]="mobileSidebarOpen()"
+         [class.stability-mode]="gameService.settings().general.stability_mode">
          
       <!-- HUD HEADER -->
       <header class="hud-panel" [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'" role="banner">
