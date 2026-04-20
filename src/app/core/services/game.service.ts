@@ -1003,7 +1003,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.isHijacked.set(true);
 
     const level = this.campaignLevel();
-    const puzzleTypes = ['MATH', 'HEX', 'BINARY', 'WORD'];
+    const puzzleTypes = ['MATH', 'HEX', 'BINARY', 'WORD', 'RIDDLE'];
     const pType = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
     let code = '';
     let puzzlePrompt = '';
@@ -1034,11 +1034,29 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         const num = level <= 5 ? Math.floor(Math.random() * 7) + 1 : Math.floor(Math.random() * 15) + 8;
         code = num.toString(2);
         puzzlePrompt = `Challenge: Convert ${num} to Binary. Result is ${code}. ${clarityInstruction}`;
-    } else {
+    } else if (pType === 'WORD') {
         const words = level <= 4 ? ['VOID', 'NULL', 'ROOT', 'DATA'] : ['SINGULARITY', 'BLACKOUT', 'PROTOCOL', 'OVERRIDE'];
         const word = words[Math.floor(Math.random() * words.length)];
         code = word.split('').reverse().join('');
         puzzlePrompt = `Challenge: Spell '${word}' backwards. Result is ${code}. ${clarityInstruction}`;
+    } else {
+        const riddles = [
+            { q: "I have keys but no locks. I have a space but no room. You can enter, but never leave.", a: "KEYBOARD" },
+            { q: "I am a key that doesn't turn a lock, but without me, your security will burn. I scramble your data into a mess.", a: "ENCRYPTION" },
+            { q: "I have a hook, a line, and a sinker, but I never go to the lake. I send you a fake message to steal your keys.", a: "PHISHING" },
+            { q: "I watch what you type and where you go, reporting it back to someone you don’t know.", a: "KEYLOGGER" },
+            { q: "I am the deck that lets you 'jack in,' a slab of silicon and chrome. I turn the cold code of the net into a world you can roam.", a: "CYBERDECK" },
+            { q: "I am the beginning of eternity, the end of time and space. I am the start of every end, and the end of every place.", a: "E" },
+            { q: "One pill makes you stay in the dream you know, the other shows you how deep the rabbit hole can go.", a: "RED PILL" },
+            { q: "I am a bit, but I have no teeth.", a: "BINARY DIGIT" },
+            { q: "I move through the wire and consume all your data. I am the grid's fire.", a: "VIRUS" },
+            { q: "The more of me there is, the less you see.", a: "OBFUSCATION" },
+            { q: "I can be cracked, I can be made. I can be told, I can be played.", a: "PASSWORD" },
+            { q: "I have no body, but I have a voice. I live in the wires and think in the light.", a: "AI" }
+        ];
+        const r = riddles[Math.floor(Math.random() * riddles.length)];
+        code = r.a;
+        puzzlePrompt = `Riddle: "${r.q}". The answer is "${r.a}". Pose this riddle to the user. ${clarityInstruction}`;
     }
 
     this.hijackUnlockCode.set(code);
