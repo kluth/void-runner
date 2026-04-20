@@ -268,9 +268,9 @@ import { CommonModule } from '@angular/common';
     :host {
       display: block;
       height: 100dvh;
-      background: #030303;
-      color: #00ff00;
-      font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+      background: var(--layer-0);
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
       overflow: hidden;
     }
     
@@ -283,6 +283,7 @@ import { CommonModule } from '@angular/common';
       z-index: 2000;
       background-size: 100% 2px, 3px 100%;
       pointer-events: none;
+      opacity: var(--scanline-opacity);
     }
 
     .game-wrapper {
@@ -310,31 +311,11 @@ import { CommonModule } from '@angular/common';
       opacity: 1 !important;
       filter: grayscale(0) blur(0) !important;
       box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
-      border: 1px solid #00ff00;
+      border: 1px solid var(--primary);
       z-index: 100;
       transform: scale(1.02);
       background: rgba(0, 20, 0, 0.9);
     }
-
-    /* --- PLATFORM MIMICRY OVERRIDES --- */
-    
-    /* 🤖 ANDROID Sector: Material Design Vibes */
-    .os-android { font-family: 'Roboto', 'Inter', sans-serif !important; }
-    .os-android header { border-radius: 0 0 15px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    .os-android .tactical-tabs button { border-radius: 20px; text-transform: capitalize; border: none; background: rgba(0,255,0,0.1); }
-    .os-android .tactical-tabs button.active { background: #00ff00; color: #000; }
-
-    /* 🍎 IOS Sector: Glassmorphism & SF Vibes */
-    .os-ios { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif !important; }
-    .os-ios header { backdrop-filter: blur(20px) saturate(1.5); background: rgba(10,10,10,0.6); border-bottom: 0.5px solid rgba(255,255,255,0.1); }
-    .os-ios .tactical-tabs { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 4px; }
-    .os-ios .tactical-tabs button { border: none !important; border-radius: 8px; }
-    .os-ios .tactical-tabs button.active { background: rgba(255,255,255,0.15); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-
-    /* 💻 DESKTOP Matrix: High-Density Terminal */
-    .os-windows, .os-mac, .os-linux { font-family: 'JetBrains Mono', 'Cascadia Code', monospace !important; }
-    .os-windows header::before { content: "█ SYSTEM_OPERATIVE // "; font-size: 0.5em; opacity: 0.3; }
-    .os-windows .game-wrapper { border: 2px solid #1a1a1a; }
 
     .game-wrapper.matrix { filter: sepia(1) saturate(2) hue-rotate(80deg); }
     .game-wrapper.distorted { 
@@ -398,6 +379,7 @@ import { CommonModule } from '@angular/common';
       position: relative;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       letter-spacing: 2px;
+      border-radius: 0px !important;
     }
 
     .tactical-tabs button.active {
@@ -429,34 +411,21 @@ import { CommonModule } from '@angular/common';
         color: var(--primary); 
         letter-spacing: 6px; 
     }
-    .version { font-size: 0.55rem; color: #008800; margin-top: 4px; opacity: 0.6; }
+    .version { font-size: 0.55rem; color: var(--primary); margin-top: 4px; opacity: 0.6; }
 
     .stats { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; flex-grow: 1; justify-content: flex-end; }
     .stat-box { display: flex; flex-direction: column; align-items: flex-end; min-width: 5rem; }
-    .stat-box .label { font-size: 0.45rem; color: #008800; white-space: nowrap; margin-bottom: 4px; letter-spacing: 1px; }
+    .stat-box .label-tactical { margin-bottom: 4px; }
     .stat-box .value { font-size: 1rem; font-weight: 700; color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
-    .stat-box .value.research { color: var(--tertiary); text-shadow: 0 0 10px var(--tertiary); }
-    .stat-box .value.danger { color: #ff0000; text-shadow: 0 0 15px #f00; }
+    .stat-box .value.danger { color: var(--error); text-shadow: 0 0 15px var(--error); }
     .stat-box.warning .value { animation: pulse 0.5s infinite alternate; }
 
     @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
 
-    .music-player {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #001100;
-      border: 1px solid #00ff00;
-      padding: 0.25rem 0.5rem;
-      min-width: 8rem;
-    }
-    .music-player .label { font-size: 0.4rem; color: #00ff00; letter-spacing: 1px; margin-bottom: 2px; }
-    .music-player .track-name { font-size: 0.6rem; color: #fff; font-weight: bold; margin-bottom: 5px; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 10rem; }
-
     .audio-toggle {
-      background: #003300;
-      border: 1px solid #00ff00;
-      color: #00ff00;
+      background: rgba(0, 51, 0, 0.2);
+      border: 1px solid var(--primary);
+      color: var(--primary);
       padding: 0.25rem 0.5rem;
       cursor: pointer;
       font-family: inherit;
@@ -507,8 +476,6 @@ import { CommonModule } from '@angular/common';
     }
 
     @media (max-width: 600px) {
-      .btn-text { display: none; }
-      .music-player { min-width: 3rem; width: auto; }
       header { flex-direction: column; align-items: center; text-align: center; }
       .logo-group { width: 100%; }
       .stats { justify-content: center; gap: 0.75rem; width: 100%; }
@@ -526,34 +493,34 @@ import { CommonModule } from '@angular/common';
       min-height: 0;
     }
 
-    .viz-card { background: #000; border: 1px solid #1a1a1a; padding: 0.25rem; width: 100%; box-sizing: border-box; }
+    .viz-card { background: var(--layer-0); border: var(--ghost-border); padding: 0.25rem; width: 100%; box-sizing: border-box; }
     app-globe { display: block; width: 100%; aspect-ratio: 1; }
 
-    .inventory-section { background: rgba(15, 15, 15, 0.9); border: 1px solid #222; padding: 1rem; }
+    .inventory-section { background: var(--layer-1); border: var(--ghost-border); padding: 1rem; }
     .sec-header { font-size: 0.6rem; color: #555; border-bottom: 1px solid #222; padding-bottom: 0.5rem; margin-bottom: 0.75rem; letter-spacing: 2px; }
     .inventory-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; }
-    .inventory-item { background: #000; border-left: 3px solid #00ff00; padding: 0.5rem; display: flex; flex-direction: column; font-size: 0.6rem; }
+    .inventory-item { background: var(--layer-0); border-left: 3px solid var(--primary); padding: 0.5rem; display: flex; flex-direction: column; font-size: 0.6rem; }
     .inventory-item .name { color: #fff; font-weight: bold; }
-    .inventory-item .tag { color: #00aa00; font-size: 0.8em; margin-top: 2px; }
+    .inventory-item .tag { color: var(--primary); font-size: 0.8em; margin-top: 2px; opacity: 0.7; }
     .empty-inv { font-size: 0.6rem; color: #333; text-align: center; padding: 0.5rem; }
 
     .footer-bar { font-size: 0.5rem; color: #333; padding: 0.5rem; border-top: 1px solid #111; flex-shrink: 0; }
-    .status-ok { color: #008800; }
-    .matrix-text { color: #00ff00; font-weight: bold; }
+    .status-ok { color: var(--primary); }
+    .matrix-text { color: var(--primary); font-weight: bold; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #000; }
-    ::-webkit-scrollbar-thumb { background: #1a1a1a; }
+    ::-webkit-scrollbar-track { background: var(--layer-0); }
+    ::-webkit-scrollbar-thumb { background: var(--layer-2); }
 
-    /* Glitch Effect */
     .glitch { position: relative; }
     .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    .glitch::before { left: 2px; text-shadow: -2px 0 #ff00ff; clip: rect(44px, 450px, 56px, 0); animation: glitch-anim 5s infinite linear alternate-reverse; }
-    .glitch::after { left: -2px; text-shadow: -2px 0 #00ffff; clip: rect(44px, 450px, 56px, 0); animation: glitch-anim2 5s infinite linear alternate-reverse; }
+    .glitch::before { left: 2px; text-shadow: -2px 0 var(--tertiary); clip: rect(44px, 450px, 56px, 0); animation: glitch-anim 5s infinite linear alternate-reverse; }
+    .glitch::after { left: -2px; text-shadow: -2px 0 var(--secondary); clip: rect(44px, 450px, 56px, 0); animation: glitch-anim2 5s infinite linear alternate-reverse; }
     @keyframes glitch-anim { 0% { clip: rect(31px, 9999px, 94px, 0); } 20% { clip: rect(62px, 9999px, 42px, 0); } 100% { clip: rect(89px, 9999px, 98px, 0); } }
     @keyframes glitch-anim2 { 0% { clip: rect(10px, 9999px, 30px, 0); } 20% { clip: rect(40px, 9999px, 10px, 0); } 100% { clip: rect(80px, 9999px, 20px, 0); } }
   `
+
 })
 export class AppComponent implements OnInit {
   gameService = inject(GameService);

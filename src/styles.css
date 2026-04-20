@@ -6,23 +6,39 @@
 @tailwind utilities;
 
 :root {
-  /* Surface Shards (Tonal Layering) */
-  --layer-0: #0e0e0e; /* The Void */
-  --layer-1: #1c1b1b; /* Modular Grid containers */
-  --layer-2: #201f1f; /* Floating HUD elements */
-  --layer-3: #3a3939; /* Active overlays */
+  /* VOID_INTERFACE_CMD: Tonal Layering (Brutalist Architecture) */
+  --layer-0: #0e0e0e; /* surface_container_lowest: The Void */
+  --layer-1: #1c1b1b; /* surface_container_low: Modular Grid containers */
+  --layer-2: #201f1f; /* surface_container: Standard surfaces */
+  --layer-3: #2a2a2a; /* surface_container_high: Floating HUD elements */
+  --layer-4: #3a3939; /* surface_bright: Active overlays */
 
+  /* Semantic Mapping for AppComponent */
+  --surface-low: var(--layer-1);
+  --surface-high: var(--layer-3);
+  --primary: #00ff00; /* Matrix Green */
+  --secondary: #00fbfb; /* Tactical Cyan */
+  --tertiary: #ac00ac; /* Warning Magenta */
+  --error: #ffb4ab;
+  
   /* Accent Shards (High-Frequency Neon) */
-  --matrix-green: #00ff00;
-  --tactical-cyan: #00fbfb;
-  --warning-magenta: #ac00ac;
-  --critical-error: #ffb4ab;
+  --matrix-green: var(--primary);
+  --tactical-cyan: var(--secondary);
+  --warning-magenta: var(--tertiary);
+  --critical-error: var(--error);
   
   /* Tactical Constants */
   --ghost-border: 0.5px solid rgba(132, 150, 124, 0.2);
   --neon-shadow: 0 0 12px rgba(0, 255, 0, 0.25);
   --glass-filter: blur(20px) saturate(1.5) contrast(1.2);
   --scanline-opacity: 0.05;
+
+  /* Reset all roundness to 0px per the "No Softness" protocol */
+  --roundness: 0px;
+}
+
+*, ::before, ::after {
+  border-radius: 0px !important; /* GLOBAL ENFORCEMENT */
 }
 
 body {
@@ -152,3 +168,8 @@ button:active {
   background: var(--warning-magenta);
   box-shadow: 0 0 15px var(--warning-magenta);
 }
+
+/* Webkit Scrollbar Protocol */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--layer-0); }
+::-webkit-scrollbar-thumb { background: var(--layer-3); }
