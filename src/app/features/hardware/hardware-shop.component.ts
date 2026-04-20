@@ -24,7 +24,7 @@ import { CommonModule } from '@angular/common';
       </div>
 
       <!-- VISUAL RIG BLUEPRINT -->
-      <div class="rig-blueprint">
+      <div class="rig-blueprint" [class.power-surge-glitch]="(gameService.currentPowerUsage() / gameService.totalPowerCapacity()) > 0.85">
         <div class="blueprint-bg"></div>
         <div class="slots-container">
           @for (slot of gameService.mountedHardware(); track $index) {
@@ -123,6 +123,12 @@ import { CommonModule } from '@angular/common';
     @media (max-width: 600px) {
         .slots-container { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; }
         .rig-blueprint { height: 250px; }
+    }
+    .power-surge-glitch { animation: power-glitch 0.2s infinite; }
+    @keyframes power-glitch {
+        0% { filter: invert(0) hue-rotate(0deg); }
+        50% { filter: invert(0.2) hue-rotate(90deg); transform: scale(1.01); }
+        100% { filter: invert(0) hue-rotate(0deg); }
     }
     .rig-slot { 
       border: 1px dashed #004400; background: rgba(0, 255, 0, 0.02); display: flex; flex-direction: column; 

@@ -75,9 +75,14 @@ import { CommonModule } from '@angular/common';
          [class.scanline]="gameService.settings().video.scanlines" 
          [class.matrix]="gameService.matrixMode()" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
+         [class.trace-high-glitch]="gameService.detectionLevel() > 70"
          [class.walkthrough-active]="gameService.tutorialActive()"
          [class.tabbed-mode]="gameService.settings().video.view_mode === 'TABBED'"
-         [class]="'os-' + gameService.detectedOS().toLowerCase()">
+         [class.os-android]="gameService.detectedOS() === 'ANDROID'"
+         [class.os-ios]="gameService.detectedOS() === 'IOS'"
+         [class.os-windows]="gameService.detectedOS() === 'WINDOWS'"
+         [class.os-mac]="gameService.detectedOS() === 'MAC'"
+         [class.os-linux]="gameService.detectedOS() === 'LINUX'">
          
       <header [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'">
         <div class="logo-group">
@@ -326,6 +331,20 @@ import { CommonModule } from '@angular/common';
     .game-wrapper.distorted { 
       filter: contrast(1.2) brightness(1.2) hue-rotate(5deg);
       animation: stress-shake 0.2s infinite;
+    }
+
+    .game-wrapper.trace-high-glitch {
+        animation: trace-glitch 0.5s infinite;
+    }
+
+    @keyframes trace-glitch {
+        0% { transform: translate(0, 0) skew(0deg); filter: hue-rotate(0deg); }
+        10% { transform: translate(-2px, 2px) skew(2deg); filter: hue-rotate(90deg) brightness(1.5); }
+        20% { transform: translate(2px, -2px) skew(-2deg); opacity: 0.8; }
+        30% { transform: translate(0, 0) skew(0deg); }
+        40% { transform: translate(-5px, 0px); filter: contrast(2); }
+        50% { transform: translate(5px, 0px); opacity: 0.5; }
+        60% { transform: translate(0, 0); }
     }
 
     @keyframes stress-shake {

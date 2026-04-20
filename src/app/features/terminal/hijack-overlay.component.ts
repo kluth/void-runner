@@ -108,14 +108,24 @@ import { FormsModule } from '@angular/forms';
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: repeating-linear-gradient(0deg, rgba(255,0,0,0.08) 0px, rgba(255,0,0,0.08) 1px, transparent 2px, transparent 4px);
       pointer-events: none; z-index: 5;
+    <div class="hijack-content digital-tear">
+    ...
+    .hijack-content { 
+    position: relative; z-index: 10;
+    text-align: center; max-width: 800px; padding: 40px; 
+    border: 2px solid #f00; box-shadow: 0 0 120px rgba(255,0,0,0.4); 
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(8px);
     }
 
-    .hijack-content { 
-      position: relative; z-index: 10;
-      text-align: center; max-width: 800px; padding: 40px; 
-      border: 2px solid #f00; box-shadow: 0 0 120px rgba(255,0,0,0.4); 
-      background: rgba(0,0,0,0.92);
-      backdrop-filter: blur(8px);
+    .digital-tear { animation: tear 0.15s infinite; }
+    @keyframes tear {
+    0% { transform: translateX(0); clip-path: inset(0 0 0 0); }
+    20% { transform: translateX(-5px); clip-path: inset(10% 0 85% 0); }
+    40% { transform: translateX(5px); clip-path: inset(80% 0 5% 0); }
+    60% { transform: translateX(-2px); filter: hue-rotate(90deg); }
+    80% { transform: translateX(2px); clip-path: inset(45% 0 45% 0); }
+    100% { transform: translateX(0); clip-path: inset(0 0 0 0); }
     }
     
     .system-guide {

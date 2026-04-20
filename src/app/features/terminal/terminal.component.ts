@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
       </div>
       <div class="terminal-body" #scrollContainer (scroll)="handleScroll()">
         @for (log of gameService.terminalLogs(); track $index) {
-          <div class="log-line">
+          <div class="log-line" [class.glitch-error]="log.message.includes('ERR:') || log.message.includes('!!!')">
             <span class="timestamp">[{{ log.timestamp }}]</span>
             <span class="message" [innerHTML]="log.message"></span>
           </div>
@@ -54,6 +54,16 @@ import { FormsModule } from '@angular/forms';
     .terminal-header { background: #00ff00; color: #000; padding: 4px 10px; display: flex; justify-content: space-between; font-size: 0.6em; font-weight: bold; }
     .terminal-body { flex-grow: 1; padding: 15px; overflow-y: auto; color: #fff; display: flex; flex-direction: column; }
     .log-line { font-size: 0.7rem; margin-bottom: 0.25rem; display: flex; gap: 10px; }
+    .log-line.glitch-error { animation: line-glitch 0.2s 3; color: #ff0000 !important; text-shadow: 0 0 5px #f00; }
+    
+    @keyframes line-glitch {
+        0% { transform: translateX(0); }
+        20% { transform: translateX(-5px); filter: hue-rotate(90deg); }
+        40% { transform: translateX(5px); }
+        60% { transform: translateX(-2px); filter: contrast(2); }
+        80% { transform: translateX(2px); }
+        100% { transform: translateX(0); }
+    }
     .timestamp { color: #008800; min-width: 70px; }
     .message { line-height: 1.4; word-break: break-all; }
     .input-line { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
