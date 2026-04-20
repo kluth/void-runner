@@ -120,6 +120,10 @@ import { CommonModule } from '@angular/common';
       background-size: 20px 20px;
     }
     .slots-container { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; width: 90%; height: 80%; }
+    @media (max-width: 600px) {
+        .slots-container { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; }
+        .rig-blueprint { height: 250px; }
+    }
     .rig-slot { 
       border: 1px dashed #004400; background: rgba(0, 255, 0, 0.02); display: flex; flex-direction: column; 
       align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.2s;

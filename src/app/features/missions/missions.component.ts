@@ -371,7 +371,7 @@ import { FormsModule } from '@angular/forms';
     .blink { animation: blink 1s infinite; color: #ff0000; margin-right: 5px; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
-    .mini-game-container { background: #000; border: 1px solid #111; padding: 1.5rem; min-height: 250px; position: relative; margin-bottom: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .mini-game-container { background: #000; border: 1px solid #111; padding: 1.5rem 0.75rem; min-height: 250px; position: relative; margin-bottom: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; overflow: hidden; }
     .game-info { font-size: 0.5rem; color: #444; position: absolute; top: 0.5rem; left: 0.75rem; letter-spacing: 1px; }
 
     .ports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); gap: 0.25rem; width: 100%; margin-top: 1rem; }
@@ -409,7 +409,7 @@ import { FormsModule } from '@angular/forms';
     .xss-controls textarea:focus { border-color: #00ffff; }
     .render-view { width: 100%; max-width: 400px; border: 1px dashed #222; min-height: 50px; margin-top: 0.75rem; padding: 0.75rem; font-size: 0.6rem; color: #555; text-align: left; }
 
-    .osint-game { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 1rem; }
+    .osint-game { width: 100%; max-width: 100%; display: flex; flex-direction: column; gap: 1rem; }
     .social-feed { background: #050505; border: 1px solid #111; display: flex; flex-direction: column; max-height: 200px; overflow-y: auto; text-align: left; }
     .feed-header { background: #111; padding: 0.5rem; font-size: 0.6rem; border-bottom: 1px solid #222; font-weight: bold; position: sticky; top: 0; }
     .posts-container { padding: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -420,7 +420,7 @@ import { FormsModule } from '@angular/forms';
     .security-questions input { background: #000; border: 1px solid #222; color: #fff; padding: 0.5rem; flex-grow: 1; font-size: 0.7rem; outline: none; }
     .security-questions input:focus { border-color: #00ff00; }
 
-    .phishing-game { width: 100%; max-width: 400px; }
+    .phishing-game { width: 100%; max-width: 100%; }
     .email-client { background: #050505; border: 1px solid #222; display: flex; flex-direction: column; text-align: left; margin-top: 1rem; }
     .e-header { padding: 0.5rem; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 0.25rem; background: #0a0a0a; }
     .e-row { font-size: 0.6rem; display: flex; align-items: center; }
@@ -432,7 +432,7 @@ import { FormsModule } from '@angular/forms';
     .spam-score { font-size: 0.6rem; color: #ff0000; font-weight: bold; }
     .spam-score.high-score { color: #00ff00; }
     
-    .mitm-game { width: 100%; max-width: 400px; height: 200px; position: relative; overflow: hidden; background: #000; border: 1px solid #111; }
+    .mitm-game { width: 100%; max-width: 100%; height: 200px; position: relative; overflow: hidden; background: #000; border: 1px solid #111; }
     .packet-stream { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     .packet { position: absolute; padding: 0.25rem 0.5rem; font-size: 0.5rem; background: #050505; border: 1px solid #222; color: #444; cursor: crosshair; user-select: none; transition: transform 0.1s; }
     .packet:hover { transform: scale(1.1); border-color: #fff; color: #fff; }
@@ -455,7 +455,7 @@ import { FormsModule } from '@angular/forms';
     .qubit-path .controls { position: absolute; right: -80px; top: -5px; display: flex; gap: 5px; }
     .qubit-path button { padding: 4px 8px; font-size: 0.5rem; background: #002222; border-color: #00ffff; color: #00ffff; }
 
-    .node-map { width: 300px; height: 200px; background: #050505; border: 1px solid #111; position: relative; overflow: hidden; margin: 1rem auto; }
+    .node-map { width: 100%; max-width: 300px; aspect-ratio: 3/2; height: auto; background: #050505; border: 1px solid #111; position: relative; overflow: hidden; margin: 1rem auto; }
     .iot-node { position: absolute; width: 30px; height: 30px; border: 1px solid #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; color: #888; cursor: pointer; transition: all 0.2s; background: #000; }
     .iot-node.active { border-color: #00ff00; color: #00ff00; box-shadow: 0 0 10px #0f0; }
     .iot-node.linked { background: #004400; color: #fff; border-color: #00ff00; }
@@ -471,7 +471,7 @@ import { FormsModule } from '@angular/forms';
     .graph-line { position: absolute; bottom: 0; left: 0; width: 100%; background: #00ff00; opacity: 0.3; transition: height 0.1s linear; }
     .sell-zone { position: absolute; left: 0; width: 100%; background: rgba(255,0,255,0.1); border-top: 1px dashed #f0f; border-bottom: 1px dashed #f0f; }
 
-    .sat-orbits { display: flex; gap: 2rem; justify-content: center; margin-top: 1.5rem; }
+    .sat-orbits { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
     .orbit { position: relative; width: 80px; height: 80px; border: 1px solid #111; border-radius: 50%; display: flex; flex-direction: column; align-items: center; }
     .satellite { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; background: #fff; box-shadow: 0 0 10px #fff; transform-origin: 0 40px; transition: transform 0.5s ease; }
     .orbit button { position: absolute; bottom: -35px; white-space: nowrap; font-size: 0.45rem; padding: 4px; }
