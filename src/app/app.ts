@@ -289,9 +289,15 @@ import { CommonModule } from '@angular/common';
     .sector-panel {
       background: var(--layer-1);
       height: 100%;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
+      min-height: 0;
+    }
+
+    .sector-panel > * {
+       flex-grow: 1;
+       overflow-y: auto;
+       min-height: 0;
     }
 
     .sub-split {

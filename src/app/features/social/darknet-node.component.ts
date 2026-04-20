@@ -100,7 +100,14 @@ import { FormsModule } from '@angular/forms';
     }
   `,
   styles: `
-    .darknet-container { background: var(--layer-1); padding: 1rem; margin-bottom: 1rem; box-shadow: var(--neon-shadow); }
+    .darknet-container { 
+      background: var(--layer-1); 
+      padding: 1rem; 
+      margin-bottom: 1rem; 
+      box-shadow: var(--neon-shadow); 
+      height: 100%;
+      overflow-y: auto;
+    }
     .darknet-header { display: flex; justify-content: space-between; align-items: center; background: var(--layer-2); padding: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
     .title { font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; color: var(--primary); letter-spacing: 3px; font-weight: 900; }
     .pulse { color: var(--secondary); animation: blink 1s steps(2) infinite; font-size: 0.6rem; font-weight: 900; }

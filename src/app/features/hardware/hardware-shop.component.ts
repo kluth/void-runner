@@ -96,6 +96,7 @@ import { FormsModule } from '@angular/forms';
       flex-direction: column;
       gap: 1.5rem;
       position: relative;
+      overflow-y: auto;
     }
 
     .shop-header {
