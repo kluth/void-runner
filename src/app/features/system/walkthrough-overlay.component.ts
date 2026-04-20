@@ -156,37 +156,37 @@ export class WalkthroughOverlayComponent {
     },
     {
       title: 'THE TERMINAL',
-      content: 'This is your primary interface. Type commands to interact with the grid. Try <code>help</code> to see available binaries, or <code>ask [message]</code> to talk to me directly.',
+      content: 'This is your primary interface. Type commands to interact with the grid. Try <code>help</code> to see available binaries, or <code>ask [message]</code> to talk to me directly. You can use <code>sync</code> to force a neural handshake.',
       selector: 'TERMINAL'
     },
     {
       title: 'RETALIATION & HIJACKS',
-      content: 'Keep your TRACE low. If it reaches 100%, expect retaliation. Beware of <b>Unknown Overrides</b> (Hijacks). If hijacked, listen to the AI: it will pose a <b>riddle or math puzzle</b>. The solution is your purge key.',
+      content: 'Keep your TRACE low. If it reaches 100%, expect retaliation. Beware of <b>Unknown Overrides</b> (Hijacks). If hijacked, wait for the Neural Debugger hint or use <b>FORCE_PURGE</b> to buy your way out.',
       selector: 'STATS'
     },
     {
-      title: 'GLOBAL GRID & GEOLOCATION',
-      content: 'Monitor global events and coordinate attacks on the 3D globe. Your physical location is being spoofed in real-time.',
+      title: 'GLOBAL GRID & REAL-WORLD SYNC',
+      content: 'Monitor global events and coordinate attacks. The grid is hardlinked to the physical world: stock manipulation relies on live crypto prices, and high-stakes <b>PATCH_TUESDAY</b> events only occur on actual Tuesdays.',
       selector: 'GLOBE'
     },
     {
       title: 'MISSIONS & CONTRACTS',
-      content: 'Browse active contracts. Be careful: higher difficulty missions increase your TRACE level faster. Some missions require specialized hardware like <b>Satellite Uplinks</b>.',
+      content: 'Browse procedurally generated contracts. The era of passive hacking is over: you must actively execute breaches using Memory Hex Editors, Packet Sniffers, and Qubit Stabilizers.',
       selector: 'MISSIONS'
     },
     {
       title: 'SOCIAL NETWORK',
-      content: 'Access the Darknet Node, join Syndicates, and communicate with other runners once your reputation reaches 1000.',
+      content: 'Access the Darknet Node, join Syndicates, and communicate with other runners once your reputation reaches 1000. Your identity on the leaderboard is permanently masked behind a legendary alias.',
       selector: 'SOCIAL'
     },
     {
-      title: 'HARDWARE SHOP',
-      content: 'Access physical modules here. Buy WiFi Pineapples, Flipper Zeros, and more. Advanced gear like <b>Neural Coprocessors</b> provide critical passive bonuses.',
+      title: 'TACTICAL RIG INTERFACE',
+      content: 'Access the Black Market to acquire hardware. You must manually <b>MOUNT</b> modules into your 6 expansion slots. Watch your Neural Load (NW): exceeding 100 NW will cause a critical power failure.',
       selector: 'HARDWARE'
     },
     {
       title: 'FINAL ADVICE',
-      content: 'Keep your system integrity high. If it drops too low, you may become vulnerable to <b>Unknown Overrides</b>. Use <code>wipe</code> to purge your logs regularly. Good luck, operative.',
+      content: 'Keep your system integrity high. Use <code>wipe</code> to purge your logs regularly, or simply go offline to let your heat naturally dissipate. Good luck, operative.',
       selector: 'STATS'
     }
   ];

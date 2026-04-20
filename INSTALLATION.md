@@ -1,4 +1,4 @@
-# VOID_RUNNER: System Deployment Guide (v2.1 - The Singularity Expansion)
+# VOID_RUNNER: System Deployment Guide (v3.0 - Singularity Overdrive & Real-World Expansion)
 
 Follow these protocols to establish your node on the Global Net. This guide is optimized for deployment on a Hostinger VPS or any standard Linux server.
 
@@ -42,15 +42,15 @@ This command initializes three critical sectors:
 
 ## 3. The Neural Handshake (Final Configuration)
 
-Once the stack is online, the system enters **"Honey Pot" Mode**.
+The grid enforces absolute identity verification via Google OAuth. To activate your workstation, you must supply these keys.
 
 1.  **Access the Terminal:** Open your browser and navigate to your VPS IP address or domain.
-2.  **Trigger Initialization:** Navigate to the **Black Market** (Hardware Shop) and attempt to purchase any module.
-3.  **System Initialization Wizard:**
+2.  **System Initialization Wizard:**
     - The `app-config-wizard` will lock your interface.
     - Enter your production `JWT_SECRET` and `SESSION_SECRET`.
-    - (Optional) Enter your OAuth Provider keys for syndicate authentication.
-4. **Finalize Build:** Click **FINALIZE_SYSTEM_BUILD**. The server will:
+    - **CRITICAL:** Provide your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (generated from Google Cloud Console with the redirect URI `https://<your-domain>/api/auth/google/callback`).
+    - Provide your `FRONTEND_URL` (e.g., `https://void.kluth.cloud`).
+3. **Finalize Build:** Click **FINALIZE_SYSTEM_BUILD**. The server will:
     - Save keys to the persistent SQLite database (`dev.db`).
     - Sync keys directly to the host's `.env` file.
     - Reload the neural link.
@@ -77,7 +77,7 @@ If the primary Gemini CLI uplink is unstable, you can utilize **Nexos AI** credi
 | :--- | :--- |
 | **View Uplink Logs** | `docker-compose logs -f backend` |
 | **Shut Down Stack** | `docker-compose down` |
-| **System Update** | `git pull && docker-compose up -d --build` |
+| **System Update** | `git pull && docker compose run --rm backend npx prisma db push && docker-compose up -d --build` |
 | **Purge Database** | `rm server/prisma/dev.db && docker-compose restart backend` |
 
 ---
