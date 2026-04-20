@@ -68,10 +68,35 @@ export class AiService {
     return res;
   }
 
-  async generateMission(level: number, type: string): Promise<string> {
-    const prompt = `Generate a short (10 words) cryptic mission description for a level ${level} ${type} hacking contract. Focus on corporate espionage.`;
-    const res = await this.callAi(prompt, 50);
-    return res.response || `Standard protocol for ${type} in sector ${level}.`;
+  async generateMission(level: number, type: string): Promise<{name: string, description: string, subType?: string, config?: any}> {
+    const prompt = `You are the GRID_ARCHITECT. Generate a high-fidelity hacking mission.
+    TYPE: ${type}
+    LEVEL: ${level}
+    
+    REFERENCE_CONCEPTS: OSCP, MITRE ATT&CK, OWASP, Neuromancer, Mr. Robot.
+    
+    TASK: Return a JSON object for a unique contract:
+    {
+      "name": "Action-packed name (e.g. OPERATION_GOLDEN_TICKET)",
+      "description": "Short cryptic mission briefing (max 12 words)",
+      "subType": "Specific technique (e.g. Kerberoasting, SSRF, AS-REP Roasting)",
+      "config": { "difficulty": ${level}, "nodes": 5, "protocol": "AES-256" }
+    }
+    Ensure technical accuracy.`;
+
+    try {
+        const res = await this.callAi(prompt, 150);
+        const match = res.response.match(/\{.*\}/s);
+        if (match) {
+            return JSON.parse(match[0]);
+        }
+    } catch (e) {}
+
+    return { 
+        name: `OP_${type.toUpperCase()}_${Math.floor(Math.random()*999)}`,
+        description: `Standard protocol for ${type} in sector ${level}.`,
+        subType: 'GENERIC_EXPLOIT'
+    };
   }
 
   async generateNews(recentEvents: string[]): Promise<string> {

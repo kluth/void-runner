@@ -50,6 +50,9 @@ import { FormsModule } from '@angular/forms';
         <div class="active-mission-view">
           <div class="active-header">
             <span class="blink">●</span> EXECUTING_PAYLOAD: {{ activeMission()?.name }}
+            @if (activeMission()?.subType) {
+              <div class="technique-label">TECHNIQUE: {{ activeMission()?.subType }}</div>
+            }
           </div>
           
           <div class="mini-game-container">
@@ -368,6 +371,7 @@ import { FormsModule } from '@angular/forms';
 
     .active-mission-view { text-align: center; }
     .active-header { font-size: 0.7rem; color: #00ff00; margin-bottom: 1rem; }
+    .technique-label { font-size: 0.5rem; color: #00ffff; font-weight: bold; margin-top: 4px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(0,255,255,0.3); }
     .blink { animation: blink 1s infinite; color: #ff0000; margin-right: 5px; }
     @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 

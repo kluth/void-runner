@@ -3,6 +3,7 @@ import { prisma } from './db.service';
 import { vectorService } from './vector.service';
 import { configService } from './config.service';
 import { profilerService } from './profiler.service';
+import { aiService } from './ai.service';
 import { realWorldService } from './realworld.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -339,6 +340,28 @@ export class GameService {
     }).then(msgs => msgs.reverse());
   }
 
+  async addRandomMission() {
+    const types = ['port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign', 'mitm-attack', 'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering', 'stock-manipulation', 'dark-web-hit', 'satellite-hacking'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    
+    // Procedural Generation via AI
+    const aiData = await realWorldService.sync().then(() => aiService.generateMission(this.state.globalEvent !== 'NONE' ? 5 : 1, type));
+
+    const mission = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: aiData.name,
+      target: aiData.description,
+      type: type,
+      subType: aiData.subType,
+      config: JSON.stringify(aiData.config),
+      difficulty: Math.floor(Math.random() * 5) + 1,
+      reward: Math.floor(Math.random() * 500) + 100,
+      isHoneypot: Math.random() > 0.95
+    };
+    
+    if (this.io) this.io.emit('new_mission', mission);
+  }
+
   private async getTeams() {
     return prisma.team.findMany({
       include: { _count: { select: { members: true } } }
@@ -375,6 +398,7 @@ export class GameService {
       if (Date.now() % 60000 < 1000) {
           const state = await realWorldService.sync();
           if (this.io) this.io.emit('real_world_update', state);
+          this.addRandomMission(); // Add a mission synced with real-world news
       }
 
       // Global Event Logic
