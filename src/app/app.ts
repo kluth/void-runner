@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { GameService } from './core/services/game.service';
 import { AudioService } from './core/services/audio.service';
 import { StreamerIntegrationService } from './core/services/streamer-integration.service';
@@ -58,6 +58,8 @@ import { CommonModule } from '@angular/common';
     AssetVaultComponent
   ],
   template: `
+    <h1 class="sr-only">VOID_RUN Protocol - High Density Operational Interface</h1>
+
     @if (!gameService.isConfigured()) {
       <app-config-wizard />
     }
@@ -67,11 +69,11 @@ import { CommonModule } from '@angular/common';
     }
 
     @if (gameService.authRequired()) {
-      <app-auth class="glass-overlay" />
+      <app-auth class="glass-overlay" role="dialog" aria-modal="true" />
     }
 
     @if (gameService.matrixMode()) {
-      <app-matrix-rain />
+      <app-matrix-rain aria-hidden="true" />
     }
 
     <app-intrusion-overlay />
@@ -82,47 +84,57 @@ import { CommonModule } from '@angular/common';
     <div class="game-wrapper" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
          [class.trace-high-glitch]="gameService.detectionLevel() > 70"
-         [class.walkthrough-active]="gameService.tutorialActive()">
+         [class.walkthrough-active]="gameService.tutorialActive()"
+         [class.mobile-sidebar-open]="mobileSidebarOpen()">
          
-      <header class="hud-panel" [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'">
-        <div class="noise-data" style="top:4px; left:6px;">0x00219FF</div>
+      <!-- HUD HEADER -->
+      <header class="hud-panel" [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'" role="banner">
+        <div class="noise-data" style="top:4px; left:6px;" aria-hidden="true">0x00219FF</div>
         
         <div class="logo-group">
           <div class="logo glitch-title" data-text="VOID_RUN">VOID_RUN</div>
-          <div class="version">// PROTOCOL_OS_v4.0_STABLE</div>
+          <div class="version" aria-label="Protocol Version 4.0 Stable">// PROTOCOL_OS_v4.0_STABLE</div>
         </div>
         
-        <nav class="tactical-tabs">
+        <nav class="tactical-tabs" role="tablist" aria-label="Primary Sectors">
           @for (tab of ['TERMINAL', 'MISSIONS', 'HARDWARE', 'GRID', 'SOCIAL']; track tab) {
-            <button (click)="gameService.clearTabNotification(tab)" 
+            <button role="tab"
+                    [attr.aria-selected]="gameService.activeTab() === tab"
+                    (click)="gameService.clearTabNotification(tab)" 
                     [class.active]="gameService.activeTab() === tab"
                     [class.notified]="gameService.tabNotifications()[tab] > 0">
+              <span class="sr-only">Switch to </span>
               [ 0x_{{ tab.substring(0,4) }} ]
               @if (gameService.tabNotifications()[tab] > 0) {
-                <span class="badge">{{ gameService.tabNotifications()[tab] }}</span>
+                <span class="badge" aria-label="{{ gameService.tabNotifications()[tab] }} new notifications">{{ gameService.tabNotifications()[tab] }}</span>
               }
             </button>
           }
         </nav>
 
-        <div class="stats-monolith">
+        <div class="stats-monolith" aria-label="System Statistics">
           <div class="stat-unit">
             <span class="label">CREDITS</span>
-            <span class="value">{{ gameService.credits() }}</span>
+            <span class="value" [attr.aria-label]="gameService.credits() + ' credits'">{{ gameService.credits() }}</span>
           </div>
           <div class="stat-unit">
             <span class="label">REP</span>
-            <span class="value" style="color: var(--secondary)">{{ gameService.reputation() }}</span>
+            <span class="value" style="color: var(--secondary)" [attr.aria-label]="gameService.reputation() + ' reputation'">{{ gameService.reputation() }}</span>
           </div>
           <div class="stat-unit" [class.danger]="gameService.detectionLevel() > 60">
             <span class="label">TRACE</span>
-            <span class="value">{{ gameService.detectionLevel() }}%</span>
+            <span class="value" [attr.aria-label]="gameService.detectionLevel() + ' percent trace detection'">{{ gameService.detectionLevel() }}%</span>
           </div>
         </div>
+
+        <button class="mobile-sidebar-toggle" (click)="toggleMobileSidebar()" [attr.aria-expanded]="mobileSidebarOpen()" aria-controls="sidebar-sector">
+           [ 0x_TELEMETRY ]
+        </button>
       </header>
 
+      <!-- MAIN OPERATIONAL GRID -->
       <main class="operational-grid">
-        <div class="primary-sector">
+        <div class="primary-sector" role="main">
           @switch (gameService.activeTab()) {
             @case ('TERMINAL') {
               <div class="sector-panel terminal-wrapper">
@@ -162,24 +174,24 @@ import { CommonModule } from '@angular/common';
           }
         </div>
 
-        <div class="secondary-sector sidebar">
+        <aside id="sidebar-sector" class="secondary-sector sidebar" [class.visible]="mobileSidebarOpen()" role="complementary">
           <div class="hud-panel-nested telemetry-card">
-            <div class="noise-data" style="bottom:4px; right:6px;">LOG_STREAM_CONNECTED</div>
-            <div class="sec-title">SYSTEM_TELEMETRY</div>
+            <div class="noise-data" style="bottom:4px; right:6px;" aria-hidden="true">LOG_STREAM_CONNECTED</div>
+            <h2 class="sec-title">SYSTEM_TELEMETRY</h2>
             <app-system-integrity />
           </div>
           
           <div class="hud-panel-nested events-card">
-            <div class="sec-title">GLOBAL_NET_EVENTS</div>
+            <h2 class="sec-title">GLOBAL_NET_EVENTS</h2>
             <app-live-events />
           </div>
 
           <div class="hud-panel-nested inventory-card">
-            <div class="sec-title">INSTALLED_MODULES</div>
+            <h2 class="sec-title">INSTALLED_MODULES</h2>
             <div class="module-list">
                @for (item of gameService.inventory(); track $index) {
                   <div class="module-item">
-                     <span class="m-code">[M_{{ $index }}]</span>
+                     <span class="m-code" aria-hidden="true">[M_{{ $index }}]</span>
                      <span class="m-name">{{ item.name }}</span>
                   </div>
                } @empty {
@@ -187,11 +199,12 @@ import { CommonModule } from '@angular/common';
                }
             </div>
           </div>
-        </div>
+          <button class="mobile-close-sidebar" (click)="mobileSidebarOpen.set(false)">CLOSE_TELEMETRY</button>
+        </aside>
       </main>
 
-      <footer class="system-footer">
-        <div class="status-group">
+      <footer class="system-footer" role="contentinfo">
+        <div class="status-group" aria-label="System Uplink Status">
           UPLINK: <span class="active-val">CONNECTED_72.61.80.234</span> | 
           CORE: <span class="active-val">STABLE</span> | 
           HANDSHAKE: <span class="active-val">VERIFIED</span>
@@ -212,25 +225,27 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       height: 100%;
-      padding: 1.5rem;
-      gap: 1.5rem;
+      padding: var(--spacing-md);
+      gap: var(--spacing-md);
       position: relative;
+      transition: transform 0.3s steps(4);
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 2rem;
+      padding: 1rem 1.5rem;
       background: var(--layer-2);
       flex-shrink: 0;
       z-index: 100;
-      gap: 3rem;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
     }
 
     .logo-group { flex-shrink: 0; }
     .logo { 
-      font-size: 2rem; 
+      font-size: var(--font-size-lg); 
       font-weight: 900; 
       color: var(--primary); 
       letter-spacing: -0.05em; 
@@ -242,20 +257,24 @@ import { CommonModule } from '@angular/common';
       gap: 4px;
       flex-grow: 1;
       justify-content: center;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
+    .tactical-tabs::-webkit-scrollbar { display: none; }
 
     .tactical-tabs button {
       background: var(--layer-3);
       border: var(--ghost-border);
       color: var(--primary);
       opacity: 0.5;
-      padding: 14px 20px;
+      padding: 10px 14px;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.7rem;
+      font-size: var(--font-size-xs);
       font-weight: 900;
       cursor: pointer;
       position: relative;
       transition: all 0.05s steps(2);
+      white-space: nowrap;
     }
 
     .tactical-tabs button.active {
@@ -266,16 +285,16 @@ import { CommonModule } from '@angular/common';
       transform: translateY(-2px);
     }
 
-    .stats-monolith { display: flex; gap: 2.5rem; }
+    .stats-monolith { display: flex; gap: var(--spacing-md); }
     .stat-unit { display: flex; flex-direction: column; align-items: flex-end; }
     .stat-unit .label { font-size: 0.5rem; color: var(--primary); opacity: 0.4; font-weight: 900; letter-spacing: 1px; }
-    .stat-unit .value { font-size: 1.1rem; font-weight: 900; color: #fff; font-family: 'JetBrains Mono', monospace; }
+    .stat-unit .value { font-size: var(--font-size-sm); font-weight: 900; color: #fff; font-family: 'JetBrains Mono', monospace; }
     .stat-unit.danger .value { color: var(--tertiary); animation: flicker 0.1s infinite; }
 
     .operational-grid {
       display: grid;
       grid-template-columns: 1.25fr 0.75fr;
-      gap: 1.5rem;
+      gap: var(--spacing-md);
       flex-grow: 1;
       min-height: 0;
     }
@@ -302,21 +321,20 @@ import { CommonModule } from '@angular/common';
 
     .sub-split {
        display: grid;
-       grid-template-columns: 1fr 1fr;
-       gap: 1rem;
+       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+       gap: var(--spacing-md);
        margin-top: 1rem;
     }
 
     .secondary-sector {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: var(--spacing-md);
       overflow-y: auto;
       min-height: 0;
     }
 
     .sec-title {
-      font-family: 'Space Grotesk', sans-serif;
       font-size: 0.65rem;
       font-weight: 900;
       color: var(--primary);
@@ -346,18 +364,63 @@ import { CommonModule } from '@angular/common';
     .system-footer {
       display: flex;
       justify-content: space-between;
-      padding: 1rem 1.5rem;
+      padding: 0.75rem 1rem;
       background: var(--layer-0);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.55rem;
       color: var(--primary);
       opacity: 0.4;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .active-val { color: var(--secondary); font-weight: 900; }
 
+    .mobile-sidebar-toggle, .mobile-close-sidebar { display: none; }
+
+    /* RESPONSIVE OVERRIDES */
     @media (max-width: 1200px) {
       .operational-grid { grid-template-columns: 1fr; }
-      .secondary-sector { display: none; }
+      .secondary-sector:not(.visible) { display: none; }
+      
+      .mobile-sidebar-toggle {
+         display: block;
+         background: var(--layer-4);
+         color: var(--secondary);
+         font-size: 0.6rem;
+         padding: 8px 12px;
+      }
+
+      .secondary-sector.sidebar.visible {
+         display: flex;
+         position: fixed;
+         top: 0; right: 0;
+         width: 100%; height: 100dvh;
+         background: var(--layer-1);
+         z-index: 1000;
+         padding: 2rem;
+         animation: slide-in 0.3s steps(4);
+      }
+
+      @keyframes slide-in {
+         from { transform: translateX(100%); }
+         to { transform: translateX(0); }
+      }
+
+      .mobile-close-sidebar {
+         display: block;
+         margin-top: auto;
+         background: var(--tertiary);
+         color: #fff;
+         border: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+       header { flex-direction: column; align-items: stretch; text-align: center; }
+       .logo-group { margin-bottom: 10px; }
+       .stats-monolith { justify-content: space-between; order: -1; margin-bottom: 15px; }
+       .tactical-tabs { width: 100%; justify-content: flex-start; padding-bottom: 5px; }
+       .mobile-sidebar-toggle { width: 100%; margin-top: 10px; }
     }
   `
 })
@@ -367,6 +430,8 @@ export class AppComponent implements OnInit {
   streamerService = inject(StreamerIntegrationService);
   private route = inject(ActivatedRoute);
 
+  mobileSidebarOpen = signal(false);
+
   ngOnInit() {
     this.route.queryParamMap.subscribe(params => {
         const token = params.get('token');
@@ -374,5 +439,10 @@ export class AppComponent implements OnInit {
             this.gameService.handleOAuthToken(token);
         }
     });
+  }
+
+  toggleMobileSidebar() {
+     this.mobileSidebarOpen.update(v => !v);
+     this.audioService.playClick();
   }
 }

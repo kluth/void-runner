@@ -46,6 +46,14 @@ export interface SoftwarePackage {
   installed: boolean;
 }
 
+export interface Node {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  country: string;
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -53,6 +61,15 @@ export interface Team {
   bonus?: string;
   reqRep?: number;
   _count?: { members: number };
+}
+
+export interface VisualEvent {
+  id: string;
+  lat: number;
+  lng: number;
+  type: 'pulse' | 'burst' | 'attack' | 'uplink';
+  color: string;
+  duration: number;
 }
 
 export interface GameSettings {
@@ -133,6 +150,8 @@ export interface Mission {
   target: string;
   difficulty: number;
   reward: number;
+  lat: number;
+  lng: number;
   type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'mitm-attack' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering' | 'physical-infiltration' | 'drone-hijacking' | 'stock-manipulation' | 'dark-web-hit' | 'corporate-espionage' | 'undersea-tap' | 'satellite-hacking' | 'bgp-hijacking' | 'election-interference' | 'hacker-takedown';
   subType?: string;
   config?: string; // JSON
@@ -237,7 +256,18 @@ export class GameService {
 
   activeTab = signal('TERMINAL');
 
+  visualEvents = signal<VisualEvent[]>([]);
+
   private wakeLock: any = null;
+
+  triggerVisualEvent(lat: number, lng: number, type: VisualEvent['type'], color: string = '#0df2f2') {
+    const id = Math.random().toString(36).substring(7);
+    const event: VisualEvent = { id, lat, lng, type, color, duration: 2000 };
+    this.visualEvents.update(evs => [...evs, event]);
+    setTimeout(() => {
+      this.visualEvents.update(evs => evs.filter(e => e.id !== id));
+    }, event.duration);
+  }
 
   // Core State
   credits = signal(500);
@@ -845,6 +875,9 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.commandHistory.update(h => [...h, cmd].slice(-50));
     this.log(`<span style="color: var(--primary)">${this.playerHandle()}@void:~$ ${cmd}</span>`);
     
+    // Default pulse for command feedback
+    this.triggerVisualEvent(52.52, 13.40, 'pulse');
+    
     const parts = cmd.toLowerCase().split(' ');
     const base = parts[0];
 
@@ -1138,6 +1171,8 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       id: Math.random().toString(36).substring(7),
       name: `OP_${type.replace(/-/g, '_').toUpperCase()}`,
       target, difficulty, reward, type,
+      lat: (Math.random() * 140) - 70, // -70 to 70
+      lng: (Math.random() * 360) - 180, // -180 to 180
       isHoneypot: Math.random() < 0.15,
       isEntryPoint: Math.random() < 0.20
     };
@@ -1259,6 +1294,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.log('<span style="color: #ffaa00">SECURE_SAVE: Connection unstable. Authenticate to sync neural progress.</span>');
       return;
     }
+
+    // Trigger visual burst at mission location
+    this.triggerVisualEvent(mission.lat, mission.lng, 'burst', '#2ff801');
+    
     let r = mission.reward;
     let e = mission.difficulty * 25;
     let rep = Math.floor(mission.difficulty * 1.5);
@@ -1509,6 +1548,12 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.botnetSize.update(b => b - Math.floor(b * 0.5));
       this.detectionLevel.update(d => Math.max(0, d - 40));
       this.log('DDoS LAUNCHED.');
+
+      // Multiple random bursts
+      for(let i=0; i<5; i++) {
+        this.triggerVisualEvent((Math.random()*140)-70, (Math.random()*360)-180, 'attack', '#c10014');
+      }
+
       this.updateRemoteScore();
       return true;
     }
@@ -1520,6 +1565,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.botnetSize.update(b => b - 15);
       this.activeRansoms.update(r => r + 1);
       this.log('RANSOMWARE DEPLOYED.');
+
+      // Trigger visual attack
+      this.triggerVisualEvent((Math.random()*140)-70, (Math.random()*360)-180, 'attack', '#ffaa00');
+
       this.updateRemoteScore();
       return true;
     }

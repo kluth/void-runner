@@ -1,13 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { GameService } from './game.service';
-
-export interface Node {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  country: string;
-}
+import { GameService, Node } from './game.service';
 
 @Injectable({
   providedIn: 'root'
