@@ -50,35 +50,67 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
   styles: `
-    .terminal-container { background: #050505; border: 1px solid #00ff00; height: 100%; display: flex; flex-direction: column; font-family: 'JetBrains Mono', monospace; box-shadow: 0 0 20px rgba(0, 255, 0, 0.05); }
-    .terminal-header { background: #00ff00; color: #000; padding: 4px 10px; display: flex; justify-content: space-between; font-size: 0.6em; font-weight: bold; }
-    .terminal-body { flex-grow: 1; padding: 15px; overflow-y: auto; color: #fff; display: flex; flex-direction: column; }
-    .log-line { font-size: 0.7rem; margin-bottom: 0.25rem; display: flex; gap: 10px; }
-    .log-line.glitch-error { animation: line-glitch 0.2s 3; color: #ff0000 !important; text-shadow: 0 0 5px #f00; }
+    .terminal-container { 
+      background: var(--layer-0); 
+      border: var(--ghost-border); 
+      height: 100%; 
+      display: flex; 
+      flex-direction: column; 
+      font-family: 'JetBrains Mono', monospace; 
+      box-shadow: var(--neon-shadow);
+      border-radius: 0px;
+    }
+    .terminal-header { 
+      background: rgba(0, 255, 0, 0.05); 
+      backdrop-filter: var(--glass-filter);
+      color: var(--matrix-green); 
+      padding: 10px 16px; 
+      display: flex; 
+      justify-content: space-between; 
+      font-size: 0.65rem; 
+      font-weight: 900;
+      border-bottom: var(--ghost-border);
+      letter-spacing: 2px;
+    }
+    .terminal-body { flex-grow: 1; padding: 24px; overflow-y: auto; color: #fff; display: flex; flex-direction: column; background-image: radial-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px); background-size: 30px 30px; }
+    .log-line { font-size: 0.75rem; margin-bottom: 0.5rem; display: flex; gap: 14px; line-height: 1.6; }
+    .log-line.glitch-error { animation: line-glitch 0.2s 3; color: var(--critical-error) !important; text-shadow: 0 0 10px var(--critical-error); }
     
     @keyframes line-glitch {
         0% { transform: translateX(0); }
-        20% { transform: translateX(-5px); filter: hue-rotate(90deg); }
-        40% { transform: translateX(5px); }
-        60% { transform: translateX(-2px); filter: contrast(2); }
-        80% { transform: translateX(2px); }
+        20% { transform: translateX(-6px); filter: hue-rotate(90deg); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-3px); filter: contrast(1.5); }
+        80% { transform: translateX(3px); }
         100% { transform: translateX(0); }
     }
-    .timestamp { color: #008800; min-width: 70px; }
-    .message { line-height: 1.4; word-break: break-all; }
-    .input-line { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
-    .prompt { color: #00ff00; font-size: clamp(0.6rem, 2vw, 0.7rem); font-weight: bold; white-space: nowrap; }
-    input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: clamp(0.6rem, 2vw, 0.7rem); flex-grow: 1; outline: none; min-width: 100px; }
+    .timestamp { color: #006600; min-width: 90px; opacity: 0.5; font-size: 0.65rem; font-weight: 700; }
+    .message { word-break: break-all; }
+    .input-line { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.5rem; border-top: 1px solid rgba(0,255,0,0.05); padding-top: 1.5rem; }
+    .prompt { color: var(--matrix-green); font-size: 0.75rem; font-weight: 900; white-space: nowrap; }
+    input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: 0.75rem; flex-grow: 1; outline: none; caret-color: var(--matrix-green); }
     input:disabled { opacity: 0.5; cursor: wait; }
 
-    .mobile-send { background: #004400; border: 1px solid #00ff00; color: #00ff00; font-family: inherit; font-size: 0.6rem; padding: 4px 10px; cursor: pointer; }
-    .mobile-shortcuts { display: flex; gap: 5px; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
-    .mobile-shortcuts button { background: rgba(0, 255, 0, 0.1); border: 1px solid #004400; color: #00ff00; padding: 8px 15px; font-family: inherit; font-size: 0.6rem; font-weight: bold; cursor: pointer; border-radius: 4px; white-space: nowrap; }
-    .mobile-shortcuts button:active { background: #00ff00; color: #000; }
+    .mobile-send { background: var(--layer-1); border: var(--ghost-border); color: var(--matrix-green); font-family: inherit; font-size: 0.65rem; padding: 8px 16px; cursor: pointer; font-weight: 900; letter-spacing: 1px; }
+    .mobile-shortcuts { display: flex; gap: 10px; margin-top: 24px; overflow-x: auto; padding-bottom: 12px; flex-shrink: 0; }
+    .mobile-shortcuts button { 
+        background: var(--layer-1); 
+        border: var(--ghost-border); 
+        color: var(--tactical-cyan); 
+        padding: 12px 24px; 
+        font-family: inherit; 
+        font-size: 0.65rem; 
+        font-weight: 900; 
+        cursor: pointer; 
+        border-radius: 0px; 
+        white-space: nowrap; 
+        transition: all 0.05s step-end;
+    }
+    .mobile-shortcuts button:active { background: var(--matrix-green); color: var(--layer-0); box-shadow: var(--neon-shadow); }
 
     .terminal-body::-webkit-scrollbar { width: 4px; }
-    .terminal-body::-webkit-scrollbar-track { background: #000; }
-    .terminal-body::-webkit-scrollbar-thumb { background: #004400; }
+    .terminal-body::-webkit-scrollbar-track { background: var(--layer-0); }
+    .terminal-body::-webkit-scrollbar-thumb { background: var(--layer-2); }
   `
 })
 export class TerminalComponent implements AfterViewChecked {
