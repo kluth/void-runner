@@ -255,11 +255,26 @@ export class TerminalComponent implements AfterViewChecked {
     'The answer to the riddle is your SYNC_CODE. Enter it into the overlay to purge the entity.'
 ],
 'tutorial': [
-    'NAME: tutorial - initiate neural walkthrough',
-    'DESCRIPTION: Triggers the onboard AI guide to explain workstation interfaces.'
+'NAME: tutorial - initiate neural walkthrough',
+'DESCRIPTION: Triggers the onboard AI guide to explain workstation interfaces.'
+],
+'threats': [
+    'NAME: threats - access the global threat database',
+    'DESCRIPTION: Displays known corporate and syndicate adversaries.'
+],
+'bounties': [
+    'NAME: bounties - access the bounty board',
+    'DESCRIPTION: View high-reward contracts for elite hackers.'
+],
+'overclock': [
+    'NAME: overclock - access the hardware tuning station',
+    'DESCRIPTION: Optimize your mounted modules for peak performance.'
+],
+'vault': [
+    'NAME: vault - access the asset storage',
+    'DESCRIPTION: Manage artifacts and zero-day exploits.'
 ]
 };
-
   constructor() {
     this.gameService.socket.on('dossier_data', (data: { dossier: string }) => {
         this.gameService.log('--- OPERATIVE_DOSSIER_DECRYPTED ---');
@@ -560,6 +575,31 @@ export class TerminalComponent implements AfterViewChecked {
       case 'tutorial':
         this.gameService.tutorialActive.set(true);
         this.gameService.log('NEURAL_LINK: Initializing tutorial overlay...');
+        this.audioService.playClick();
+        break;
+
+      case 'threats':
+      case 'threat-db':
+        this.gameService.activeTab.set('MISSIONS');
+        this.gameService.log('UPLINK: Accessing THREAT_DATABASE...');
+        this.audioService.playClick();
+        break;
+
+      case 'bounties':
+        this.gameService.activeTab.set('MISSIONS');
+        this.gameService.log('UPLINK: Accessing BOUNTY_BOARD...');
+        this.audioService.playClick();
+        break;
+
+      case 'overclock':
+        this.gameService.activeTab.set('HARDWARE');
+        this.gameService.log('UPLINK: Accessing OVERCLOCK_STATION...');
+        this.audioService.playClick();
+        break;
+
+      case 'vault':
+        this.gameService.activeTab.set('HARDWARE');
+        this.gameService.log('UPLINK: Accessing ASSET_VAULT...');
         this.audioService.playClick();
         break;
 

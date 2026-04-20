@@ -22,6 +22,10 @@ import { AuthComponent } from './features/system/auth.component';
 import { BootScreenComponent } from './features/system/boot-screen.component';
 import { ConfigWizardComponent } from './features/system/config-wizard.component';
 import { WalkthroughOverlayComponent } from './features/system/walkthrough-overlay.component';
+import { ThreatDatabaseComponent } from './features/missions/threat-database.component';
+import { BountyBoardComponent } from './features/missions/bounty-board.component';
+import { OverclockStationComponent } from './features/hardware/overclock-station.component';
+import { AssetVaultComponent } from './features/hardware/asset-vault.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -47,7 +51,11 @@ import { CommonModule } from '@angular/common';
     AuthComponent,
     BootScreenComponent,
     ConfigWizardComponent,
-    WalkthroughOverlayComponent
+    WalkthroughOverlayComponent,
+    ThreatDatabaseComponent,
+    BountyBoardComponent,
+    OverclockStationComponent,
+    AssetVaultComponent
   ],
   template: `
     @if (!gameService.isConfigured()) {
@@ -161,7 +169,13 @@ import { CommonModule } from '@angular/common';
             }
             @case ('MISSIONS') {
               <div class="sector-split">
-                <app-missions />
+                <div class="mission-hub">
+                  <app-missions />
+                  <div class="mission-subs">
+                    <app-bounty-board />
+                    <app-threat-database />
+                  </div>
+                </div>
                 <div class="sidebar">
                   <app-internal-network />
                   <app-malware-sandbox />
@@ -170,7 +184,13 @@ import { CommonModule } from '@angular/common';
             }
             @case ('HARDWARE') {
               <div class="sector-split">
-                <app-hardware-shop />
+                <div class="hardware-hub">
+                  <app-hardware-shop />
+                  <div class="hardware-subs">
+                    <app-overclock-station />
+                    <app-asset-vault />
+                  </div>
+                </div>
                 <div class="inventory-section highlighted">
                     <div class="sec-header">INSTALLED_MODULES</div>
                     <div class="inventory-list">
@@ -459,6 +479,11 @@ import { CommonModule } from '@angular/common';
 
     .full-sector { height: 100%; overflow: hidden; }
     .sector-split { display: grid; grid-template-columns: 1fr 25rem; gap: 1rem; height: 100%; }
+    
+    .mission-hub, .hardware-hub { display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; height: 100%; }
+    .mission-subs, .hardware-subs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 1400px) { .mission-subs, .hardware-subs { grid-template-columns: 1fr; } }
+
     .grid-sector { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1rem; height: 100%; }
     .grid-sector .large { grid-row: span 2; }
     .social-sector { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 100%; }

@@ -223,7 +223,11 @@ export class GameService {
     'MISSIONS': 0,
     'HARDWARE': 0,
     'GRID': 0,
-    'SOCIAL': 0
+    'SOCIAL': 0,
+    'THREATS': 0,
+    'BOUNTIES': 0,
+    'OVERCLOCK': 0,
+    'VAULT': 0
   });
 
   activeTab = signal('TERMINAL');
