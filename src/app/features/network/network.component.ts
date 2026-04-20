@@ -40,8 +40,8 @@ import { CommonModule } from '@angular/common';
       <div class="path-readout">
          <div class="noise-line">ACTIVE_TRACE_PATH:</div>
          <div class="path-nodes">
-            @for (node of networkService.currentPath(); track $index) {
-               <span class="p-node">{{ node }}</span>
+            @for (node of networkService.currentPath(); track node.id) {
+               <span class="p-node">{{ node.name }}</span>
                @if (!$last) { <span class="arrow">>></span> }
             }
          </div>
