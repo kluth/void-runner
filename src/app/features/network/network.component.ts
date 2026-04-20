@@ -24,35 +24,40 @@ import { AudioService } from '../../core/services/audio.service';
 
       <div class="routing-modes">
         <button class="routing-btn" [class.active]="gameService.routingMode() === 'DIRECT'" (click)="gameService.setRouting('DIRECT')">
-          DIRECT
-          <span class="sub">Latency: LOW | Stealth: NONE</span>
+          <span class="btn-label">DIRECT</span>
+          <span class="sub">LATENCY: LOW</span>
         </button>
         <button class="routing-btn" [class.active]="gameService.routingMode() === 'VPN'" (click)="gameService.setRouting('VPN')">
-          VPN [20cr]
-          <span class="sub">Latency: MED | Stealth: 1.5x</span>
+          <span class="btn-label">VPN [20cr]</span>
+          <span class="sub">STEALTH: 1.5x</span>
         </button>
         <button class="routing-btn" [class.active]="gameService.routingMode() === 'ONION'" (click)="gameService.setRouting('ONION')">
-          ONION [50cr]
-          <span class="sub">Latency: HIGH | Stealth: 3.0x</span>
+          <span class="btn-label">ONION [50cr]</span>
+          <span class="sub">STEALTH: 3.0x</span>
         </button>
       </div>
-      <div class="active-path">
-        PATH: 
-        @for (node of networkService.currentPath(); track node.id) {
-          <span class="path-node">{{ node.country }} ({{ node.name }})</span>
-          @if (!$last) { <span class="arrow">>></span> }
-        }
+      <div class="active-path-wrapper">
+        <div class="active-path">
+            <span class="path-label">PATH:</span>
+            @for (node of networkService.currentPath(); track node.id) {
+            <span class="path-node">{{ node.country }}</span>
+            @if (!$last) { <span class="arrow">>></span> }
+            }
+        </div>
       </div>
     </div>
   `,
   styles: `
     .network-container {
-      background: #111;
+      background: #050505;
       border: 1px solid #00ffff;
       color: #00ffff;
       padding: 15px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
-    h3 { margin-top: 0; border-bottom: 1px solid #00ffff; padding-bottom: 10px; margin-bottom: 15px;}
+    h3 { margin-top: 0; border-bottom: 1px solid #00ffff; padding-bottom: 10px; margin-bottom: 15px; font-size: 0.75rem; letter-spacing: 1px;}
     
     .botnet-panel {
       display: flex;
@@ -62,62 +67,59 @@ import { AudioService } from '../../core/services/audio.service';
       border: 1px solid #008888;
       padding: 10px;
       margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .botnet-stats { font-family: monospace; }
-    .botnet-label { color: #00ffff; font-size: 0.8em; }
-    .botnet-count { color: #fff; font-size: 1.2em; font-weight: bold; margin-left: 10px; text-shadow: 0 0 5px #00ffff;}
+    .botnet-label { color: #00ffff; font-size: 0.6em; }
+    .botnet-count { color: #fff; font-size: 1em; font-weight: bold; margin-left: 5px; text-shadow: 0 0 5px #00ffff;}
     .ddos-btn {
       background: #ff0000;
       color: #fff;
       border: 1px solid #ff4444;
       padding: 6px 12px;
-      font-size: 0.6em;
+      font-size: 0.5rem;
       font-weight: bold;
       cursor: pointer;
       font-family: inherit;
+      flex-grow: 1;
     }
-    .ddos-btn:hover:not(:disabled) { background: #ff4444; box-shadow: 0 0 10px #ff0000; }
-    .ddos-btn:disabled { background: #300; border-color: #400; color: #666; cursor: not-allowed; }
 
-    .advanced-c2-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .apt-section, .ransomware-section { background: #050505; border: 1px dashed #ff00ff; padding: 10px; }
-    .apt-section h4, .ransomware-section h4 { margin: 0 0 10px 0; font-size: 0.7em; color: #ff00ff; }
-    
-    .apt-btn { width: 100%; background: #202; color: #f0f; border: 1px solid #f0f; padding: 8px; font-size: 0.6em; font-family: inherit; font-weight: bold; cursor: pointer; }
-    .apt-btn:hover:not(:disabled) { background: #f0f; color: #000; }
-    .apt-btn:disabled { background: #101; border-color: #303; color: #404; cursor: not-allowed; }
-
-    .ransom-stats { font-size: 0.7em; margin-bottom: 10px; color: #888; }
-    .ransom-stats .highlight { color: #ff0000; font-weight: bold; font-size: 1.2em; }
-    .ransom-actions { display: flex; gap: 5px; }
-    .ransom-btn { flex: 1; padding: 8px; font-size: 0.55em; font-weight: bold; font-family: inherit; cursor: pointer; border: 1px solid #ff0000; }
-    .ransom-btn.deploy { background: #200; color: #f00; }
-    .ransom-btn.deploy:hover:not(:disabled) { background: #f00; color: #fff; }
-    .ransom-btn.cashout { background: #020; color: #0f0; border-color: #0f0; }
-    .ransom-btn.cashout:hover:not(:disabled) { background: #0f0; color: #000; }
-    .ransom-btn:disabled { background: #111; border-color: #333; color: #444; cursor: not-allowed; }
-
-    .routing-modes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .routing-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
     button.routing-btn {
       background: #000;
-      border: 1px solid #008888;
+      border: 1px solid #004444;
       color: #00ffff;
-      padding: 10px;
+      padding: 8px 4px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       font-family: inherit;
+      transition: all 0.2s;
+      min-width: 0;
     }
     button.active {
       background: #00ffff;
       color: #000;
       border-color: #fff;
+      box-shadow: 0 0 10px rgba(0,255,255,0.3);
     }
-    .sub { font-size: 0.6em; margin-top: 5px; opacity: 0.8; }
-    .active-path { font-size: 0.7em; color: #fff; font-family: monospace; white-space: nowrap; overflow-x: auto; padding-top: 10px; border-top: 1px dashed #333; }
+    .btn-label { font-size: 0.55rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+    .sub { font-size: 0.45rem; margin-top: 4px; opacity: 0.7; white-space: nowrap; }
+
+    .active-path-wrapper { border-top: 1px dashed #004444; padding-top: 10px; overflow: hidden; }
+    .active-path { font-size: 0.6rem; color: #fff; font-family: monospace; white-space: nowrap; overflow-x: auto; display: flex; align-items: center; gap: 5px; }
+    .path-label { color: #008888; font-weight: bold; margin-right: 5px; }
     .path-node { color: #00ff00; }
-    .arrow { margin: 0 5px; color: #666; }
+    .arrow { color: #444; font-size: 0.5rem; }
+
+    @media (max-width: 400px) {
+        .sub { display: none; }
+        .routing-modes { gap: 2px; }
+        button.routing-btn { padding: 12px 2px; }
+    }
   `
 })
 export class NetworkComponent {
