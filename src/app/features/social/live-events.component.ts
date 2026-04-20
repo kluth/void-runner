@@ -7,114 +7,113 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="events-container">
-      <div class="event-header">
-        <span class="title">GLOBAL_NETWORK // LIVE_FEED</span>
-        @if (gameService.globalEvent() !== 'NONE') {
-          <span class="status pulse">ACTIVE_EVENT [{{ gameService.eventTimer() }}s]</span>
-        } @else {
-          <span class="status">MONITORING</span>
-        }
+    <div class="events-monolith">
+      <div class="events-status">
+        <span class="noise-data">EVENT_SCAN: ACTIVE</span>
+        <div class="pulse-indicator"></div>
       </div>
 
-      <div class="active-event-card" [ngClass]="gameService.globalEvent()">
-        <div class="event-name">{{ getEventName() }}</div>
-        <div class="event-desc">{{ getEventDesc() }}</div>
-      </div>
-
-      <div class="exploit-db">
-        <div class="db-header">EXPLOIT_DATABASE // PUBLIC_VULNS</div>
-        <div class="db-info">Acquire known 1-Day exploits for 100cr. These provide a guaranteed success for a single mission of that type.</div>
-        <div class="db-grid">
-          @for (type of exploitTypes; track type) {
-            <button class="db-btn" 
-                    [disabled]="gameService.credits() < 100 || gameService.publicExploits().includes(type)"
-                    (click)="buyExploit(type)">
-              {{ type.replace('-', '_').toUpperCase() }} 
-              @if (gameService.publicExploits().includes(type)) { [READY] }
-            </button>
-          }
+      @if (gameService.globalEvent() !== 'NONE') {
+        <div class="active-event glass-overlay" [class]="gameService.globalEvent()">
+          <div class="e-top">
+            <span class="e-id">ID: 0x_{{ gameService.globalEvent().substring(0,4) }}</span>
+            <span class="e-timer">{{ gameService.eventTimer() }}s</span>
+          </div>
+          <div class="e-title">{{ gameService.globalEvent().replace('_', ' ') }}</div>
+          <p class="e-desc">{{ getEventDesc(gameService.globalEvent()) }}</p>
+          
+          <div class="e-progress">
+             <div class="p-bar"><div class="p-fill" [style.width.%]="(gameService.eventTimer() / 300) * 100"></div></div>
+          </div>
         </div>
-      </div>
-
-      <div class="leaderboard">
-        <div class="lb-header">TOP_OPERATIVES (GLOBAL_RANKING)</div>
-        <div class="lb-list">
-          @for (player of gameService.leaderboard(); track player.name) {
-            <div class="lb-row" [class.is-player]="player.isPlayer">
-              <span class="rank">#{{ $index + 1 }}</span>
-              <span class="name">{{ player.name }}</span>
-              <span class="score">{{ player.score }} REP</span>
-            </div>
-          }
+      } @else {
+        <div class="idle-status">
+           <div class="noise-line">SCANNING_FREQUENCIES...</div>
+           <div class="noise-line">NO_GLOBAL_ANOMALIES_DETECTED</div>
         </div>
+      }
+
+      <div class="net-telemetry">
+         <div class="t-row">
+            <span class="t-label">REAL_WORLD_ENTROPY:</span>
+            <span class="t-val">{{ gameService.realWorldState()?.entropy || 'STABLE' }}</span>
+         </div>
+         <div class="t-row">
+            <span class="t-label">UPLINK_STRENGTH:</span>
+            <span class="t-val">99.8%</span>
+         </div>
       </div>
     </div>
   `,
   styles: `
-    .events-container { background: var(--layer-1); padding: 1rem; margin-bottom: 1rem; box-shadow: var(--neon-shadow); }
-    .event-header { display: flex; justify-content: space-between; align-items: center; background: var(--layer-2); padding: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
-    .title { font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
-    .status { font-size: 0.6rem; color: var(--primary); opacity: 0.4; font-weight: 900; }
-    .pulse { color: var(--secondary); animation: pulse 1s steps(2) infinite alternate; opacity: 1 !important; }
+    .events-monolith {
+      background: var(--layer-1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .events-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--layer-2);
+      padding: 8px 12px;
+    }
+
+    .pulse-indicator {
+      width: 8px; height: 8px;
+      background: var(--secondary);
+      box-shadow: 0 0 10px var(--secondary);
+      animation: pulse 1.5s steps(2) infinite;
+    }
     @keyframes pulse { from { opacity: 1; } to { opacity: 0.3; } }
 
-    .active-event-card { background: var(--layer-2); padding: 1.5rem; margin-bottom: 1.5rem; transition: all 0.05s steps(2); }
-    .event-name { font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: 1px; }
-    .event-desc { font-size: 0.65rem; color: #fff; opacity: 0.6; line-height: 1.4; }
+    .active-event {
+      padding: 1.5rem;
+      border-left: 4px solid var(--primary);
+      position: relative;
+    }
+    .active-event.CTF_ACTIVE { border-color: var(--secondary); }
+    .active-event.ZERO_DAY_PANIC { border-color: var(--tertiary); }
     
-    .active-event-card.CTF_ACTIVE { background: var(--layer-4); border-left: 4px solid var(--secondary); }
-    .active-event-card.CTF_ACTIVE .event-name { color: var(--secondary); }
+    .e-top { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; }
+    .e-timer { color: var(--secondary); font-weight: 900; }
     
-    .active-event-card.PATCH_TUESDAY { background: var(--layer-4); border-left: 4px solid #ffaa00; }
-    .active-event-card.PATCH_TUESDAY .event-name { color: #ffaa00; }
+    .e-title { font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .e-desc { font-size: 0.65rem; color: #fff; opacity: 0.6; line-height: 1.4; margin-bottom: 1.5rem; }
 
-    .active-event-card.ZERO_DAY_PANIC { background: var(--layer-4); border-left: 4px solid var(--tertiary); }
-    .active-event-card.ZERO_DAY_PANIC .event-name { color: var(--tertiary); }
+    .e-progress { height: 1px; background: var(--layer-0); }
+    .p-fill { height: 100%; background: var(--secondary); box-shadow: 0 0 5px var(--secondary); }
 
-    .exploit-db { background: var(--layer-0); padding: 1.5rem; margin-bottom: 1.5rem; }
-    .db-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.7rem; color: var(--primary); margin-bottom: 0.75rem; font-weight: 900; letter-spacing: 1px; }
-    .db-info { font-size: 0.55rem; color: var(--primary); opacity: 0.4; margin-bottom: 1.5rem; line-height: 1.4; }
-    .db-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 10px; }
-    .db-btn { background: var(--layer-2); border: var(--ghost-border); color: var(--primary); font-size: 0.6rem; padding: 12px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 900; transition: all 0.05s steps(2); }
-    .db-btn:hover:not(:disabled) { background: var(--primary); color: var(--on-primary); }
-    .db-btn:disabled { opacity: 0.2; }
+    .idle-status {
+       background: var(--layer-0);
+       padding: 1.5rem;
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 0.55rem;
+       display: flex;
+       flex-direction: column;
+       gap: 4px;
+       opacity: 0.3;
+    }
 
-    .leaderboard { background: var(--layer-0); padding: 1.5rem; }
-    .lb-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem; color: var(--primary); opacity: 0.4; margin-bottom: 1rem; border-bottom: var(--ghost-border); padding-bottom: 0.5rem; letter-spacing: 1px; font-weight: 900; }
-    .lb-list { display: flex; flex-direction: column; gap: 4px; }
-    .lb-row { display: flex; font-size: 0.7rem; padding: 0.75rem; align-items: center; background: var(--layer-2); }
-    .lb-row .rank { color: var(--primary); opacity: 0.3; width: 2.5rem; flex-shrink: 0; font-weight: 900; }
-    .lb-row .name { color: #fff; flex-grow: 1; font-family: 'JetBrains Mono', monospace; }
-    .lb-row .score { color: var(--secondary); font-weight: 900; flex-shrink: 0; }
-    
-    .lb-row.is-player { background: var(--layer-4); box-shadow: inset 0 0 10px rgba(13, 242, 242, 0.1); }
-    .lb-row.is-player .rank { color: var(--primary); opacity: 1; }
-    .lb-row.is-player .name { color: var(--primary); font-weight: 900; }
+    .net-telemetry {
+       display: flex;
+       flex-direction: column;
+       gap: 6px;
+    }
+    .t-row { display: flex; justify-content: space-between; font-size: 0.55rem; font-weight: 900; }
+    .t-label { opacity: 0.4; }
+    .t-val { color: var(--secondary); }
   `
 })
 export class LiveEventsComponent {
   gameService = inject(GameService);
 
-  exploitTypes: any[] = ['port-scan', 'sql-injection', 'buffer-overflow', 'xss-injection'];
-
-  buyExploit(type: any) {
-    this.gameService.buyPublicExploit(type);
-  }
-
-  getEventName(): string {
-    switch (this.gameService.globalEvent()) {
-      case 'CTF_ACTIVE': return 'GLOBAL CTF QUALIFIER';
-      case 'PATCH_TUESDAY': return 'VENDOR PATCH ROLLOUT';
-      case 'ZERO_DAY_PANIC': return 'CRITICAL CVE DISCLOSED';
-      default: return 'NO ACTIVE THREATS';
-    }
-  }
-
-  getEventDesc(): string {
-    switch (this.gameService.globalEvent()) {
-      case 'CTF_ACTIVE': return 'A massive Capture-The-Flag tournament is live. Missions grant double Experience and Reputation.';
-      case 'PATCH_TUESDAY': return 'Major tech vendors are pushing updates. 0-Day research is 50% less likely to succeed.';
+  getEventDesc(event: string): string {
+    switch (event) {
+      case 'CTF_ACTIVE': return 'Capture The Flag is live. Mission Experience and Reputation rewards are DOUBLED.';
+      case 'PATCH_TUESDAY': return 'Security updates are rolling out. Trace levels decrease 2x slower, but exploits are harder to succeed.';
       case 'ZERO_DAY_PANIC': return 'A high-profile vulnerability is in the wild! Mission rewards doubled, but Trace increases 2x faster.';
       default: return 'Network traffic is stable. Routine operations advised.';
     }

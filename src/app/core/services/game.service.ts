@@ -838,6 +838,40 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     }
   }
 
+  // Terminal Logic
+  commandHistory = signal<string[]>([]);
+
+  processCommand(cmd: string) {
+    this.commandHistory.update(h => [...h, cmd].slice(-50));
+    this.log(`<span style="color: var(--primary)">${this.playerHandle()}@void:~$ ${cmd}</span>`);
+    
+    const parts = cmd.toLowerCase().split(' ');
+    const base = parts[0];
+
+    switch (base) {
+      case 'help':
+        this.log('AVAILABLE_PROTOCOLS: help, ls, clear, status, scan, wipe, buy, install, routing');
+        break;
+      case 'status':
+        this.log(`SYSTEM_HEALTH: ${this.systemIntegrity()}% | TRACE_LEVEL: ${this.detectionLevel()}%`);
+        break;
+      case 'wipe':
+        if (this.installedSoftware().find(s => s.id === 'wiper' && s.installed)) {
+           this.detectionLevel.set(0);
+           this.log('LOG_PURGE: Evidence incinerated.');
+        } else {
+           this.log('ERR: log-wiper not installed.');
+        }
+        break;
+      case 'clear':
+        this.terminalLogs.set([]);
+        break;
+      default:
+        this.log(`ERR: COMMAND_NOT_FOUND: ${base}`);
+    }
+    this.saveLocalState();
+  }
+
   private gameTick() {
     const now = Date.now();
     const det = this.detectionLevel();

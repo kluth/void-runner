@@ -67,7 +67,7 @@ import { CommonModule } from '@angular/common';
     }
 
     @if (gameService.authRequired()) {
-      <app-auth />
+      <app-auth class="glass-overlay" />
     }
 
     @if (gameService.matrixMode()) {
@@ -80,188 +80,124 @@ import { CommonModule } from '@angular/common';
     <app-walkthrough-overlay />
     
     <div class="game-wrapper" 
-         [class.scanline]="gameService.settings().video.scanlines" 
-         [class.matrix]="gameService.matrixMode()" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
          [class.trace-high-glitch]="gameService.detectionLevel() > 70"
-         [class.walkthrough-active]="gameService.tutorialActive()"
-         [class.tabbed-mode]="gameService.settings().video.view_mode === 'TABBED'"
-         [class.os-android]="gameService.detectedOS() === 'ANDROID'"
-         [class.os-ios]="gameService.detectedOS() === 'IOS'"
-         [class.os-windows]="gameService.detectedOS() === 'WINDOWS'"
-         [class.os-mac]="gameService.detectedOS() === 'MAC'"
-         [class.os-linux]="gameService.detectedOS() === 'LINUX'">
+         [class.walkthrough-active]="gameService.tutorialActive()">
          
       <header class="hud-panel" [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'">
+        <div class="noise-data" style="top:4px; left:6px;">0x00219FF</div>
+        
         <div class="logo-group">
           <div class="logo glitch-title" data-text="VOID_RUN">VOID_RUN</div>
-          <div class="version">// NEURAL_VOID_OS_v4.0</div>
+          <div class="version">// PROTOCOL_OS_v4.0_STABLE</div>
         </div>
         
-        @if (gameService.settings().video.view_mode === 'TABBED') {
-          <nav class="tactical-tabs">
-            <button (click)="gameService.clearTabNotification('TERMINAL')" [class.active]="gameService.activeTab() === 'TERMINAL'">
-              [ 0x_TERM ]
-              @if (gameService.tabNotifications()['TERMINAL'] > 0) {
-                <span class="badge">{{ gameService.tabNotifications()['TERMINAL'] }}</span>
+        <nav class="tactical-tabs">
+          @for (tab of ['TERMINAL', 'MISSIONS', 'HARDWARE', 'GRID', 'SOCIAL']; track tab) {
+            <button (click)="gameService.clearTabNotification(tab)" 
+                    [class.active]="gameService.activeTab() === tab"
+                    [class.notified]="gameService.tabNotifications()[tab] > 0">
+              [ 0x_{{ tab.substring(0,4) }} ]
+              @if (gameService.tabNotifications()[tab] > 0) {
+                <span class="badge">{{ gameService.tabNotifications()[tab] }}</span>
               }
             </button>
-            <button (click)="gameService.clearTabNotification('MISSIONS')" [class.active]="gameService.activeTab() === 'MISSIONS'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'MISSIONS'">
-              [ 0x_OPS ]
-              @if (gameService.tabNotifications()['MISSIONS'] > 0) {
-                <span class="badge">{{ gameService.tabNotifications()['MISSIONS'] }}</span>
-              }
-            </button>
-            <button (click)="gameService.clearTabNotification('HARDWARE')" [class.active]="gameService.activeTab() === 'HARDWARE'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'HARDWARE'">
-              [ 0x_RIG ]
-              @if (gameService.tabNotifications()['HARDWARE'] > 0) {
-                <span class="badge">{{ gameService.tabNotifications()['HARDWARE'] }}</span>
-              }
-            </button>
-            <button (click)="gameService.clearTabNotification('GRID')" [class.active]="gameService.activeTab() === 'GRID'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'GLOBE'">
-              [ 0x_GRID ]
-              @if (gameService.tabNotifications()['GRID'] > 0) {
-                <span class="badge">{{ gameService.tabNotifications()['GRID'] }}</span>
-              }
-            </button>
-            <button (click)="gameService.clearTabNotification('SOCIAL')" [class.active]="gameService.activeTab() === 'SOCIAL'" [class.neural-highlight]="gameService.currentTutorialSelector() === 'SOCIAL'">
-              [ 0x_NODE ]
-              @if (gameService.tabNotifications()['SOCIAL'] > 0) {
-                <span class="badge">{{ gameService.tabNotifications()['SOCIAL'] }}</span>
-              }
-            </button>
-          </nav>
-        }
+          }
+        </nav>
 
-        <div class="stats">
-          <div class="stat-box">
+        <div class="stats-monolith">
+          <div class="stat-unit">
             <span class="label">CREDITS</span>
             <span class="value">{{ gameService.credits() }}</span>
           </div>
-          <div class="stat-box">
-            <span class="label">DATA</span>
-            <span class="value" style="color: var(--warning-magenta)">{{ gameService.experience() }}</span>
-          </div>
-          <div class="stat-box">
+          <div class="stat-unit">
             <span class="label">REP</span>
-            <span class="value" style="color: var(--tactical-cyan)">{{ gameService.reputation() }}</span>
+            <span class="value" style="color: var(--secondary)">{{ gameService.reputation() }}</span>
           </div>
-          <div class="stat-box" [class.warning]="gameService.detectionLevel() > 70">
+          <div class="stat-unit" [class.danger]="gameService.detectionLevel() > 60">
             <span class="label">TRACE</span>
-            <span class="value" [class.danger]="gameService.detectionLevel() > 50">{{ gameService.detectionLevel() }}%</span>
-          </div>
-          <div class="stat-box">
-            <span class="label">UPLINK</span>
-            @if (gameService.isAuthenticated()) {
-              <span class="value" style="color: var(--secondary); text-shadow: 0 0 10px var(--secondary);">VERIFIED</span>
-            } @else {
-              <span class="value" style="color: #ffaa00">GHOST</span>
-            }
+            <span class="value">{{ gameService.detectionLevel() }}%</span>
           </div>
         </div>
       </header>
 
-      @if (gameService.settings().video.view_mode === 'TABBED') {
-        <div class="tab-viewport">
+      <main class="operational-grid">
+        <div class="primary-sector">
           @switch (gameService.activeTab()) {
             @case ('TERMINAL') {
-              <div class="full-sector"><app-terminal /></div>
+              <div class="sector-panel terminal-wrapper">
+                 <app-terminal />
+              </div>
             }
             @case ('MISSIONS') {
-              <div class="sector-split">
-                <div class="mission-hub">
-                  <app-missions />
-                  <div class="mission-subs">
-                    <app-bounty-board />
-                    <app-threat-database />
-                  </div>
-                </div>
-                <div class="sidebar">
-                  <app-internal-network />
-                  <app-malware-sandbox />
+              <div class="sector-panel">
+                <app-missions />
+                <div class="sub-split">
+                   <app-bounty-board />
+                   <app-threat-database />
                 </div>
               </div>
             }
             @case ('HARDWARE') {
-              <div class="sector-split">
-                <div class="hardware-hub">
+               <div class="sector-panel">
                   <app-hardware-shop />
-                  <div class="hardware-subs">
-                    <app-overclock-station />
-                    <app-asset-vault />
+                  <div class="sub-split">
+                     <app-overclock-station />
+                     <app-asset-vault />
                   </div>
-                </div>
-                <div class="inventory-section highlighted">
-                    <div class="sec-header">INSTALLED_MODULES</div>
-                    <div class="inventory-list">
-                    @for (item of gameService.inventory(); track $index) {
-                        <div class="inventory-item">
-                        <span class="name">{{ item.name }}</span>
-                        <span class="tag">{{ item.bonusType.toUpperCase() }}</span>
-                        </div>
-                    } @empty {
-                        <div class="empty-inv">NO MODULES CONNECTED</div>
-                    }
-                    </div>
-                </div>
-              </div>
+               </div>
             }
             @case ('GRID') {
-              <div class="grid-sector">
-                <div class="viz-card large"><app-globe /></div>
-                <app-network />
-                <app-live-events />
-              </div>
+               <div class="sector-panel holographic-viz">
+                  <app-globe />
+                  <app-network />
+               </div>
             }
             @case ('SOCIAL') {
-              <div class="social-sector">
-                <app-darknet-node />
-                <app-teams />
-              </div>
+               <div class="sector-panel">
+                  <app-darknet-node />
+                  <app-teams />
+               </div>
             }
           }
         </div>
-      } @else {
-        <main>
-            <div class="left-panel">
-            <app-terminal [class.neural-highlight]="gameService.currentTutorialSelector() === 'TERMINAL'" />
-            <app-teams />
-            <app-darknet-node [class.neural-highlight]="gameService.currentTutorialSelector() === 'SOCIAL'" />
-            <app-internal-network />
-            <app-missions [class.neural-highlight]="gameService.currentTutorialSelector() === 'MISSIONS'" />
-            </div>
-            <div class="right-panel">
-            <div class="viz-card" [class.neural-highlight]="gameService.currentTutorialSelector() === 'GLOBE'">
-                <app-globe />
-            </div>
-            <app-live-events />
-            <app-system-integrity />
-            <app-malware-sandbox />
-            <app-network />
-            <app-hardware-shop [class.neural-highlight]="gameService.currentTutorialSelector() === 'HARDWARE'" />
-            <div class="inventory-section">
-                <div class="sec-header">INSTALLED_MODULES</div>
-                <div class="inventory-list">
-                @for (item of gameService.inventory(); track $index) {
-                    <div class="inventory-item">
-                    <span class="name">{{ item.name }}</span>
-                    <span class="tag">{{ item.bonusType.toUpperCase() }}</span>
-                    </div>
-                } @empty {
-                    <div class="empty-inv">NO MODULES CONNECTED</div>
-                }
-                </div>
-            </div>
-            </div>
-        </main>
-      }
 
-      <div class="footer-bar">
-        <div class="status-group">
-          SYSTEM_STATUS: <span class="status-ok">OPERATIONAL</span> | ENCRYPTION: <span class="status-ok">AES-256</span> | SIGNAL: <span class="status-ok">STABLE</span>
-          @if (gameService.matrixMode()) { | <span class="matrix-text">WAKE_UP_NEO</span> }
+        <div class="secondary-sector sidebar">
+          <div class="hud-panel-nested telemetry-card">
+            <div class="noise-data" style="bottom:4px; right:6px;">LOG_STREAM_CONNECTED</div>
+            <div class="sec-title">SYSTEM_TELEMETRY</div>
+            <app-system-integrity />
+          </div>
+          
+          <div class="hud-panel-nested events-card">
+            <div class="sec-title">GLOBAL_NET_EVENTS</div>
+            <app-live-events />
+          </div>
+
+          <div class="hud-panel-nested inventory-card">
+            <div class="sec-title">INSTALLED_MODULES</div>
+            <div class="module-list">
+               @for (item of gameService.inventory(); track $index) {
+                  <div class="module-item">
+                     <span class="m-code">[M_{{ $index }}]</span>
+                     <span class="m-name">{{ item.name }}</span>
+                  </div>
+               } @empty {
+                  <div class="empty-status">NO MODULES CONNECTED</div>
+               }
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
+
+      <footer class="system-footer">
+        <div class="status-group">
+          UPLINK: <span class="active-val">CONNECTED_72.61.80.234</span> | 
+          CORE: <span class="active-val">STABLE</span> | 
+          HANDSHAKE: <span class="active-val">VERIFIED</span>
+        </div>
+        <div class="timestamp">{{ gameService.experience() }} DATA_SHARDS_RECOVERED</div>
+      </footer>
     </div>
   `,
   styles: `
@@ -269,8 +205,6 @@ import { CommonModule } from '@angular/common';
       display: block;
       height: 100dvh;
       background: var(--layer-0);
-      color: var(--primary);
-      font-family: 'Space Grotesk', sans-serif;
       overflow: hidden;
     }
     
@@ -278,31 +212,34 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       height: 100%;
-      padding: 1rem;
-      box-sizing: border-box;
-      gap: 1.5rem; /* Increased gap for asymmetric feel */
-      transition: all 1s steps(4);
+      padding: 1.5rem;
+      gap: 1.5rem;
       position: relative;
-      overflow: hidden;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem;
+      padding: 1.5rem 2rem;
       background: var(--layer-2);
-      border-bottom: var(--ghost-border);
-      flex-wrap: wrap;
-      gap: 2rem;
       flex-shrink: 0;
-      position: relative;
       z-index: 100;
+      gap: 3rem;
     }
+
+    .logo-group { flex-shrink: 0; }
+    .logo { 
+      font-size: 2rem; 
+      font-weight: 900; 
+      color: var(--primary); 
+      letter-spacing: -0.05em; 
+    }
+    .version { font-size: 0.55rem; color: var(--primary); opacity: 0.4; font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
 
     .tactical-tabs {
       display: flex;
-      gap: 8px;
+      gap: 4px;
       flex-grow: 1;
       justify-content: center;
     }
@@ -310,101 +247,113 @@ import { CommonModule } from '@angular/common';
     .tactical-tabs button {
       background: var(--layer-3);
       border: var(--ghost-border);
-      color: var(--secondary);
-      padding: 12px 20px;
+      color: var(--primary);
+      opacity: 0.5;
+      padding: 14px 20px;
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.7rem;
       font-weight: 900;
       cursor: pointer;
       position: relative;
       transition: all 0.05s steps(2);
-      letter-spacing: 1px;
-      text-transform: uppercase;
     }
 
     .tactical-tabs button.active {
       background: var(--layer-5);
-      color: var(--primary);
-      border-color: var(--primary);
-      box-shadow: var(--neon-shadow);
-    }
-
-    .tactical-tabs button .badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--tertiary);
+      opacity: 1;
       color: #fff;
-      font-size: 0.5rem;
-      padding: 2px 4px;
-      box-shadow: 0 0 10px var(--tertiary);
-      z-index: 10;
+      box-shadow: var(--neon-shadow);
+      transform: translateY(-2px);
     }
 
-    .logo-group { flex-shrink: 0; }
-    .logo { 
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: clamp(1.4rem, 5vw, 2.2rem); 
-        font-weight: 900; 
-        color: var(--primary); 
-        letter-spacing: -0.05em; 
-    }
-    .version { font-size: 0.55rem; color: var(--primary); margin-top: 4px; opacity: 0.4; font-family: 'JetBrains Mono', monospace; }
+    .stats-monolith { display: flex; gap: 2.5rem; }
+    .stat-unit { display: flex; flex-direction: column; align-items: flex-end; }
+    .stat-unit .label { font-size: 0.5rem; color: var(--primary); opacity: 0.4; font-weight: 900; letter-spacing: 1px; }
+    .stat-unit .value { font-size: 1.1rem; font-weight: 900; color: #fff; font-family: 'JetBrains Mono', monospace; }
+    .stat-unit.danger .value { color: var(--tertiary); animation: flicker 0.1s infinite; }
 
-    .stats { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; flex-grow: 1; justify-content: flex-end; }
-    .stat-box { display: flex; flex-direction: column; align-items: flex-end; min-width: 4rem; }
-    .stat-box .label { font-size: 0.55rem; color: var(--primary); opacity: 0.5; margin-bottom: 2px; font-weight: 900; }
-    .stat-box .value { font-size: 0.9rem; font-weight: 900; color: #fff; font-family: 'JetBrains Mono', monospace; }
-    .stat-box.warning .value { animation: pulse 0.5s steps(2) infinite alternate; color: var(--tertiary); }
-
-    @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
-
-    main, .tab-viewport {
+    .operational-grid {
       display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
       gap: 1.5rem;
       flex-grow: 1;
-      overflow: hidden;
       min-height: 0;
     }
 
-    /* ASYMMETRIC GRID: 1.2fr / 0.8fr split */
-    main {
-      grid-template-columns: 1.2fr 0.8fr;
-    }
-
-    .full-sector { height: 100%; overflow: hidden; }
-    .sector-split { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; height: 100%; }
-    
-    .left-panel, .right-panel, .sidebar {
+    .primary-sector {
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      gap: 1.5rem;
       min-height: 0;
     }
 
-    .viz-card { background: var(--layer-1); border: var(--ghost-border); padding: 0.5rem; width: 100%; box-sizing: border-box; }
-    
-    .inventory-section { background: var(--layer-2); padding: 1rem; border: var(--ghost-border); }
-    .sec-header { font-size: 0.6rem; color: var(--primary); opacity: 0.4; border-bottom: var(--ghost-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem; letter-spacing: 2px; font-weight: 900; }
-    
-    .footer-bar { font-size: 0.55rem; color: var(--primary); padding: 0.75rem; background: var(--layer-0); border-top: var(--ghost-border); flex-shrink: 0; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
-    .status-ok { color: var(--secondary); font-weight: 900; }
-    
-    /* Global Scanline Integration */
-    .scanline::after {
-      content: " ";
-      display: block;
-      position: absolute;
-      top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-      z-index: 2000;
-      background-size: 100% 2px;
-      pointer-events: none;
-      opacity: var(--scanline-opacity);
+    .sector-panel {
+      background: var(--layer-1);
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sub-split {
+       display: grid;
+       grid-template-columns: 1fr 1fr;
+       gap: 1rem;
+       margin-top: 1rem;
+    }
+
+    .secondary-sector {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .sec-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: var(--primary);
+      opacity: 0.4;
+      background: var(--layer-4);
+      padding: 6px 12px;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .telemetry-card, .events-card, .inventory-card {
+      padding: 1rem;
+    }
+
+    .module-list { display: flex; flex-direction: column; gap: 8px; }
+    .module-item { 
+       background: var(--layer-4); 
+       padding: 10px; 
+       font-size: 0.65rem; 
+       display: flex; 
+       gap: 10px; 
+       font-family: 'JetBrains Mono', monospace;
+    }
+    .m-code { color: var(--secondary); font-weight: 900; }
+    .m-name { color: #fff; }
+
+    .system-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--layer-0);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--primary);
+      opacity: 0.4;
+    }
+    .active-val { color: var(--secondary); font-weight: 900; }
+
+    @media (max-width: 1200px) {
+      .operational-grid { grid-template-columns: 1fr; }
+      .secondary-sector { display: none; }
     }
   `
-
 })
 export class AppComponent implements OnInit {
   gameService = inject(GameService);
@@ -413,12 +362,9 @@ export class AppComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   ngOnInit() {
-    // Neural Link: Global Token Extraction Protocol
-    // Detects tokens from OAuth redirects even if AuthComponent isn't rendered
     this.route.queryParamMap.subscribe(params => {
         const token = params.get('token');
         if (token) {
-            console.log('[UPLINK] Neural token detected in global sector.');
             this.gameService.handleOAuthToken(token);
         }
     });
