@@ -2,6 +2,9 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { NeuralService } from './neural.service';
 import { AudioService } from './audio.service';
+import { VisionAnalysisService } from './vision-analysis.service';
+import { FactionService } from './faction.service';
+import { CreepyAudioService } from './creepy-audio.service';
 import { HIJACK_RIDDLES } from '../data/riddles.data';
 import { ASCII_ART } from '../data/ascii-art';
 
@@ -212,6 +215,9 @@ export class GameService {
   public socket!: Socket;
   private neuralService = inject(NeuralService);
   private audioService = inject(AudioService);
+  vision = inject(VisionAnalysisService);
+  factions = inject(FactionService);
+  creepyAudio = inject(CreepyAudioService);
   playerHandle = signal('VOID_RUNNER_' + Math.floor(Math.random() * 9999));
 
   // Hardware & Software State
@@ -1111,6 +1117,18 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
            this.log('ERR: Invalid syntax. Usage: neural_dive --deep');
         }
         break;
+      case 'bounties':
+      case 'bounty':
+        this.showBountiesCommand(parts);
+        break;
+      case 'factions':
+      case 'faction':
+        this.showFactionsCommand(parts);
+        break;
+      case 'surveillance':
+        this.log('<span style="color: var(--neon-magenta)">[SURVEILLANCE] Opening neural observe interface...</span>');
+        this.audioService.playGlitch();
+        break;
       default:
         this.log(`ERR: COMMAND_NOT_FOUND: ${base}`);
         this.audioService.playError();
@@ -2001,5 +2019,96 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     ];
     const alert = alerts[Math.floor(Math.random() * alerts.length)];
     new Notification(alert.title, { body: alert.body, silent: false });
+  }
+
+  // ── Bounty Command ──
+  private showBountiesCommand(parts: string[]) {
+    const action = parts[1];
+    const openBounties = this.factions.getOpenBounties();
+
+    if (!action || action === 'list' || action === 'ls') {
+      this.log('<span style="color: var(--neon-orange)">=== OPEN BOUNTIES ===</span>');
+      openBounties.slice(0, 10).forEach((b, i) => {
+        const typeColor = b.bountyType === 'ELIMINATE' ? 'var(--neon-magenta)' : 'var(--neon-cyan)';
+        this.log(`<span style="color: ${typeColor}">[${i}] ${b.bountyType}</span> | Target: ${b.targetHandle} | Reward: ${b.reward} CR | Diff: ${'★'.repeat(Math.min(10, b.difficulty))}`);
+      });
+      if (openBounties.length === 0) this.log('No open bounties. The market is quiet... too quiet.');
+      this.log('Usage: bounty claim [ID] | bounty place [TARGET] [TYPE] [REWARD]');
+    } else if (action === 'claim' && parts[2]) {
+      const idx = parseInt(parts[2]);
+      const bounty = openBounties[idx];
+      if (bounty) {
+        this.factions.claimBounty(bounty.id);
+      } else {
+        this.log('ERR: Invalid bounty index.');
+      }
+    } else if (action === 'place' && parts[2] && parts[3] && parts[4]) {
+      const target = parts[2].toUpperCase();
+      const type = parts[3].toUpperCase() as any;
+      const reward = parseInt(parts[4]);
+      if (reward > 0 && reward <= this.credits()) {
+        this.factions.placeBounty(target, type, reward);
+      } else {
+        this.log('ERR: Invalid bounty parameters. Usage: bounty place [TARGET] [TYPE] [REWARD]');
+      }
+    } else if (action === 'complete' && parts[2]) {
+      const claimed = this.factions.bounties().filter(b => b.status === 'CLAIMED');
+      const idx = parseInt(parts[2]);
+      if (claimed[idx]) {
+        this.factions.completeBounty(claimed[idx].id);
+      }
+    } else {
+      this.log('Usage: bounty [list|claim|place|complete]');
+    }
+  }
+
+  // ── Faction Command ──
+  private showFactionsCommand(parts: string[]) {
+    const action = parts[1];
+    const availableFactions = this.factions.getAvailableFactions();
+    const playerFaction = this.factions.getPlayerFaction();
+
+    if (!action || action === 'list' || action === 'ls') {
+      this.log('<span style="color: var(--neon-violet)">=== NETWORK FACTIONS ===</span>');
+      availableFactions.forEach((f, i) => {
+        const isPlayer = playerFaction?.id === f.id;
+        const rep = this.factions.getFactionRepLevel(f.id);
+        const repColor = rep === 'ENEMY' ? 'var(--neon-magenta)' : rep === 'FRIENDLY' ? 'var(--neon-green)' : 'var(--text-dim)';
+        this.log(`<span style="color: ${f.color}">[${f.tag}] ${f.name}</span> ${isPlayer ? '★ YOUR FACTION' : ''} | Power: ${f.power} | Rep: <span style="color: ${repColor}">${rep}</span>`);
+        this.log(`  ${f.ideology}`);
+      });
+      this.log('Usage: faction join [INDEX] | faction leave | faction war [ATTACK_IDX] [DEFEND_IDX]');
+    } else if (action === 'join' && parts[2]) {
+      const idx = parseInt(parts[2]);
+      const faction = availableFactions[idx];
+      if (faction) {
+        this.factions.joinFaction(faction.id);
+        this.audioService.playSuccess();
+      } else {
+        this.log('ERR: Invalid faction index.');
+      }
+    } else if (action === 'leave') {
+      this.factions.leaveFaction();
+    } else if (action === 'war' && parts[2] && parts[3]) {
+      const attackerIdx = parseInt(parts[2]);
+      const defenderIdx = parseInt(parts[3]);
+      const attacker = availableFactions[attackerIdx];
+      const defender = availableFactions[defenderIdx];
+      if (attacker && defender && attacker.id !== defender.id) {
+        this.factions.declareWar(attacker.id, defender.id);
+        this.audioService.playGlitch();
+      } else {
+        this.log('ERR: Invalid faction indices for war declaration.');
+      }
+    } else if (action === 'wars' || action === 'status') {
+      const activeWars = this.factions.getActiveWars();
+      this.log('<span style="color: var(--neon-magenta)">=== ACTIVE FACTION WARS ===</span>');
+      activeWars.forEach(w => {
+        this.log(`${w.attackerName} [${w.attackerScore}] vs [${w.defenderScore}] ${w.defenderName} | Status: ${w.status}`);
+      });
+      if (activeWars.length === 0) this.log('No active wars. Enjoy the peace while it lasts.');
+    } else {
+      this.log('Usage: faction [list|join|leave|war|wars]');
+    }
   }
 }

@@ -4,6 +4,8 @@ import { AudioService } from './core/services/audio.service';
 import { StreamerIntegrationService } from './core/services/streamer-integration.service';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { PvpService } from './core/services/pvp.service';
+import { FactionService } from './core/services/faction.service';
+import { CreepyAudioService } from './core/services/creepy-audio.service';
 import { ActivatedRoute } from '@angular/router';
 import { TerminalComponent } from './features/terminal/terminal.component';
 import { HardwareShopComponent } from './features/hardware/hardware-shop.component';
@@ -424,6 +426,8 @@ export class AppComponent implements OnInit {
   streamerService = inject(StreamerIntegrationService);
   onboard = inject(OnboardAiService);
   pvp = inject(PvpService);
+  factions = inject(FactionService);
+  creepyAudio = inject(CreepyAudioService);
   private route = inject(ActivatedRoute);
 
   mobileSidebarOpen = signal(false);
@@ -432,6 +436,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.onboard.initialize();
     this.pvp.initialize();
+    this.factions.initialize();
+    this.creepyAudio.initialize();
     this.route.queryParamMap.subscribe(params => {
         const token = params.get('token');
         if (token) {
