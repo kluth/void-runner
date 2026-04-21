@@ -2115,11 +2115,3 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     }
   }
 }
-.log('Usage: faction [list|join|leave|war|wars]');
-    }
-  }
-}
-og('Usage: faction [list|join|leave|war|wars]');
-    }
-  }
-}
