@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { NeuralService } from './neural.service';
 import { AudioService } from './audio.service';
 import { HIJACK_RIDDLES } from '../data/riddles.data';
+import { ASCII_ART } from '../data/ascii-art';
 
 export interface HardwareItem {
   id: string;
@@ -896,9 +897,18 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   // Terminal Logic
   commandHistory = signal<string[]>([]);
 
+  // Obfuscated IP logic
+  obfuscatedIP = computed(() => {
+    const ip = '72.61.80.234';
+    if (this.reputation() < 500) return ip;
+    // Hacker obfuscation
+    return '0x' + ip.split('.').map(o => parseInt(o).toString(16).padStart(2, '0')).join('');
+  });
+
   processCommand(cmd: string) {
     this.commandHistory.update(h => [...h, cmd].slice(-50));
     this.log(`<span style="color: var(--primary)">${this.playerHandle()}@void:~$ ${cmd}</span>`);
+    this.audioService.playClick();
     
     // Default pulse for command feedback
     this.triggerVisualEvent(52.52, 13.40, 'pulse');
@@ -908,17 +918,68 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
 
     switch (base) {
       case 'help':
-        this.log('AVAILABLE_PROTOCOLS: help, ls, clear, status, scan, wipe, buy, install, routing, cooldown, abort_purge');
+        this.log('AVAILABLE_PROTOCOLS: help, ls, cat, clear, status, scan, wipe, routing, cooldown, abort_purge, whoami, nmap, top, ps, kill, ssh, display');
+        break;
+      case 'whoami':
+        this.log(`USER: ${this.playerHandle()}`);
+        this.log(`ROLE: NEURAL_OPERATIVE_L${Math.floor(this.experience()/1000) + 1}`);
+        this.log(`PRIVILEGE: 0x${(this.reputation()).toString(16)}`);
+        this.audioService.speakCreepy(`Operative ${this.playerHandle()} identified.`);
+        break;
+      case 'nmap':
+        this.log('PORT_SCAN_INITIATED...');
+        this.log('PORT 22/TCP OPEN  [SSH]');
+        this.log('PORT 80/TCP OPEN  [HTTP]');
+        this.log('PORT 443/TCP OPEN [HTTPS]');
+        this.log('PORT 3000/TCP OPEN [UPLINK_CORE]');
+        this.audioService.playGlitch();
+        break;
+      case 'top':
+      case 'ps':
+        this.log('PID  USER      %CPU  %MEM  COMMAND');
+        this.log('101  root      0.5   1.2   systemd');
+        this.log('204  void      12.4  4.8   neural_link_v5.0');
+        this.log('512  void      2.1   1.0   bash');
+        this.log('881  void      44.2  8.5   botnet_orchestrator');
+        break;
+      case 'ls':
+        this.log('drwxr-xr-x  root  root  4096  .sys');
+        this.log('-rw-r--r--  void  void  1024  manifest.v5');
+        this.log('-rw-r--r--  void  void  512   neural_seed.key');
+        if (this.activeMissions().length > 0) {
+          this.log(`drwx------  void  void  4096  missions/`);
+        }
         break;
       case 'status':
         this.log(`SYSTEM_HEALTH: ${this.systemIntegrity()}% | TRACE_LEVEL: ${this.detectionLevel()}% | HEAT: ${this.systemHeat()}%`);
+        this.audioService.speakCreepy(`Status check. Health at ${this.systemIntegrity()} percent.`);
+        break;
+      case 'display':
+        if (parts[1]) {
+           const artId = parts[1].toUpperCase();
+           const art = (ASCII_ART as any)[artId];
+           if (art) {
+              this.log(`FETCHING_ARTIFACT: ${artId}...`);
+              this.log(`<pre style="color:var(--primary); font-size: 0.35rem; line-height: 1; letter-spacing: 0; background: #000; padding: 10px; border: 1px dashed var(--primary);">${art}</pre>`);
+              this.audioService.playSuccess();
+           } else {
+              this.log(`ERR: ARTIFACT_${artId}_NOT_FOUND.`);
+              this.log(`AVAILABLE_ARTIFACTS: ${Object.keys(ASCII_ART).join(', ')}`);
+              this.audioService.playError();
+           }
+        } else {
+           this.log('Usage: display [ARTIFACT_ID]');
+           this.log(`AVAILABLE_ARTIFACTS: ${Object.keys(ASCII_ART).join(', ')}`);
+        }
         break;
       case 'wipe':
         if (this.installedSoftware().find(s => s.id === 'wiper' && s.installed)) {
            this.detectionLevel.set(0);
            this.log('LOG_PURGE: Evidence incinerated.');
+           this.audioService.playSuccess();
         } else {
            this.log('ERR: log-wiper not installed.');
+           this.audioService.playError();
         }
         break;
       case 'clear':
@@ -928,6 +989,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         if (this.systemHeat() > 0) {
            this.systemHeat.update(h => Math.max(0, h - 30));
            this.log('THERMAL_CONTROL: Coolant injected. Heat reduced.');
+           this.audioService.playSuccess();
         } else {
            this.log('THERMAL_CONTROL: System already at optimal temperature.');
         }
@@ -937,8 +999,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
            this.purgeActive.set(false);
            this.detectionLevel.update(d => Math.max(0, d - 20));
            this.log('SYSTEM_OVERRIDE: Purge sequence aborted.');
+           this.audioService.playSuccess();
         } else if (this.purgeActive()) {
            this.log('ERR: INVALID_PURGE_CODE. Sequence continuing.');
+           this.audioService.playError();
         } else {
            this.log('ERR: No active purge sequence to abort.');
         }
@@ -949,6 +1013,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
            this.log('<span style="color: var(--secondary)">Warning: Sensory overload imminent.</span>');
            this.detectionLevel.update(d => Math.max(0, d - 50));
            this.isDistorted.set(true);
+           this.audioService.playGlitch();
            setTimeout(() => this.isDistorted.set(false), 10000);
         } else {
            this.log('ERR: Invalid syntax. Usage: neural_dive --deep');
@@ -956,6 +1021,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         break;
       default:
         this.log(`ERR: COMMAND_NOT_FOUND: ${base}`);
+        this.audioService.playError();
     }
     this.saveLocalState();
   }

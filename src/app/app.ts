@@ -181,7 +181,7 @@ import { CommonModule } from '@angular/common';
           <span class="stat-sep">|</span>
           <span class="stat" [class.danger]="gameService.detectionLevel() > 60">TR:{{ gameService.detectionLevel() }}%</span>
           <span class="stat-sep hidden-xs">|</span>
-          <span class="stat hidden-xs">IP:72.61.80.234</span>
+          <span class="stat hidden-xs">UPLINK:{{ gameService.obfuscatedIP() }}</span>
         </div>
 
         <button class="mobile-sidebar-toggle primary" (click)="toggleMobileSidebar()" [attr.aria-expanded]="mobileSidebarOpen()" aria-label="Toggle Telemetry">
