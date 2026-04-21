@@ -18,10 +18,10 @@ import { CommonModule } from '@angular/common';
         │ <span class="sub-label">ACTIVE_THREATS_VIGILANCE</span>                                │
         @for (debuff of gameService.activeDebuffs(); track debuff.id) {
           <div class="debuff-entry">
-            │ - [{{ debuff.type }}] {{ debuff.name.padEnd(20) }} | REC: {{ getRemaining(debuff.expiresAt).toString().padStart(3) }}s │
+            │ - <span class="debuff-type">[{{ debuff.type }}]</span> {{ debuff.name.padEnd(20) }} | REC: <span class="rec-val">{{ getRemaining(debuff.expiresAt).toString().padStart(3) }}s</span> │
           </div>
         } @empty {
-          │ NO_EXTERNAL_THREATS_DETECTED                          │
+          │ <span class="no-threats">NO_EXTERNAL_THREATS_DETECTED</span>                          │
         }
         └────────────────────────────────────────────────────────┘
       </div>
@@ -29,9 +29,9 @@ import { CommonModule } from '@angular/common';
   `,
   styles: `
     .integrity-terminal {
-      background: #000;
+      background: var(--layer-0);
       padding: 1rem;
-      color: var(--primary);
+      color: var(--neon-green);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
       line-height: 1.2;
@@ -42,17 +42,22 @@ import { CommonModule } from '@angular/common';
     }
     .sec-header {
       font-weight: bold;
-      color: var(--primary);
+      color: var(--neon-green);
+      text-shadow: 0 0 6px rgba(0, 255, 159, 0.3);
     }
     .sub-label {
       opacity: 0.7;
       font-size: 0.75rem;
+      color: var(--neon-cyan);
     }
-    .integrity-val { color: var(--primary); }
-    .integrity-val.low { color: var(--tertiary); animation: blink 0.5s steps(1) infinite; }
-    .integrity-val.high { color: var(--tertiary); animation: blink 0.5s steps(1) infinite; }
+    .integrity-val { color: var(--neon-green); }
+    .integrity-val.low { color: var(--neon-magenta); animation: blink 0.5s steps(1) infinite; }
+    .integrity-val.high { color: var(--neon-orange); animation: blink 0.5s steps(1) infinite; }
     
     .debuff-entry { margin: 0; }
+    .debuff-type { color: var(--neon-orange); }
+    .rec-val { color: var(--neon-cyan); }
+    .no-threats { color: var(--neon-green); opacity: 0.6; }
 
     @keyframes blink { 50% { opacity: 0; } }
   `

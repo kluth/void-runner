@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
             </div>
             <div class="header-segment">
               <span class="label">SESSION:</span>
-              <span class="value">0x{{ gameService.playerHandle().length.toString(16).toUpperCase() }}</span>
+              <span class="value cyan">0x{{ gameService.playerHandle().length.toString(16).toUpperCase() }}</span>
             </div>
             <div class="header-segment">
               <span class="label">LATENCY:</span>
@@ -29,7 +29,7 @@ import { FormsModule } from '@angular/forms';
             </div>
             <div class="header-segment hide-mobile">
               <span class="label">STATUS:</span>
-              <span class="value pulse">CONNECTED</span>
+              <span class="value pulse connected">CONNECTED</span>
             </div>
           </div>
 
@@ -63,7 +63,7 @@ import { FormsModule } from '@angular/forms';
       <div class="tmux-status-bar">
         <div class="status-left">
           <span class="session-name">[void]</span>
-          <span class="window-index">0:sh*</span>
+          <span class="window-index active">0:sh*</span>
           <span class="window-index inactive">1:net</span>
           <span class="window-index inactive">2:sys</span>
         </div>
@@ -93,16 +93,16 @@ import { FormsModule } from '@angular/forms';
     :host {
       display: block;
       height: 100%;
-      background: #000;
+      background: var(--layer-0);
     }
 
     .terminal-container { 
-      background: #000; 
+      background: var(--layer-0); 
       height: 100%; 
       display: flex; 
       flex-direction: column; 
       font-family: 'JetBrains Mono', monospace; 
-      color: var(--primary);
+      color: var(--neon-green);
       overflow: hidden;
       position: relative;
       padding: 4px;
@@ -115,6 +115,29 @@ import { FormsModule } from '@angular/forms';
       flex-direction: column;
       overflow: hidden;
       margin-bottom: 4px;
+      border: 1px solid rgba(0, 255, 159, 0.15);
+      background: var(--layer-1);
+      clip-path: var(--clip-notch);
+      position: relative;
+    }
+    /* Green top-left + Cyan bottom-right corner accents */
+    .terminal-frame::before {
+      content: '';
+      position: absolute; top: -1px; left: -1px;
+      width: 14px; height: 14px;
+      border-top: 2px solid var(--neon-green);
+      border-left: 2px solid var(--neon-green);
+      filter: drop-shadow(0 0 5px var(--neon-green));
+      z-index: 5;
+    }
+    .terminal-frame::after {
+      content: '';
+      position: absolute; bottom: -1px; right: -1px;
+      width: 14px; height: 14px;
+      border-bottom: 2px solid var(--neon-cyan);
+      border-right: 2px solid var(--neon-cyan);
+      filter: drop-shadow(0 0 5px var(--neon-cyan));
+      z-index: 5;
     }
 
     .terminal-content {
@@ -129,14 +152,26 @@ import { FormsModule } from '@angular/forms';
       display: flex; 
       flex-wrap: wrap;
       gap: 10px 20px;
-      padding: 4px 10px;
-      border-bottom: 1px dashed rgba(0, 255, 0, 0.2);
+      padding: 6px 12px;
+      border-bottom: 1px solid rgba(0, 255, 159, 0.1);
       font-size: 0.65rem;
+      background: rgba(0, 255, 159, 0.02);
     }
 
-    .header-segment .label { opacity: 0.5; margin-right: 5px; }
-    .header-segment .value { font-weight: 700; }
-    .header-segment .clickable:hover { text-decoration: underline; cursor: pointer; color: var(--primary-bright); }
+    .header-segment .label {
+      color: var(--text-dim);
+      margin-right: 5px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 1px;
+    }
+    .header-segment .value { font-weight: 700; color: var(--neon-green); }
+    .header-segment .value.cyan { color: var(--neon-cyan); }
+    .header-segment .value.connected { color: var(--neon-green); }
+    .header-segment .clickable:hover {
+      text-decoration: underline; cursor: pointer;
+      text-shadow: 0 0 8px var(--neon-green);
+    }
 
     .terminal-body { 
       flex-grow: 1; 
@@ -152,20 +187,32 @@ import { FormsModule } from '@angular/forms';
       display: flex; 
       gap: 12px; 
       line-height: 1.4; 
+      border-left: 2px solid transparent;
+      padding-left: 6px;
+      transition: border-color 0.15s;
+    }
+    .log-line:hover {
+      border-left-color: rgba(0, 255, 159, 0.2);
+      background: rgba(0, 255, 159, 0.02);
     }
 
     .log-line.glitch-error { 
-      color: var(--tertiary) !important; 
+      color: var(--neon-magenta) !important; 
+      border-left-color: var(--neon-magenta) !important;
       animation: line-glitch 0.2s steps(2) infinite;
     }
 
     @keyframes line-glitch {
       0% { transform: translateX(0); }
-      50% { transform: translateX(-1px); filter: brightness(1.2); }
-      100% { transform: translateX(1px); }
+      50% { transform: translateX(-2px); filter: brightness(1.3) hue-rotate(10deg); }
+      100% { transform: translateX(2px); }
     }
 
-    .timestamp { color: var(--primary); opacity: 0.3; min-width: 80px; font-size: 0.65rem; }
+    .timestamp {
+      color: var(--text-muted);
+      min-width: 80px;
+      font-size: 0.65rem;
+    }
     .message { word-break: break-all; }
     
     .input-line { 
@@ -173,21 +220,27 @@ import { FormsModule } from '@angular/forms';
       gap: 10px; 
       align-items: center; 
       margin-top: 10px; 
-      border-top: 1px solid rgba(0, 255, 0, 0.1);
+      border-top: 1px solid rgba(0, 255, 159, 0.08);
       padding-top: 10px;
     }
 
     .input-wrapper { display: flex; flex-grow: 1; align-items: center; position: relative; }
-    .prompt { color: var(--primary); font-size: 0.75rem; font-weight: 900; white-space: nowrap; }
+    .prompt {
+      color: var(--neon-green);
+      font-size: 0.75rem;
+      font-weight: 900;
+      white-space: nowrap;
+      text-shadow: 0 0 6px rgba(0, 255, 159, 0.4);
+    }
     
     input { 
       background: transparent; 
       border: none; 
-      color: var(--primary-bright); 
+      color: var(--text-bright); 
       font-family: inherit; 
       font-size: 0.75rem; 
       width: 100%;
-      outline: none; 
+      outline: none;
       caret-color: transparent;
       padding: 0;
     }
@@ -195,7 +248,8 @@ import { FormsModule } from '@angular/forms';
     .cursor-block {
       width: 8px;
       height: 1.1em;
-      background: var(--primary);
+      background: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
       animation: blink 0.8s steps(2) infinite;
       position: absolute;
       left: 0;
@@ -211,37 +265,55 @@ import { FormsModule } from '@angular/forms';
 
     .tmux-status-bar {
       display: flex;
-      background: var(--primary);
-      color: #000;
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-green-dim));
+      color: var(--layer-0);
       font-size: 0.65rem;
       font-weight: 900;
-      height: 20px;
+      height: 22px;
       align-items: center;
-      padding: 0 5px;
+      padding: 0 8px;
       margin-top: 4px;
+      font-family: 'Orbitron', 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
     }
 
     .status-left, .status-right { display: flex; gap: 10px; }
-    .window-index { background: #000; color: var(--primary); padding: 0 5px; margin: 0 2px; }
-    .window-index.inactive { background: transparent; color: #000; }
+    .session-name { font-weight: 900; }
+    .window-index { background: var(--layer-0); color: var(--neon-green); padding: 0 6px; margin: 0 2px; }
+    .window-index.active { background: var(--layer-0); color: var(--neon-green); font-weight: 900; }
+    .window-index.inactive { background: transparent; color: var(--layer-0); opacity: 0.7; }
     .spacer { flex-grow: 1; }
+    .node-id { color: var(--layer-0); opacity: 0.6; }
+    .clock { color: var(--layer-0); font-weight: 900; }
 
     .pulse { animation: status-pulse 2s infinite; }
-    @keyframes status-pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    @keyframes status-pulse {
+      0%, 100% { opacity: 1; text-shadow: 0 0 6px var(--neon-green); }
+      50% { opacity: 0.6; text-shadow: none; }
+    }
 
     .bottom-sheet {
-       background: #000;
+       background: var(--layer-0);
        padding: 15px;
        display: flex;
        flex-direction: column;
        gap: 15px;
-       border-top: 1px solid var(--primary);
+       border-top: 2px solid var(--neon-green);
        box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
        margin-top: auto;
     }
-    .sheet-handle { width: 40px; height: 2px; background: var(--primary); margin: 0 auto; opacity: 0.3; }
+    .sheet-handle {
+      width: 40px; height: 3px;
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+      margin: 0 auto; opacity: 0.5;
+    }
 
-    .execute-btn { padding: 12px; font-size: 0.8rem; width: 100%; border: 1px solid var(--primary); }
+    .execute-btn {
+      padding: 12px; font-size: 0.8rem; width: 100%;
+      border: 1px solid var(--neon-green);
+      background: var(--neon-green);
+      color: var(--layer-0);
+    }
 
     .shortcuts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
     .shortcuts button { 
@@ -249,9 +321,11 @@ import { FormsModule } from '@angular/forms';
        padding: 8px 12px; 
        font-size: 0.65rem; 
        background: transparent;
-       border: 1px solid var(--primary);
-       color: var(--primary);
+       border: 1px solid rgba(0, 255, 159, 0.3);
+       color: var(--neon-green);
     }
+
+    @keyframes blink { to { opacity: 0; } }
 
     @media (max-width: 600px) {
       .hide-mobile { display: none; }
@@ -292,7 +366,7 @@ export class TerminalComponent implements AfterViewChecked {
        this.gameService.log('<span style="color: var(--secondary)">[RECURSIVE_BREACH] FOUNDATION LAYER ACCESSED. Developer backdoor triggered. +5000cr</span>');
        this.gameService.credits.update(c => c + 5000);
        this.audioService.playSuccess();
-       this.gameService.triggerVisualEvent(0, 0, 'burst', '#2ff801');
+       this.gameService.triggerVisualEvent(0, 0, 'burst', '#00F0FF');
        this.easterEggClicks = 0;
     }
   }
