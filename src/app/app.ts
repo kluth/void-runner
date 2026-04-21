@@ -27,6 +27,7 @@ import { BountyBoardComponent } from './features/missions/bounty-board.component
 import { OverclockStationComponent } from './features/hardware/overclock-station.component';
 import { AssetVaultComponent } from './features/hardware/asset-vault.component';
 import { PurgeOverlayComponent } from './features/system/purge-overlay.component';
+import { LockoutOverlayComponent } from './features/system/lockout-overlay.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -57,7 +58,8 @@ import { CommonModule } from '@angular/common';
     BountyBoardComponent,
     OverclockStationComponent,
     AssetVaultComponent,
-    PurgeOverlayComponent
+    PurgeOverlayComponent,
+    LockoutOverlayComponent
   ],
   template: `
     <h1 class="sr-only">VOID_RUN Protocol - High Density Operational Interface</h1>
@@ -83,6 +85,7 @@ import { CommonModule } from '@angular/common';
     <app-calibration-overlay />
     <app-walkthrough-overlay />
     <app-purge-overlay />
+    <app-lockout-overlay />
     
     <div class="game-wrapper" 
          [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"

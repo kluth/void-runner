@@ -1,16 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { GameService } from '../../core/services/game.service';
+import { GameService, Bounty } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
-
-export interface Bounty {
-  id: string;
-  target: string;
-  reward: number;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'ELITE' | 'IMPOSSIBLE';
-  type: string;
-  issuer: string;
-  expiresIn: string;
-}
 
 @Component({
   selector: 'app-bounty-board',
@@ -123,6 +113,6 @@ export class BountyBoardComponent {
   ]);
 
   acceptBounty(bounty: Bounty) {
-    this.gameService.log(`CONTRACT_ACCEPTED: Target ${bounty.target}. Deployment initiated.`);
+    this.gameService.acceptBounty(bounty);
   }
 }

@@ -77,4 +77,27 @@ describe('GameService Frontend Total Coverage', () => {
     (service as any).triggerFakedSystemAlert();
     // Notification created
   });
+
+  it('should randomize mission types during SINGULARITY event every 30s', () => {
+    service.globalEvent.set('SINGULARITY');
+    service.activeMissions.set([
+      { id: '1', name: 'M1', type: 'port-scan', target: 'T1', difficulty: 1, reward: 100, lat: 0, lng: 0, isHoneypot: false }
+    ]);
+    
+    const now = 30000;
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(now));
+    
+    const initialType = service.activeMissions()[0].type;
+    
+    // We need to trigger gameTick. 
+    // Since it's private, we cast to any.
+    (service as any).gameTick();
+    
+    // There is a chance it randomizes to the same type, but with 20+ types it's unlikely.
+    // To be sure, we can check if it was called.
+    expect(service.terminalLogs().some(l => l.message.includes('SINGULARITY: Mission protocols scrambled'))).toBe(true);
+    
+    vi.useRealTimers();
+  });
 });

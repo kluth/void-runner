@@ -145,12 +145,24 @@ export interface PlayerData {
   team?: Team | null;
 }
 
+export interface Bounty {
+  id: string;
+  target: string;
+  reward: number;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'ELITE' | 'IMPOSSIBLE';
+  type: string;
+  issuer: string;
+  expiresIn: string;
+}
+
 export interface Mission {
   id: string;
   name: string;
   target: string;
   difficulty: number;
+  difficultyLabel?: string;
   reward: number;
+  hardwareReward?: HardwareItem;
   lat: number;
   lng: number;
   type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'mitm-attack' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering' | 'physical-infiltration' | 'drone-hijacking' | 'stock-manipulation' | 'dark-web-hit' | 'corporate-espionage' | 'undersea-tap' | 'satellite-hacking' | 'bgp-hijacking' | 'election-interference' | 'hacker-takedown';
@@ -297,6 +309,11 @@ export class GameService {
   purgeTimer = signal(0);
   purgeCode = signal('');
 
+  lockoutActive = signal(false);
+  lockoutTimer = signal(0);
+  lockoutPuzzles = signal<{q: string, a: string}[]>([]);
+  lockoutSolvedCount = signal(0);
+
   // Advanced Mechanics State
   botnetSize = signal(0);
   zeroDays = signal(0);
@@ -350,6 +367,8 @@ export class GameService {
   // Immersive Stress Mechanics
   difficultyMultiplier = signal(1.0);
   isDistorted = signal(false);
+  isDDoSActive = signal(false);
+  ddosTimer = signal(0);
   blueTeamActive = signal(false);
 
   // Hijack State
@@ -941,6 +960,19 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.saveLocalState();
   }
 
+  executeSystemWipe() {
+    this.lockoutActive.set(false);
+    this.detectionLevel.set(0);
+    this.credits.set(0);
+    this.reputation.update(r => Math.floor(r * 0.5));
+    this.inventory.set([]);
+    this.mountedHardware.set(new Array(6).fill(null));
+    this.activeMissions.set([]);
+    this.log('<span style="color: var(--tertiary)">!!! SYSTEM WIPE EXECUTED !!! Node incinerated. Inventory lost. 50% Rep lost.</span>');
+    this.audioService.playError();
+    this.updateRemoteScore();
+  }
+
   private gameTick() {
     const now = Date.now();
     const det = this.detectionLevel();
@@ -962,26 +994,28 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         this.systemHeat.set(80); // Reset slightly so they can recover
     }
 
-    // Purge Logic
-    if (det >= 100 && !this.purgeActive()) {
-        this.purgeActive.set(true);
-        this.purgeTimer.set(30);
-        this.purgeCode.set(Math.random().toString(36).substring(7).toUpperCase());
-        this.log(`<span style="color: var(--tertiary)">!!! CRITICAL TRACE: PURGE IMMINENT !!!</span>`);
-        this.log(`<span style="color: var(--tertiary)">Type 'abort_purge ${this.purgeCode()}' to stop sequence.</span>`);
-    } else if (this.purgeActive()) {
-        this.purgeTimer.update(t => t - 1);
-        if (this.purgeTimer() <= 0) {
-            this.purgeActive.set(false);
-            this.detectionLevel.set(0);
-            this.credits.set(0);
-            this.reputation.set(0);
-            if (this.activeMissions().length > 0) {
-                this.activeMissions.set([]);
-                this.log('<span style="color: var(--tertiary)">PURGE EXECUTED. Credits wiped. Rep wiped. Missions aborted.</span>');
-            } else {
-                this.log('<span style="color: var(--tertiary)">PURGE EXECUTED. System wiped.</span>');
+    // Lockout Logic
+    if (this.lockoutActive()) {
+        const slowdown = this.isDDoSActive() ? 0.5 : 1.0;
+        if (Math.random() < slowdown) {
+            this.lockoutTimer.update(t => t - 1);
+            if (this.lockoutTimer() <= 0) {
+                this.executeSystemWipe();
             }
+        }
+    }
+
+    // DDoS Effects
+    if (this.isDDoSActive()) {
+        this.ddosTimer.update(t => t - 1);
+        if (this.ddosTimer() <= 0) {
+            this.isDDoSActive.set(false);
+            this.log('BOTNET: DDoS attack concluded. System power normalizing.');
+        }
+        // Power Surge: Random visual glitches
+        if (Math.random() > 0.95) {
+            this.isDistorted.set(true);
+            setTimeout(() => this.isDistorted.set(false), 500);
         }
     }
 
@@ -1118,6 +1152,16 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     // Procedural News
     if (now % 45000 < 1000) {
         this.generateNews();
+    }
+
+    // Singularity: Randomize mission types every 30 seconds
+    if (this.globalEvent() === 'SINGULARITY' && now % 30000 < 1000) {
+        const types: Mission['type'][] = ['port-scan', 'brute-force', 'sql-injection', 'rfid-clone', 'buffer-overflow', 'xss-injection', 'osint-research', 'phishing-campaign', 'mitm-attack', 'crypto-heist', 'quantum-breach', 'iot-takeover', 'social-engineering', 'physical-infiltration', 'drone-hijacking', 'stock-manipulation', 'dark-web-hit', 'corporate-espionage', 'undersea-tap', 'satellite-hacking', 'bgp-hijacking', 'election-interference', 'hacker-takedown'];
+        this.activeMissions.update(missions => missions.map(m => ({
+            ...m,
+            type: types[Math.floor(Math.random() * types.length)]
+        })));
+        this.log('<span style="color: #ff00ff">SINGULARITY: Mission protocols scrambled.</span>');
     }
   }
 
@@ -1271,13 +1315,44 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     const reducedAmount = Math.max(0.1, (finalAmount - (stealth / 10)) / multiplier) * (this.supplyChainActive() ? 0.5 : 1.0);
     this.detectionLevel.update(d => Math.min(100, Number((d + reducedAmount).toFixed(1))));
     this.updateRemoteScore();
-    if (this.detectionLevel() >= 100) {
-      this.log('!!! CRITICAL: TRACE DETECTED. EMERGENCY DISCONNECT !!!');
-      this.activeRansoms.set(0);
-      this.triggerRetaliation(true);
-      this.detectionLevel.set(0);
-      this.updateRemoteScore();
+    if (this.detectionLevel() >= 100 && !this.lockoutActive()) {
+      this.log('!!! CRITICAL: TRACE DETECTED. SYSTEM LOCKOUT IMMINENT !!!');
+      this.startLockout();
     }
+  }
+
+  startLockout() {
+    this.lockoutActive.set(true);
+    this.lockoutTimer.set(30);
+    this.lockoutSolvedCount.set(0);
+    
+    // Pick 3 random riddles
+    const shuffled = [...HIJACK_RIDDLES].sort(() => 0.5 - Math.random());
+    this.lockoutPuzzles.set(shuffled.slice(0, 3));
+    
+    this.audioService.speakCreepy('System lockout protocol initiated. Solve puzzles to prevent wipe.');
+    this.updateRemoteScore();
+  }
+
+  solveLockoutPuzzle(answer: string) {
+    if (!this.lockoutActive()) return;
+    
+    const currentPuzzle = this.lockoutPuzzles()[this.lockoutSolvedCount()];
+    if (answer.toUpperCase() === currentPuzzle.a.toUpperCase()) {
+        this.lockoutSolvedCount.update(c => c + 1);
+        this.audioService.playSuccess();
+        
+        if (this.lockoutSolvedCount() >= 3) {
+            this.lockoutActive.set(false);
+            this.detectionLevel.set(0);
+            this.log('LOCKOUT_STOPPED: System control regained.');
+            this.audioService.speakCreepy('Lockout aborted. Trace cleared.');
+        }
+    } else {
+        this.audioService.playError();
+        this.lockoutTimer.update(t => Math.max(0, t - 5)); // Penalty
+    }
+    this.updateRemoteScore();
   }
 
   triggerRetaliation(critical = false) {
@@ -1369,7 +1444,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
 
     // Trigger visual burst at mission location
     this.triggerVisualEvent(mission.lat, mission.lng, 'burst', '#2ff801');
-    
+
     let r = mission.reward;
     let e = mission.difficulty * 25;
     let rep = Math.floor(mission.difficulty * 1.5);
@@ -1379,7 +1454,14 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.addExperience(e);
     this.reputation.update(rp => rp + rep);
     this.detectionLevel.set(0);
-    this.log(`MISSION ${mission.name.toUpperCase()} SUCCESSFUL. +${r}cr, +${rep} REP.`);
+
+    if (mission.hardwareReward) {
+      this.inventory.update(inv => [...inv, mission.hardwareReward!]);
+      this.log(`MISSION ${mission.name.toUpperCase()} SUCCESSFUL. RECEIVED UNIQUE HARDWARE: ${mission.hardwareReward.name}.`);
+    } else {
+      this.log(`MISSION ${mission.name.toUpperCase()} SUCCESSFUL. +${r}cr, +${rep} REP.`);
+    }
+
     this.botnetSize.update(b => b + Math.floor(Math.random() * (mission.difficulty * 2)) + 1);
     if (Math.random() > 0.6) this.dropArtifact();
     if (mission.isEntryPoint) this.generateInternalNetwork(mission.target);
@@ -1387,7 +1469,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     if (Math.random() > 0.7) this.campaignLevel.update(l => l + 1);
     this.addRandomMission();
     this.updateRemoteScore();
-    
+
     // Singularity check
     if (this.reputation() > 5000 && Math.random() > 0.995 && this.globalEvent() !== 'SINGULARITY') {
         this.globalEvent.set('SINGULARITY');
@@ -1395,6 +1477,41 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     }
   }
 
+  acceptBounty(bounty: Bounty) {
+    this.log(`CONTRACT_ACCEPTED: Target ${bounty.target}. Deployment initiated.`);
+
+    // Map bounty difficulty to number
+    const difficultyMap: Record<string, number> = {
+      'EASY': 1,
+      'MEDIUM': 2,
+      'HARD': 3,
+      'ELITE': 5,
+      'IMPOSSIBLE': 8
+    };
+
+    // Pick a random hardware item that is currently locked
+    const lockedHardware = this.availableHardware().filter(h => !h.unlocked);
+    const hardwareReward = lockedHardware.length > 0 
+      ? lockedHardware[Math.floor(Math.random() * lockedHardware.length)]
+      : this.availableHardware()[Math.floor(Math.random() * this.availableHardware().length)];
+
+    const bountyMission: Mission = {
+      id: `bounty-${bounty.id}-${Math.random().toString(36).substring(7)}`,
+      name: `BOUNTY: ${bounty.target}`,
+      target: bounty.target,
+      difficulty: difficultyMap[bounty.difficulty] || 3,
+      difficultyLabel: bounty.difficulty,
+      reward: bounty.reward,
+      hardwareReward: bounty.difficulty === 'ELITE' ? hardwareReward : undefined,
+      type: 'dark-web-hit', // Appropriate type for bounties
+      lat: (Math.random() * 140) - 70,
+      lng: (Math.random() * 360) - 180,
+      isHoneypot: false
+    };
+
+    this.activeMissions.update(m => [...m, bountyMission]);
+    this.incrementTabNotification('MISSIONS');
+  }
   private dropArtifact(forcedType?: Artifact['type']) {
     const types: Artifact['type'][] = ['binary', 'encrypted_log', 'firmware', 'cloud_dump'];
     const type = forcedType || types[Math.floor(Math.random() * types.length)];
@@ -1620,7 +1737,9 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.botnetSize.update(b => b - Math.floor(b * 0.5));
       this.detectionLevel.update(d => Math.max(0, d - 40));
       this.systemHeat.update(h => Math.min(100, h + 25));
-      this.log('DDoS LAUNCHED.');
+      this.isDDoSActive.set(true);
+      this.ddosTimer.set(30);
+      this.log('DDoS LAUNCHED. Global Slowdown active.');
 
       // Multiple random bursts
       for(let i=0; i<5; i++) {

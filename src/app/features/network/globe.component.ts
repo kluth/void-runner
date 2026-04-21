@@ -60,6 +60,11 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
       const events = this.gameService.visualEvents();
       this.syncVisualEvents(events);
     });
+
+    effect(() => {
+      this.gameService.globalEvent();
+      this.updateVisuals();
+    });
   }
 
   ngAfterViewInit() {
@@ -173,6 +178,29 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
       const arcMat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.8 });
       const arc = new THREE.Line(arcGeo, arcMat);
       this.pointGroup.add(arc);
+    }
+
+    // SINGULARITY: Fracture Arcs between ALL nodes
+    if (this.gameService.globalEvent() === 'SINGULARITY') {
+        const allNodes = this.networkService.nodes();
+        for (let i = 0; i < allNodes.length; i++) {
+            for (let j = i + 1; j < allNodes.length; j++) {
+                const start = this.latLngToVector3(allNodes[i].lat, allNodes[i].lng, 101);
+                const end = this.latLngToVector3(allNodes[j].lat, allNodes[j].lng, 101);
+                const mid = start.clone().lerp(end, 0.5).multiplyScalar(1.4);
+                const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+                const curvePoints = curve.getPoints(20);
+                const arcGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+                const arcMat = new THREE.LineBasicMaterial({ 
+                    color: 0xff00ff, 
+                    transparent: true, 
+                    opacity: 0.3,
+                    blending: THREE.AdditiveBlending
+                });
+                const arc = new THREE.Line(arcGeo, arcMat);
+                this.pointGroup.add(arc);
+            }
+        }
     }
   }
 
