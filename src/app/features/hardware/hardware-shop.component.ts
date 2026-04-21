@@ -97,8 +97,8 @@ import { FormsModule } from '@angular/forms';
                 <p>MOUNT: {{ selectedInventoryItem.name }}</p>
                 <p>TARGET: SLOT_0{{ selectedSlot }}</p>
                 <div class="modal-actions">
-                  <button class="term-btn" (click)="confirmMount()">[ EXECUTE ]</button>
-                  <button class="term-btn" (click)="selectedSlot = null">[ ABORT ]</button>
+                  <button class="term-btn cyan" (click)="confirmMount()">[ EXECUTE ]</button>
+                  <button class="term-btn magenta" (click)="selectedSlot = null">[ ABORT ]</button>
                 </div>
               </div>
             </div>
@@ -110,10 +110,9 @@ import { FormsModule } from '@angular/forms';
     :host {
       display: block;
       height: 100%;
-      background: #000;
-      color: var(--primary);
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      --primary: #00ff00;
+      background: var(--layer-0);
+      color: var(--neon-green);
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .terminal-root {
@@ -134,10 +133,10 @@ import { FormsModule } from '@angular/forms';
       padding: 0.5rem;
     }
 
-    .title { margin: 0; font-size: 1.1rem; font-weight: bold; text-shadow: 0 0 5px var(--primary); }
+    .title { margin: 0; font-size: 1.1rem; font-weight: bold; text-shadow: 0 0 5px var(--neon-green); font-family: 'Orbitron', monospace; }
 
     .power-telemetry { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
-    .p-bar-ascii { color: var(--primary); display: flex; }
+    .p-bar-ascii { color: var(--neon-green); display: flex; }
     .p-fill-ascii { letter-spacing: -1px; }
     .p-empty-ascii { opacity: 0.2; letter-spacing: -1px; }
 
@@ -145,32 +144,34 @@ import { FormsModule } from '@angular/forms';
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 1rem;
-      padding: 1rem 0;
+      padding: 1rem;
     }
 
     .rig-slot-terminal {
       background: transparent;
-      border: 1px dashed var(--primary);
-      color: var(--primary);
+      border: 1px dashed rgba(0, 255, 159, 0.3);
+      color: var(--neon-green);
       padding: 0.8rem;
       text-align: left;
       cursor: pointer;
       font-family: inherit;
       transition: all 0.2s ease;
+      clip-path: var(--clip-notch);
     }
     .rig-slot-terminal:hover {
-      background: rgba(0, 255, 0, 0.1);
+      background: rgba(0, 255, 159, 0.1);
       border-style: solid;
+      border-color: var(--neon-green);
     }
     .rig-slot-terminal.occupied {
-      border: 1px solid var(--primary);
-      background: rgba(0, 255, 0, 0.05);
+      border: 1px solid var(--neon-green);
+      background: rgba(0, 255, 159, 0.05);
     }
 
-    .slot-header { font-size: 0.65rem; opacity: 0.6; margin-bottom: 4px; }
+    .slot-header { font-size: 0.65rem; color: rgba(0, 255, 159, 0.5); margin-bottom: 4px; }
     .slot-empty { font-size: 0.75rem; opacity: 0.4; text-align: center; margin-top: 5px; }
     .m-name { font-weight: bold; font-size: 0.85rem; margin-bottom: 2px; }
-    .m-power { font-size: 0.7rem; opacity: 0.8; }
+    .m-power { font-size: 0.7rem; color: var(--neon-cyan); }
 
     .main-split {
       display: flex;
@@ -193,16 +194,16 @@ import { FormsModule } from '@angular/forms';
       width: 100%;
       background: transparent;
       border: none;
-      color: var(--primary);
+      color: var(--neon-green);
       font-family: inherit;
-      padding: 6px 8px;
+      padding: 6px 12px;
       cursor: pointer;
       text-align: left;
       gap: 10px;
       border-left: 2px solid transparent;
     }
-    .terminal-item:hover { background: rgba(0, 255, 0, 0.1); border-left-color: var(--primary); }
-    .terminal-item.active { background: var(--primary); color: #000; }
+    .terminal-item:hover { background: rgba(0, 255, 159, 0.1); border-left-color: var(--neon-green); }
+    .terminal-item.active { background: var(--neon-green); color: var(--layer-0); }
     .i-prefix { font-weight: bold; opacity: 0.7; }
     .i-type { margin-left: auto; font-size: 0.7rem; opacity: 0.6; }
 
@@ -210,43 +211,45 @@ import { FormsModule } from '@angular/forms';
       display: block;
       width: 100%;
       background: transparent;
-      border: 1px solid rgba(0, 255, 0, 0.2);
-      color: var(--primary);
+      border: 1px solid rgba(0, 255, 159, 0.2);
+      color: var(--neon-green);
       font-family: inherit;
-      padding: 10px;
+      padding: 10px 15px;
       cursor: pointer;
       text-align: left;
       margin-bottom: 8px;
       transition: all 0.2s ease;
+      clip-path: var(--clip-notch);
     }
     .hw-card-terminal:hover:not(.locked) {
-      border-color: var(--primary);
-      background: rgba(0, 255, 0, 0.08);
+      border-color: var(--neon-green);
+      background: rgba(0, 255, 159, 0.08);
       transform: translateX(4px);
     }
     .hw-card-terminal.locked { opacity: 0.3; cursor: not-allowed; }
 
-    .h-row { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
-    .h-desc { font-size: 0.8rem; margin-bottom: 6px; opacity: 0.9; }
-    .h-stats { font-size: 0.75rem; opacity: 0.7; }
+    .h-row { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; font-family: 'Orbitron', monospace; }
+    .h-price { color: var(--neon-cyan); }
+    .h-desc { font-size: 0.8rem; margin-bottom: 6px; color: rgba(0, 255, 159, 0.8); }
+    .h-stats { font-size: 0.75rem; color: rgba(0, 255, 159, 0.5); }
 
     .terminal-modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
+      background: rgba(5, 8, 16, 0.95);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(8px);
     }
 
     .modal-box {
-      width: 300px;
+      width: 320px;
     }
 
     .modal-content {
-      padding: 1rem;
+      padding: 1.5rem;
       text-align: center;
     }
     .modal-actions {
@@ -258,25 +261,30 @@ import { FormsModule } from '@angular/forms';
 
     .term-btn {
       background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      font-family: inherit;
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      font-family: 'Orbitron', monospace;
       font-size: 0.9rem;
       cursor: pointer;
-      padding: 6px 12px;
+      padding: 8px 16px;
       transition: all 0.2s ease;
+      clip-path: var(--clip-notch);
     }
     .term-btn:hover {
-      background: var(--primary);
-      color: #000;
+      background: rgba(0, 255, 159, 0.1);
+      box-shadow: 0 0 10px rgba(0, 255, 159, 0.3);
     }
+    .term-btn.cyan { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+    .term-btn.cyan:hover { background: rgba(0, 229, 255, 0.1); box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); }
+    .term-btn.magenta { border-color: var(--neon-magenta); color: var(--neon-magenta); }
+    .term-btn.magenta:hover { background: rgba(255, 0, 85, 0.1); box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); }
 
     .empty-msg { opacity: 0.4; text-align: center; padding: 2rem; font-style: italic; font-size: 0.8rem; }
 
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-    ::-webkit-scrollbar-thumb { background: var(--primary); }
+    ::-webkit-scrollbar-thumb { background: var(--neon-green); }
 
     @media (max-width: 800px) {
       .main-split {

@@ -63,9 +63,10 @@ import { CommonModule } from '@angular/common';
   ],
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
-         [class.stability-mode]="gameService.settings().general.stability_mode">
+         [class.stability-mode]="gameService.settings().general.stability_mode"
+         class="h-full">
          
-      <h1 class="sr-only">VOID_RUN Protocol - Neural Nvim Session</h1>
+      <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>
 
       @if (!gameService.isConfigured()) { <app-config-wizard /> }
       @if (gameService.isBooting()) { <app-boot-screen /> }
@@ -80,26 +81,16 @@ import { CommonModule } from '@angular/common';
       <app-purge-overlay />
       <app-lockout-overlay />
 
-      <!-- HALLUCINATION LAYER -->
-      @if (decayFactor() > 0.5) {
-         <div class="ghost-whisper" [style.top.%]="randomY()" [style.left.%]="randomX()">
-            LOOK_BEHIND_YOU
-         </div>
-         <div class="ghost-whisper" [style.top.%]="randomY2()" [style.right.%]="randomX2()">
-            THE_VOID_IS_WATCHING
-         </div>
-      }
-
       <div class="game-wrapper" 
            [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
            [class.trace-high-glitch]="gameService.detectionLevel() > 70">
            
-        <!-- MAIN TILING GRID -->
+        <!-- MAIN TILING GRID (NVIM STYLE) -->
         <main class="nvim-grid">
           
           <!-- LEFT SIDEBAR: MISSION MANIFEST -->
-          <aside class="sidebar-manifest v-divider">
-            <div class="pane-header">[ 0:CONTRACTS ]</div>
+          <aside class="sidebar-manifest terminal-frame corner-tl corner-bl">
+            <div class="ascii-line">0:OPERATIONS</div>
             <div class="pane-content">
                <app-missions />
                <div class="h-divider"></div>
@@ -109,42 +100,45 @@ import { CommonModule } from '@angular/common';
             </div>
           </aside>
 
-          <!-- CENTER: MAIN BUFFER (TERMINAL / HARDWARE / GRID) -->
-          <section class="main-buffer">
-             <div class="pane-header">
-                [ 1:{{ gameService.activeTab().toLowerCase() }}* ]
-                <span class="active-op-tag hidden-mobile">NODE: 72.61.80.234 // {{ gameService.playerHandle() }}</span>
-             </div>
+          <!-- CENTER: MAIN BUFFER -->
+          <section class="main-buffer terminal-frame">
+             <div class="ascii-line cyan">1:{{ gameService.activeTab().toLowerCase() }}*</div>
              
              <div class="buffer-content">
                 @switch (gameService.activeTab()) {
                    @case ('TERMINAL') { <app-terminal /> }
                    @case ('HARDWARE') { 
-                      <app-hardware-shop />
-                      <div class="h-divider"></div>
-                      <app-overclock-station />
-                      <div class="h-divider"></div>
-                      <app-asset-vault />
+                      <div class="hardware-hub">
+                         <app-hardware-shop />
+                         <div class="h-divider"></div>
+                         <app-overclock-station />
+                         <div class="h-divider"></div>
+                         <app-asset-vault />
+                      </div>
                    }
                    @case ('GRID') {
-                      <div class="holographic-preview" (click)="toggleGlobeModal()">
-                         <div class="preview-noise">HOLOGRAPHIC_GRID_UPLINK [ESTABLISHED]</div>
-                         <app-globe />
+                      <div class="grid-hub">
+                         <div class="holographic-preview terminal-frame" (click)="toggleGlobeModal()">
+                            <div class="ascii-line cyan">HOLOGRAPHIC_GRID_UPLINK</div>
+                            <app-globe />
+                         </div>
+                         <app-network />
                       </div>
-                      <app-network />
                    }
                    @case ('SOCIAL') {
-                      <app-darknet-node />
-                      <div class="h-divider"></div>
-                      <app-teams />
+                      <div class="social-hub">
+                         <app-darknet-node />
+                         <div class="h-divider"></div>
+                         <app-teams />
+                      </div>
                    }
                 }
              </div>
           </section>
 
-          <!-- RIGHT SIDEBAR: TELEMETRY & ALERTS -->
-          <aside class="sidebar-telemetry hidden-tablet">
-            <div class="pane-header">[ 2:SYSTEM ]</div>
+          <!-- RIGHT SIDEBAR: TELEMETRY -->
+          <aside class="sidebar-telemetry terminal-frame corner-tr corner-br hidden-tablet">
+            <div class="ascii-line magenta">2:SYSTEM_DATA</div>
             <div class="pane-content">
                <app-system-integrity />
                <div class="h-divider"></div>
@@ -152,9 +146,12 @@ import { CommonModule } from '@angular/common';
                <div class="h-divider"></div>
                <div class="module-manifest">
                   <div class="sec-label">INSTALLED_MODULES</div>
-                  <div class="module-list">
+                  <div class="module-list" role="list">
                      @for (item of gameService.inventory(); track $index) {
-                        <div class="module-item">0{{ $index }}: {{ item.name }}</div>
+                        <div class="module-item" role="listitem">
+                           <span class="m-code">0{{ $index }}:</span>
+                           <span class="m-name">{{ item.name }}</span>
+                        </div>
                      }
                   </div>
                </div>
@@ -177,19 +174,23 @@ import { CommonModule } from '@angular/common';
           </div>
 
           <div class="tmux-right">
-             <span class="stat">CR:{{ gameService.credits() }}</span> |
-             <span class="stat" style="color: var(--neon-cyan)">REP:{{ gameService.reputation() }}</span> |
+             <span class="stat">CR:{{ gameService.credits() }}</span>
+             <span class="stat-sep">│</span>
+             <span class="stat" style="color: var(--neon-cyan)">REP:{{ gameService.reputation() }}</span>
+             <span class="stat-sep">│</span>
              <span class="stat" [class.trace-alert]="gameService.detectionLevel() > 60">TR:{{ gameService.detectionLevel() }}%</span>
-             <button class="mobile-telemetry-toggle" (click)="toggleMobileTelemetry()">[ TEL ]</button>
+             <button class="mobile-telemetry-toggle" (click)="toggleMobileTelemetry()">[ SYSTEM ]</button>
           </div>
         </footer>
 
+        <!-- MODAL OVERLAYS -->
         @if (mobileTelemetryOpen()) {
            <div class="mobile-telemetry-overlay glass-overlay" (click)="toggleMobileTelemetry()">
-              <div class="telemetry-box" (click)="$event.stopPropagation()">
+              <div class="telemetry-box terminal-frame" (click)="$event.stopPropagation()">
+                 <div class="ascii-line magenta">EMERGENCY_TELEMETRY</div>
                  <app-system-integrity />
                  <app-live-events />
-                 <button (click)="toggleMobileTelemetry()">[ DISMISS ]</button>
+                 <button class="magenta" (click)="toggleMobileTelemetry()">[ DISMISS ]</button>
               </div>
            </div>
         }
@@ -197,8 +198,9 @@ import { CommonModule } from '@angular/common';
         @if (globeModalOpen()) {
            <div class="globe-modal glass-overlay" (click)="toggleGlobeModal()">
               <div class="modal-content terminal-frame" (click)="$event.stopPropagation()">
+                 <div class="ascii-line cyan">GRID_MAP_FULL_RESOLUTION</div>
                  <app-globe />
-                 <button class="close-btn" (click)="toggleGlobeModal()">[ CLOSE_GRID ]</button>
+                 <button class="cyan" (click)="toggleGlobeModal()">[ CLOSE_GRID ]</button>
               </div>
            </div>
         }
@@ -216,27 +218,17 @@ import { CommonModule } from '@angular/common';
 
     .nvim-grid {
       display: grid;
-      grid-template-columns: 250px 1fr 280px;
+      grid-template-columns: 280px 1fr 300px;
       flex-grow: 1;
       min-height: 0;
-      border: 1px solid var(--primary);
-    }
-
-    .pane-header {
-      background: var(--primary);
-      color: var(--layer-0);
-      font-size: 0.65rem;
-      font-weight: 900;
-      padding: 2px 8px;
-      display: flex;
-      justify-content: space-between;
-      white-space: nowrap;
+      gap: 2px;
+      padding: 2px;
     }
 
     .pane-content, .buffer-content {
       flex-grow: 1;
       overflow-y: auto;
-      background: var(--layer-0);
+      background: var(--layer-1);
       min-height: 0;
     }
 
@@ -246,47 +238,52 @@ import { CommonModule } from '@angular/common';
       min-width: 0;
     }
 
-    .module-manifest { padding: 10px; }
-    .sec-label { font-size: 0.6rem; opacity: 0.5; margin-bottom: 8px; font-weight: 900; }
-    .module-item { font-size: 0.7rem; color: var(--primary); opacity: 0.8; margin-bottom: 4px; }
+    .module-manifest { padding: 15px; }
+    .sec-label { font-size: 0.6rem; opacity: 0.5; margin-bottom: 10px; font-weight: 900; color: var(--neon-yellow); }
+    .module-item { font-size: 0.75rem; color: var(--neon-green); margin-bottom: 6px; }
+    .m-code { opacity: 0.5; margin-right: 8px; }
 
-    .holographic-preview { height: 200px; cursor: pointer; position: relative; }
-    .preview-noise { position: absolute; top: 5px; left: 10px; font-size: 0.5rem; opacity: 0.3; z-index: 10; }
-    .holographic-preview app-globe { height: 100%; pointer-events: none; opacity: 0.4; }
+    .holographic-preview { height: 250px; cursor: pointer; position: relative; margin: 10px; flex-shrink: 0; }
+    .holographic-preview app-globe { height: 100%; pointer-events: none; opacity: 0.6; }
 
-    .tactical-tabs { display: flex; gap: 10px; }
+    .tactical-tabs { display: flex; gap: 12px; }
     .tactical-tabs button {
       background: transparent; border: none; color: var(--layer-0);
       font-family: inherit; font-size: inherit; cursor: pointer; padding: 0;
     }
     .tactical-tabs button.active { font-weight: 900; text-decoration: underline; }
 
-    .trace-alert { background: var(--layer-0); color: var(--tertiary); padding: 0 4px; }
-    .mobile-telemetry-toggle { display: none; margin-left: 10px; }
+    .stat-sep { opacity: 0.3; margin: 0 4px; }
+    .trace-alert { background: var(--layer-0); color: var(--neon-magenta); padding: 0 4px; }
+    .mobile-telemetry-toggle { display: none; margin-left: 15px; height: 18px; line-height: 1; padding: 0 8px; font-size: 0.6rem; }
 
-    /* MODALS */
     .globe-modal, .mobile-telemetry-overlay {
        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
        z-index: 10000; display: flex; align-items: center; justify-content: center;
        padding: 2rem;
     }
-    .modal-content { background: var(--layer-0); border: 1px solid var(--primary); width: 100%; max-width: 1000px; padding: 1rem; position: relative; }
-    .modal-content app-globe { height: 70vh; }
-    .close-btn { width: 100%; margin-top: 1rem; }
+    .modal-content { background: var(--layer-0); width: 100%; max-width: 1000px; padding: 1.5rem; }
+    .modal-content app-globe { height: 65vh; min-height: 400px; }
+    .modal-content button { width: 100%; margin-top: 1.5rem; }
 
-    .telemetry-box { background: var(--layer-0); border: 1px solid var(--primary); padding: 2rem; width: 90%; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2rem; }
+    .telemetry-box { background: var(--layer-1); padding: 2rem; width: 95%; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2rem; }
 
-    @media (max-width: 1200px) {
-       .nvim-grid { grid-template-columns: 200px 1fr; }
+    @media (max-width: 1300px) {
+       .nvim-grid { grid-template-columns: 240px 1fr; }
        .sidebar-telemetry { display: none; }
-       .hidden-tablet { display: none; }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 850px) {
        .nvim-grid { grid-template-columns: 1fr; }
        .sidebar-manifest { display: none; }
        .mobile-telemetry-toggle { display: block; }
        .hidden-mobile { display: none; }
+    }
+
+    @media (max-width: 480px) {
+       .tmux-bar { font-size: 0.65rem; }
+       .tactical-tabs { gap: 6px; }
+       .tmux-right { gap: 4px; }
     }
   `
 })
@@ -298,12 +295,6 @@ export class AppComponent implements OnInit {
 
   globeModalOpen = signal(false);
   mobileTelemetryOpen = signal(false);
-
-  // Random coordinates for hallucinations
-  randomX = signal(Math.random() * 80);
-  randomY = signal(Math.random() * 80);
-  randomX2 = signal(Math.random() * 80);
-  randomY2 = signal(Math.random() * 80);
 
   decayFactor = computed(() => {
      const rep = this.gameService.reputation();
@@ -317,14 +308,6 @@ export class AppComponent implements OnInit {
             this.gameService.handleOAuthToken(token);
         }
     });
-
-    // Refresh hallucinations
-    setInterval(() => {
-       this.randomX.set(Math.random() * 80);
-       this.randomY.set(Math.random() * 80);
-       this.randomX2.set(Math.random() * 80);
-       this.randomY2.set(Math.random() * 80);
-    }, 5000);
   }
 
   toggleGlobeModal() {

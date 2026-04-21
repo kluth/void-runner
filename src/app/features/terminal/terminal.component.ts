@@ -79,10 +79,10 @@ import { FormsModule } from '@angular/forms';
             <div class="sheet-handle"></div>
             <button class="primary execute-btn" (click)="handleCmd()" aria-label="Execute Command">EXECUTE</button>
             <div class="shortcuts" role="list">
-               <button role="listitem" (click)="cmdInput = 'help'; handleCmd()">HELP</button>
+               <button role="listitem" class="cyan" (click)="cmdInput = 'help'; handleCmd()">HELP</button>
                <button role="listitem" (click)="cmdInput = 'ls'; handleCmd()">LS</button>
-               <button role="listitem" (click)="cmdInput = 'status'; handleCmd()">STATUS</button>
-               <button role="listitem" (click)="cmdInput = 'cooldown'; handleCmd()">COOL</button>
+               <button role="listitem" class="magenta" (click)="cmdInput = 'status'; handleCmd()">STATUS</button>
+               <button role="listitem" class="cyan" (click)="cmdInput = 'cooldown'; handleCmd()">COOL</button>
                <button role="listitem" (click)="cmdInput = 'wipe'; handleCmd()">WIPE</button>
             </div>
          </div>
@@ -117,29 +117,6 @@ import { FormsModule } from '@angular/forms';
       flex-direction: column;
       overflow: hidden;
       margin-bottom: 4px;
-      border: 1px solid rgba(0, 255, 159, 0.15);
-      background: var(--layer-1);
-      clip-path: var(--clip-notch);
-      position: relative;
-    }
-    /* Green top-left + Cyan bottom-right corner accents */
-    .terminal-frame::before {
-      content: '';
-      position: absolute; top: -1px; left: -1px;
-      width: 14px; height: 14px;
-      border-top: 2px solid var(--neon-green);
-      border-left: 2px solid var(--neon-green);
-      filter: drop-shadow(0 0 5px var(--neon-green));
-      z-index: 5;
-    }
-    .terminal-frame::after {
-      content: '';
-      position: absolute; bottom: -1px; right: -1px;
-      width: 14px; height: 14px;
-      border-bottom: 2px solid var(--neon-cyan);
-      border-right: 2px solid var(--neon-cyan);
-      filter: drop-shadow(0 0 5px var(--neon-cyan));
-      z-index: 5;
     }
 
     .terminal-content {
@@ -147,7 +124,6 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      margin-top: 8px;
     }
 
     .terminal-header { 
@@ -156,12 +132,12 @@ import { FormsModule } from '@angular/forms';
       gap: 10px 20px;
       padding: 6px 12px;
       border-bottom: 1px solid rgba(0, 255, 159, 0.1);
-      font-size: var(--c-font-size-xs);
+      font-size: var(--font-size-xs);
       background: rgba(0, 255, 159, 0.02);
     }
 
     .header-segment .label {
-      color: var(--text-dim);
+      color: rgba(0, 255, 159, 0.5);
       margin-right: 5px;
       font-family: 'Orbitron', monospace;
       font-size: 0.85em;
@@ -184,7 +160,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .log-line { 
-      font-size: var(--c-font-size-sm); 
+      font-size: var(--font-size-sm); 
       margin-bottom: 2px; 
       display: flex; 
       gap: 12px; 
@@ -211,7 +187,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .timestamp {
-      color: var(--text-muted);
+      color: rgba(0, 255, 159, 0.4);
       min-width: 80px;
       font-size: 0.9em;
     }
@@ -229,7 +205,7 @@ import { FormsModule } from '@angular/forms';
     .input-wrapper { display: flex; flex-grow: 1; align-items: center; position: relative; }
     .prompt {
       color: var(--neon-green);
-      font-size: var(--c-font-size-sm);
+      font-size: var(--font-size-sm);
       font-weight: 900;
       white-space: nowrap;
       text-shadow: 0 0 6px rgba(0, 255, 159, 0.4);
@@ -238,9 +214,9 @@ import { FormsModule } from '@angular/forms';
     input { 
       background: transparent; 
       border: none; 
-      color: var(--text-bright); 
+      color: #fff; 
       font-family: inherit; 
-      font-size: var(--c-font-size-sm); 
+      font-size: var(--font-size-sm); 
       width: 100%;
       outline: none;
       caret-color: transparent;
@@ -267,9 +243,9 @@ import { FormsModule } from '@angular/forms';
 
     .tmux-status-bar {
       display: flex;
-      background: linear-gradient(90deg, var(--neon-green), var(--neon-green-dim));
+      background: var(--neon-green);
       color: var(--layer-0);
-      font-size: var(--c-font-size-xs);
+      font-size: var(--font-size-xs);
       font-weight: 900;
       height: clamp(20px, 4cqi, 30px);
       align-items: center;
@@ -314,7 +290,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .bottom-sheet {
-       background: var(--layer-0);
+       background: var(--layer-1);
        padding: 15px;
        display: flex;
        flex-direction: column;
@@ -345,6 +321,9 @@ import { FormsModule } from '@angular/forms';
        border: 1px solid rgba(0, 255, 159, 0.3);
        color: var(--neon-green);
     }
+    .shortcuts button.cyan { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+    .shortcuts button.magenta { border-color: var(--neon-magenta); color: var(--neon-magenta); }
+
 
     @keyframes blink { to { opacity: 0; } }
 
