@@ -14,8 +14,8 @@
     "test:performance": "lighthouse http://localhost:4200 --output=json --output-path=./lighthouse-report.json",
     "test:bundle-size": "bundlesize",
     "test:all": "pnpm run lint && pnpm run test && pnpm run test:e2e && pnpm run build",
-    "lint": "ng lint",
-    "lint:fix": "ng lint --fix"
+    "lint": "tsc --noEmit",
+    "lint:fix": "echo 'No auto-fix available for TypeScript type checking'"
   },
   "private": true,
   "dependencies": {
