@@ -16,7 +16,6 @@
     "test:all": "pnpm run lint && pnpm run test && pnpm run test:e2e && pnpm run build"
   },
   "private": true,
-  "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
