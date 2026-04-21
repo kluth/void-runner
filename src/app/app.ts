@@ -27,6 +27,7 @@ import { BountyBoardComponent } from './features/missions/bounty-board.component
 import { OverclockStationComponent } from './features/hardware/overclock-station.component';
 import { AssetVaultComponent } from './features/hardware/asset-vault.component';
 import { PurgeOverlayComponent } from './features/system/purge-overlay.component';
+import { FakeBluescreenComponent } from './features/system/fake-bluescreen.component';
 import { LockoutOverlayComponent } from './features/system/lockout-overlay.component';
 import { SurveillanceOverlayComponent } from './features/system/surveillance-overlay.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
@@ -61,6 +62,7 @@ import { CommonModule } from '@angular/common';
     OverclockStationComponent,
     AssetVaultComponent,
     PurgeOverlayComponent,
+    FakeBluescreenComponent,
     LockoutOverlayComponent,
 SurveillanceOverlayComponent
   ],
@@ -87,6 +89,7 @@ SurveillanceOverlayComponent
       <app-calibration-overlay />
       <app-walkthrough-overlay />
       <app-purge-overlay />
+      <app-fake-bluescreen />
       <app-lockout-overlay />
       <app-surveillance-overlay />
 
