@@ -160,3 +160,379 @@ body::before {
 @media (max-width: 768px) {
   body { overflow-y: auto; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESSIVE GLITCH EFFECTS - ONBOARD PHASE BASED
+   Each phase adds more intense visual distortion
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Base transitions for all elements */
+.terminal-frame,
+.holographic-preview,
+.game-wrapper {
+  transition: filter 0.5s ease, transform 0.3s ease;
+}
+
+/* ── PHASE 1: FAMILIAR (Subtle) ── */
+/* Occasional horizontal tear, slight color shift */
+body.phase-familiar .terminal-frame {
+  animation: subtle-glitch 8s infinite;
+}
+
+@keyframes subtle-glitch {
+  0%, 95%, 100% { 
+    filter: none; 
+    transform: none;
+  }
+  96% { 
+    filter: hue-rotate(5deg); 
+    transform: translateX(1px);
+  }
+  97% { 
+    filter: none; 
+    transform: none;
+  }
+}
+
+/* ── PHASE 2: AWARE (Moderate) ── */
+/* Horizontal tears, RGB separation, scanline intensity increase */
+body.phase-aware .terminal-frame {
+  animation: aware-glitch 5s infinite;
+}
+
+body.phase-aware {
+  --scanline-opacity: 0.08;
+}
+
+body.phase-aware .terminal-frame::before {
+  animation: rgb-shift 3s infinite;
+}
+
+@keyframes aware-glitch {
+  0%, 90%, 100% { 
+    filter: none; 
+    transform: none;
+    clip-path: var(--clip-notch);
+  }
+  91% { 
+    filter: saturate(1.5) hue-rotate(10deg); 
+    transform: translateX(2px) skewX(0.5deg);
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 98% 45%, 98% 55%, 100% 55%, 100% 100%, 0 100%);
+  }
+  92% { 
+    filter: none; 
+    transform: none;
+    clip-path: var(--clip-notch);
+  }
+  93% {
+    filter: brightness(1.2);
+    transform: translateX(-1px);
+  }
+  94% {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes rgb-shift {
+  0%, 90%, 100% {
+    box-shadow: none;
+  }
+  91% {
+    box-shadow: -2px 0 0 rgba(255, 0, 0, 0.3), 2px 0 0 rgba(0, 255, 255, 0.3);
+  }
+  92% {
+    box-shadow: none;
+  }
+}
+
+/* ── PHASE 3: INTRUSIVE (Heavy) ── */
+/* Chromatic aberration, screen tears, flicker */
+body.phase-intrusive .terminal-frame {
+  animation: intrusive-glitch 3s infinite;
+}
+
+body.phase-intrusive {
+  --scanline-opacity: 0.12;
+}
+
+body.phase-intrusive .game-wrapper {
+  animation: screen-tear 4s infinite;
+}
+
+body.phase-intrusive .terminal-frame::after {
+  animation: chromatic-pulse 2s infinite;
+}
+
+@keyframes intrusive-glitch {
+  0%, 80%, 100% { 
+    filter: none; 
+    transform: none;
+  }
+  81% { 
+    filter: saturate(2) contrast(1.1); 
+    transform: translateX(3px) skewX(1deg);
+    box-shadow: -3px 0 0 rgba(255, 0, 85, 0.5), 3px 0 0 rgba(0, 229, 255, 0.5);
+  }
+  82% { 
+    filter: invert(0.1); 
+    transform: translateX(-2px) translateY(1px);
+  }
+  83% {
+    filter: none;
+    transform: none;
+  }
+  84% {
+    filter: hue-rotate(30deg) brightness(1.3);
+    transform: skewX(-2deg);
+  }
+  85% {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes screen-tear {
+  0%, 85%, 100% {
+    transform: none;
+    filter: none;
+  }
+  86% {
+    transform: translateY(2px) scaleY(1.01);
+    filter: blur(0.5px);
+  }
+  87% {
+    transform: none;
+    filter: none;
+  }
+  88% {
+    transform: translateX(5px);
+    filter: saturate(2);
+  }
+  89% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes chromatic-pulse {
+  0%, 70%, 100% {
+    box-shadow: none;
+  }
+  71% {
+    box-shadow: 
+      -4px 0 0 rgba(255, 0, 85, 0.4),
+      4px 0 0 rgba(0, 229, 255, 0.4),
+      0 -2px 0 rgba(191, 64, 255, 0.3);
+  }
+  72% {
+    box-shadow: none;
+  }
+  73% {
+    box-shadow: 
+      3px 0 0 rgba(255, 0, 85, 0.6),
+      -3px 0 0 rgba(0, 229, 255, 0.6);
+  }
+  74% {
+    box-shadow: none;
+  }
+}
+
+/* ── PHASE 4: HOSTILE (Extreme) ── */
+/* Full screen corruption, fake blue screen, severe distortion */
+body.phase-hostile .terminal-frame {
+  animation: hostile-glitch 1.5s infinite;
+}
+
+body.phase-hostile {
+  --scanline-opacity: 0.2;
+}
+
+body.phase-hostile .game-wrapper {
+  animation: hostile-screen 2s infinite;
+}
+
+body.phase-hostile .tmux-status-bar {
+  animation: status-corrupt 3s infinite;
+}
+
+body.phase-hostile::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 0, 85, 0.03) 2px,
+    rgba(255, 0, 85, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  animation: scanline-flicker 0.1s infinite;
+}
+
+@keyframes hostile-glitch {
+  0%, 60%, 100% { 
+    filter: none; 
+    transform: none;
+  }
+  61% { 
+    filter: saturate(3) contrast(1.3) hue-rotate(20deg); 
+    transform: translateX(5px) skewX(3deg) scaleY(0.98);
+    box-shadow: 
+      -5px 0 0 rgba(255, 0, 85, 0.7),
+      5px 0 0 rgba(0, 229, 255, 0.7),
+      0 3px 0 rgba(191, 64, 255, 0.5);
+  }
+  62% { 
+    filter: invert(0.2) brightness(1.5); 
+    transform: translateX(-4px) translateY(2px);
+    clip-path: polygon(0 0, 100% 0, 100% 30%, 95% 30%, 95% 70%, 100% 70%, 100% 100%, 0 100%);
+  }
+  63% {
+    filter: none;
+    transform: none;
+    clip-path: var(--clip-notch);
+  }
+  64% {
+    filter: hue-rotate(-30deg) saturate(2);
+    transform: skewX(-5deg) translateX(3px);
+  }
+  65% {
+    filter: none;
+    transform: none;
+  }
+  66% {
+    filter: brightness(0.7) contrast(1.5);
+    transform: scaleY(1.02) translateY(-1px);
+  }
+  67% {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes hostile-screen {
+  0%, 70%, 100% {
+    transform: none;
+    filter: none;
+  }
+  71% {
+    transform: translateX(10px) skewX(2deg);
+    filter: blur(1px) saturate(3);
+  }
+  72% {
+    transform: translateX(-8px) skewX(-1deg);
+    filter: none;
+  }
+  73% {
+    transform: none;
+    filter: none;
+  }
+  74% {
+    transform: translateY(5px) scaleY(0.95);
+    filter: invert(0.15);
+  }
+  75% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes status-corrupt {
+  0%, 80%, 100% {
+    filter: none;
+    transform: none;
+  }
+  81% {
+    filter: hue-rotate(90deg) brightness(2);
+    transform: translateX(20px);
+  }
+  82% {
+    filter: none;
+    transform: none;
+  }
+  83% {
+    filter: invert(1);
+    transform: skewX(10deg);
+  }
+  84% {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes scanline-flicker {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+/* ── FAKE BLUE SCREEN OVERLAY (HOSTILE phase random trigger) ── */
+.fake-bluescreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0078D7;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  padding: 40px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: bsod-flicker 0.1s infinite;
+}
+
+.fake-bluescreen .sad-face {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.fake-bluescreen .error-code {
+  font-family: monospace;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+@keyframes bsod-flicker {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.95; }
+}
+
+/* ── Global text distortion for hostile phase ── */
+body.phase-hostile .terminal-text,
+body.phase-hostile .log-line {
+  animation: text-corrupt 4s infinite;
+}
+
+@keyframes text-corrupt {
+  0%, 85%, 100% {
+    filter: none;
+    transform: none;
+  }
+  86% {
+    filter: blur(0.3px);
+    letter-spacing: 2px;
+  }
+  87% {
+    filter: none;
+    letter-spacing: normal;
+  }
+  88% {
+    filter: hue-rotate(180deg);
+    transform: skewX(2deg);
+  }
+  89% {
+    filter: none;
+    transform: none;
+  }
+}
+

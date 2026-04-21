@@ -67,7 +67,7 @@ SurveillanceOverlayComponent
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
          [class.stability-mode]="gameService.settings().general.stability_mode"
-         class="h-full">
+         class="h-full" [class]="'phase-' + onboardAi.phase().toLowerCase()">
          
       <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>
 
