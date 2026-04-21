@@ -13,7 +13,9 @@
     "test:accessibility": "playwright test --grep @accessibility",
     "test:performance": "lighthouse http://localhost:4200 --output=json --output-path=./lighthouse-report.json",
     "test:bundle-size": "bundlesize",
-    "test:all": "pnpm run lint && pnpm run test && pnpm run test:e2e && pnpm run build"
+    "test:all": "pnpm run lint && pnpm run test && pnpm run test:e2e && pnpm run build",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix"
   },
   "private": true,
   "dependencies": {
