@@ -3,6 +3,10 @@ import { GameService } from './core/services/game.service';
 import { AudioService } from './core/services/audio.service';
 import { StreamerIntegrationService } from './core/services/streamer-integration.service';
 import { ActivatedRoute } from '@angular/router';
+import { OnboardAiService } from './core/services/onboard-ai.service';
+import { PvpService } from './core/services/pvp.service';
+import { FactionService } from './core/services/faction.service';
+import { CreepyAudioService } from './core/services/creepy-audio.service';
 import { TerminalComponent } from './features/terminal/terminal.component';
 import { HardwareShopComponent } from './features/hardware/hardware-shop.component';
 import { MissionComponent } from './features/missions/missions.component';
@@ -292,6 +296,10 @@ export class AppComponent implements OnInit {
   audioService = inject(AudioService);
   streamerService = inject(StreamerIntegrationService);
   private route = inject(ActivatedRoute);
+  onboard = inject(OnboardAiService);
+  pvp = inject(PvpService);
+  factions = inject(FactionService);
+  creepyAudio = inject(CreepyAudioService);
 
   globeModalOpen = signal(false);
   mobileTelemetryOpen = signal(false);
@@ -316,7 +324,6 @@ export class AppComponent implements OnInit {
               this.gameService.handleOAuthToken(token);
           }
       });
- 15143c8 (feat: Enhanced CI/CD pipeline with comprehensive quality gates)
     });
   }
 
