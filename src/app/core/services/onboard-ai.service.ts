@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { GameService } from './game.service';
 import { AudioService } from './audio.service';
+import { VisionAnalysisService } from './vision-analysis.service';
 
 export type OnboardPhase = 'BOOTSTRAP' | 'FAMILIAR' | 'AWARE' | 'INTRUSIVE' | 'HOSTILE';
 
@@ -29,6 +30,7 @@ export interface OnboardMemory {
 export class OnboardAiService {
   private game = inject(GameService);
   private audio = inject(AudioService);
+  private vision = inject(VisionAnalysisService);
 
   phase = signal<OnboardPhase>('BOOTSTRAP');
   isSpeaking = signal(false);
