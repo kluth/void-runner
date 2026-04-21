@@ -9,7 +9,14 @@ describe('HijackOverlayComponent', () => {
     TestBed.configureTestingModule({
       imports: [HijackOverlayComponent],
       providers: [
-        { provide: GameService, useValue: { isHijacked: signal(true), hijackMessage: signal('test'), log: vi.fn() } }
+        { provide: GameService, useValue: { 
+          isHijacked: signal(true), 
+          hijackMessage: signal('test'), 
+          hijackUnlockCode: signal('CODE'),
+          campaignLevel: signal(1),
+          log: vi.fn() 
+        } },
+        { provide: AudioService, useValue: { playSuccess: vi.fn(), playError: vi.fn(), speakCreepy: vi.fn() } }
       ]
     });
   });
@@ -22,6 +29,8 @@ describe('HijackOverlayComponent', () => {
   it('should release hijack', () => {
     const fixture = TestBed.createComponent(HijackOverlayComponent);
     const component = fixture.componentInstance;
+    component.gameService.hijackUnlockCode.set('TEST_CODE');
+    component.solveInput = 'TEST_CODE';
     component.release();
     expect(component.gameService.isHijacked()).toBe(false);
   });

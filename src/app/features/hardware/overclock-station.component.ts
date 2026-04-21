@@ -8,99 +8,129 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="overclock-container hud-panel">
-      <div class="sec-header">HARDWARE_LAB // OVERCLOCK_STATION</div>
-      
-      <div class="station-main">
-        <div class="hardware-preview">
-          <div class="h-icon">⚡</div>
-          <div class="h-name">{{ selectedHardware()?.name || 'SELECT_MODULE' }}</div>
-          <div class="h-desc">{{ selectedHardware()?.description || 'No module selected for optimization.' }}</div>
-        </div>
-        
-        <div class="tuning-grid">
-          <div class="tune-card">
-            <div class="label">VOLTAGE</div>
-            <input type="range" min="0" max="100" [(ngModel)]="voltage" (input)="updateStats()">
-            <div class="val">{{ voltage }}mV</div>
-          </div>
-          <div class="tune-card">
-            <div class="label">FREQUENCY</div>
-            <input type="range" min="0" max="100" [(ngModel)]="frequency" (input)="updateStats()">
-            <div class="val">{{ frequency }}MHz</div>
-          </div>
-        </div>
-        
-        <div class="risk-meter">
-          <div class="label">STABILITY_RISK</div>
-          <div class="bar-bg"><div class="bar-fg" [style.width.%]="riskLevel()"></div></div>
-          <div class="val">{{ riskLevel() }}%</div>
-        </div>
-        
-        <button class="apply-btn" [disabled]="!selectedHardware()" (click)="applyOverclock()">INIT_FLASH_BIOS</button>
+    <div class="terminal-station">
+      <div class="ascii-border">┌────────────────────────────────────────────────────────────────────────────┐</div>
+      <div class="ascii-line">│ <span class="blink">>></span> HARDWARE_LAB // OVERCLOCK_STATION                                   │</div>
+      <div class="ascii-border">├────────────────────────────────────────────────────────────────────────────┤</div>
+      <div class="hardware-preview">
+        <div class="ascii-line">│ [ MODULE_IDENTIFICATION ]                                                  │</div>
+        <div class="ascii-line">│ NAME: {{ (selectedHardware()?.name || 'NULL') | uppercase }}</div>
+        <div class="ascii-line">│ DESC: {{ selectedHardware()?.description || 'CONNECT_MODULE_FOR_ANALYSIS' }}</div>
       </div>
+      <div class="ascii-border">├────────────────────────────────────────┬───────────────────────────────────┤</div>
+      <div class="tuning-risk-grid">
+        <div class="tuning-panel">
+          <div class="ascii-line">│ [ TUNING_PARAMETERS ]                  │ [ STABILITY_REPORT ]              │</div>
+          <div class="tune-row">
+            <div class="ascii-line">│ VOLTAGE:   [{{ getProgressBar(voltage) }}] {{ voltage | number:'3.0' }}mV │ RISK_LEVEL:                       │</div>
+          </div>
+          <div class="control-row">
+            <div class="ascii-line">│ </div>
+            <input type="range" min="0" max="100" [(ngModel)]="voltage" (input)="updateStats()" class="terminal-slider">
+            <div class="ascii-line"> │ [{{ getProgressBar(riskLevel()) }}] {{ riskLevel() | number:'3.0' }}%      │</div>
+          </div>
+          <div class="ascii-border">├────────────────────────────────────────┤                                   │</div>
+          <div class="tune-row">
+            <div class="ascii-line">│ FREQUENCY: [{{ getProgressBar(frequency) }}] {{ frequency | number:'3.0' }}MHz │                                   │</div>
+          </div>
+          <div class="control-row">
+            <div class="ascii-line">│ </div>
+            <input type="range" min="0" max="100" [(ngModel)]="frequency" (input)="updateStats()" class="terminal-slider">
+            <div class="ascii-line"> │                                   │</div>
+          </div>
+        </div>
+      </div>
+      <div class="ascii-border">├────────────────────────────────────────┴───────────────────────────────────┤</div>
+      <div class="action-row">
+        <button class="terminal-btn" [disabled]="!selectedHardware()" (click)="applyOverclock()">
+          │ [ INIT_FLASH_BIOS_SEQUENCE ]                                               │
+        </button>
+      </div>
+      <div class="ascii-border">└────────────────────────────────────────────────────────────────────────────┘</div>
     </div>
   `,
   styles: `
-    .overclock-container {
-      padding: 2rem;
-      background: var(--layer-1);
-    }
-    .sec-header {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 900;
-      letter-spacing: 2px;
+    :host {
+      display: block;
+      background: #000;
       color: var(--primary);
-      background: var(--layer-2);
-      padding: 0.75rem;
-      margin-bottom: 2rem;
-      text-transform: uppercase;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      padding: 1rem;
     }
-    .station-main {
+
+    .terminal-station {
+      display: inline-block;
+      white-space: pre;
+    }
+
+    .ascii-border, .ascii-line, .tune-row, .control-row {
+      line-height: 1.2;
+    }
+
+    .hardware-preview {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
-      max-width: 400px;
-      margin: 0 auto;
     }
-    .hardware-preview {
-      text-align: center;
-      background: var(--layer-2);
-      padding: 2.5rem;
+
+    .tuning-panel {
+      display: flex;
+      flex-direction: column;
     }
-    .h-icon { font-size: 2rem; margin-bottom: 1.5rem; color: var(--secondary); font-family: 'JetBrains Mono', monospace; font-weight: 900; }
-    .h-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-    .h-desc { font-size: 0.65rem; color: #fff; opacity: 0.4; line-height: 1.6; }
 
-    .tuning-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-    .tune-card { background: var(--layer-2); padding: 1.25rem; display: flex; align-items: center; gap: 1rem; }
-    .tune-card .label { font-size: 0.6rem; font-weight: 900; min-width: 90px; color: var(--primary); opacity: 0.5; }
-    .tune-card input { flex: 1; accent-color: var(--primary); }
-    .tune-card .val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--primary); min-width: 70px; text-align: right; font-weight: 900; }
+    .control-row {
+      display: flex;
+      align-items: center;
+    }
 
-    .risk-meter { display: flex; flex-direction: column; gap: 0.75rem; background: var(--layer-0); padding: 1.25rem; }
-    .risk-meter .label { font-size: 0.6rem; font-weight: 900; color: var(--tertiary); letter-spacing: 1px; }
-    .bar-bg { width: 100%; height: 2px; background: rgba(193, 0, 20, 0.1); }
-    .bar-fg { height: 100%; background: var(--tertiary); box-shadow: 0 0 10px var(--tertiary); transition: width 0.1s steps(4); }
-    .risk-meter .val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--tertiary); text-align: right; font-weight: 900; }
-
-    .apply-btn {
-      background: var(--secondary);
-      color: var(--on-primary);
-      border: none;
-      padding: 1.25rem;
-      font-size: 0.75rem;
-      font-weight: 900;
+    .terminal-slider {
+      -webkit-appearance: none;
+      width: 250px;
+      background: transparent;
       cursor: pointer;
-      font-family: 'Space Grotesk', sans-serif;
-      transition: all 0.05s steps(2);
     }
-    .apply-btn:hover:not(:disabled) {
-      filter: brightness(1.2);
-      box-shadow: 0 0 20px var(--secondary);
+
+    .terminal-slider::-webkit-slider-runnable-track {
+      height: 1px;
+      background: var(--primary);
     }
-    .apply-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+    .terminal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 15px;
+      width: 10px;
+      background: var(--primary);
+      margin-top: -7px;
+    }
+
+    .terminal-btn {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-family: inherit;
+      font-size: inherit;
+      text-align: left;
+      cursor: pointer;
+      padding: 0;
+      width: 100%;
+    }
+
+    .terminal-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .terminal-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .blink {
+      animation: blink 1s steps(2) infinite;
+    }
+
+    @keyframes blink {
+      to { visibility: hidden; }
+    }
   `
 })
 export class OverclockStationComponent {
@@ -119,6 +149,12 @@ export class OverclockStationComponent {
   updateStats() {
     const risk = (this.voltage + this.frequency) / 2;
     this.riskLevel.set(Math.floor(risk));
+  }
+
+  getProgressBar(value: number): string {
+    const total = 10;
+    const filled = Math.floor((value / 100) * total);
+    return '='.repeat(filled) + ' '.repeat(total - filled);
   }
 
   applyOverclock() {

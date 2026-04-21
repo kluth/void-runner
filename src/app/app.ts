@@ -94,51 +94,6 @@ import { CommonModule } from '@angular/common';
          [class.mobile-sidebar-open]="mobileSidebarOpen()"
          [class.stability-mode]="gameService.settings().general.stability_mode">
          
-      <!-- HUD HEADER -->
-      <header class="hud-panel" [class.neural-highlight]="gameService.currentTutorialSelector() === 'STATS'" role="banner">
-        <div class="noise-data" style="top:4px; left:6px;" aria-hidden="true">0x00219FF</div>
-        
-        <div class="logo-group">
-          <div class="logo glitch-title" data-text="VOID_RUN">VOID_RUN</div>
-          <div class="version" aria-label="Protocol Version 4.0 Stable">// PROTOCOL_OS_v4.0_STABLE</div>
-        </div>
-        
-        <nav class="tactical-tabs" role="tablist" aria-label="Primary Sectors">
-          @for (tab of ['TERMINAL', 'MISSIONS', 'HARDWARE', 'GRID', 'SOCIAL']; track tab) {
-            <button role="tab"
-                    [attr.aria-selected]="gameService.activeTab() === tab"
-                    (click)="gameService.clearTabNotification(tab)" 
-                    [class.active]="gameService.activeTab() === tab"
-                    [class.notified]="gameService.tabNotifications()[tab] > 0">
-              <span class="sr-only">Switch to </span>
-              [ 0x_{{ tab.substring(0,4) }} ]
-              @if (gameService.tabNotifications()[tab] > 0) {
-                <span class="badge" aria-label="{{ gameService.tabNotifications()[tab] }} new notifications">{{ gameService.tabNotifications()[tab] }}</span>
-              }
-            </button>
-          }
-        </nav>
-
-        <div class="stats-monolith" aria-label="System Statistics">
-          <div class="stat-unit">
-            <span class="label">CREDITS</span>
-            <span class="value" [attr.aria-label]="gameService.credits() + ' credits'">{{ gameService.credits() }}</span>
-          </div>
-          <div class="stat-unit">
-            <span class="label">REP</span>
-            <span class="value" style="color: var(--secondary)" [attr.aria-label]="gameService.reputation() + ' reputation'">{{ gameService.reputation() }}</span>
-          </div>
-          <div class="stat-unit" [class.danger]="gameService.detectionLevel() > 60">
-            <span class="label">TRACE</span>
-            <span class="value" [attr.aria-label]="gameService.detectionLevel() + ' percent trace detection'">{{ gameService.detectionLevel() }}%</span>
-          </div>
-        </div>
-
-        <button class="mobile-sidebar-toggle" (click)="toggleMobileSidebar()" [attr.aria-expanded]="mobileSidebarOpen()" aria-controls="sidebar-sector">
-           [ 0x_TELEMETRY ]
-        </button>
-      </header>
-
       <!-- MAIN OPERATIONAL GRID -->
       <main class="operational-grid">
         <div class="primary-sector" role="main">
@@ -183,18 +138,17 @@ import { CommonModule } from '@angular/common';
 
         <aside id="sidebar-sector" class="secondary-sector sidebar" [class.visible]="mobileSidebarOpen()" role="complementary">
           <div class="hud-panel-nested telemetry-card">
-            <div class="noise-data" style="bottom:4px; right:6px;" aria-hidden="true">LOG_STREAM_CONNECTED</div>
-            <h2 class="sec-title">SYSTEM_TELEMETRY</h2>
+            <h2 class="sec-title">┌─ SYSTEM_TELEMETRY ────</h2>
             <app-system-integrity />
           </div>
           
           <div class="hud-panel-nested events-card">
-            <h2 class="sec-title">GLOBAL_NET_EVENTS</h2>
+            <h2 class="sec-title">├─ GLOBAL_NET_EVENTS ───</h2>
             <app-live-events />
           </div>
 
           <div class="hud-panel-nested inventory-card">
-            <h2 class="sec-title">INSTALLED_MODULES</h2>
+            <h2 class="sec-title">└─ INSTALLED_MODULES ───</h2>
             <div class="module-list">
                @for (item of gameService.inventory(); track $index) {
                   <div class="module-item">
@@ -210,13 +164,36 @@ import { CommonModule } from '@angular/common';
         </aside>
       </main>
 
-      <footer class="system-footer" role="contentinfo">
-        <div class="status-group" aria-label="System Uplink Status">
-          UPLINK: <span class="active-val">CONNECTED_72.61.80.234</span> | 
-          CORE: <span class="active-val">STABLE</span> | 
-          HANDSHAKE: <span class="active-val">VERIFIED</span>
+      <!-- TMUX STATUS BAR (Footer) -->
+      <footer class="tmux-status-bar" role="banner">
+        <div class="tmux-left">
+          <span class="tmux-session-name">[VOID_RUN]</span>
+          <nav class="tactical-tabs" role="tablist" aria-label="Primary Sectors">
+            @for (tab of ['TERMINAL', 'MISSIONS', 'HARDWARE', 'GRID', 'SOCIAL']; track tab; let i = $index) {
+              <button role="tab"
+                      [attr.aria-selected]="gameService.activeTab() === tab"
+                      (click)="gameService.clearTabNotification(tab)" 
+                      [class.active]="gameService.activeTab() === tab"
+                      [class.notified]="gameService.tabNotifications()[tab] > 0">
+                {{ i }}:{{ tab.toLowerCase() }}{{ gameService.activeTab() === tab ? '*' : '-' }}
+                @if (gameService.tabNotifications()[tab] > 0) {
+                  <span class="badge" aria-label="{{ gameService.tabNotifications()[tab] }} new notifications">+{{ gameService.tabNotifications()[tab] }}</span>
+                }
+              </button>
+            }
+          </nav>
         </div>
-        <div class="timestamp">{{ gameService.experience() }} DATA_SHARDS_RECOVERED</div>
+
+        <div class="tmux-right" aria-label="System Statistics">
+          <span class="stat" [attr.aria-label]="gameService.credits() + ' credits'">CR:{{ gameService.credits() }}</span> │
+          <span class="stat" [attr.aria-label]="gameService.reputation() + ' reputation'">REP:{{ gameService.reputation() }}</span> │
+          <span class="stat" [class.danger]="gameService.detectionLevel() > 60" [attr.aria-label]="gameService.detectionLevel() + ' percent trace detection'">TRACE:{{ gameService.detectionLevel() }}%</span> │
+          <span class="stat active-val">UPLINK:72.61.80.234</span>
+        </div>
+
+        <button class="mobile-sidebar-toggle" (click)="toggleMobileSidebar()" [attr.aria-expanded]="mobileSidebarOpen()" aria-controls="sidebar-sector">
+           [ TELEMETRY ]
+        </button>
       </footer>
     </div>
   `,
@@ -226,94 +203,98 @@ import { CommonModule } from '@angular/common';
       height: 100dvh;
       background: var(--layer-0);
       overflow: hidden;
+      color: var(--primary);
     }
     
     .game-wrapper {
       display: flex;
       flex-direction: column;
       height: 100%;
-      padding: var(--spacing-md);
-      gap: var(--spacing-md);
+      padding: 0;
+      gap: 0;
       position: relative;
-      transition: transform 0.3s steps(4);
     }
 
-    header {
+    .tmux-status-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 1.5rem;
-      background: var(--layer-2);
+      background: var(--primary);
+      color: var(--layer-0);
+      padding: 2px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--font-size-sm);
+      font-weight: 700;
       flex-shrink: 0;
       z-index: 100;
-      gap: var(--spacing-lg);
-      flex-wrap: wrap;
+      white-space: nowrap;
+      overflow-x: auto;
     }
 
-    .logo-group { flex-shrink: 0; }
-    .logo { 
-      font-size: var(--font-size-lg); 
-      font-weight: 900; 
-      color: var(--primary); 
-      letter-spacing: -0.05em; 
+    .tmux-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
-    .version { font-size: 0.55rem; color: var(--primary); opacity: 0.4; font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+
+    .tmux-session-name {
+      font-weight: 900;
+    }
 
     .tactical-tabs {
       display: flex;
-      gap: 4px;
-      flex-grow: 1;
-      justify-content: center;
-      overflow-x: auto;
-      scrollbar-width: none;
+      gap: 10px;
     }
-    .tactical-tabs::-webkit-scrollbar { display: none; }
 
     .tactical-tabs button {
-      background: var(--layer-3);
-      border: var(--ghost-border);
-      color: var(--primary);
-      opacity: 0.5;
-      padding: 10px 14px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: var(--font-size-xs);
-      font-weight: 900;
+      background: transparent;
+      border: none;
+      color: var(--layer-0);
+      padding: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--font-size-sm);
       cursor: pointer;
       position: relative;
-      transition: all 0.05s steps(2);
-      white-space: nowrap;
     }
 
     .tactical-tabs button.active {
-      background: var(--layer-5);
-      opacity: 1;
-      color: #fff;
-      box-shadow: var(--neon-shadow);
-      transform: translateY(-2px);
+      font-weight: 900;
+      text-decoration: underline;
     }
 
-    .stats-monolith { display: flex; gap: var(--spacing-md); }
-    .stat-unit { display: flex; flex-direction: column; align-items: flex-end; }
-    .stat-unit .label { font-size: 0.5rem; color: var(--primary); opacity: 0.4; font-weight: 900; letter-spacing: 1px; }
-    .stat-unit .value { font-size: var(--font-size-sm); font-weight: 900; color: #fff; font-family: 'JetBrains Mono', monospace; }
-    .stat-unit.danger .value { color: var(--tertiary); animation: flicker 0.1s infinite; }
+    .tmux-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tmux-right .stat {
+      font-weight: 700;
+    }
+    
+    .tmux-right .stat.danger {
+      color: var(--tertiary);
+      background: var(--layer-0);
+      padding: 0 4px;
+    }
 
     .operational-grid {
       display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: var(--spacing-md);
+      grid-template-columns: 1fr 300px;
       flex-grow: 1;
       min-height: 0;
+      border-bottom: 1px solid var(--primary);
     }
 
     .primary-sector {
       display: flex;
       flex-direction: column;
       min-height: 0;
+      border-right: 1px solid var(--primary);
     }
 
     .sector-panel {
-      background: var(--layer-1);
+      background: var(--layer-0);
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -329,88 +310,63 @@ import { CommonModule } from '@angular/common';
     .sub-split {
        display: grid;
        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-       gap: var(--spacing-md);
-       margin-top: 1rem;
+       border-top: 1px solid var(--primary);
     }
 
     .secondary-sector {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-md);
       overflow-y: auto;
       min-height: 0;
+      background: var(--layer-0);
     }
 
     .sec-title {
-      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
       font-weight: 900;
       color: var(--primary);
-      opacity: 0.4;
-      background: var(--layer-4);
-      padding: 6px 12px;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
+      padding: 4px 8px;
+      margin: 0;
     }
 
     .telemetry-card, .events-card, .inventory-card {
-      padding: 1rem;
+      padding: 0.5rem;
+      border-bottom: 1px dashed var(--primary);
     }
 
-    .module-list { display: flex; flex-direction: column; gap: 8px; }
+    .module-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding: 0 10px; }
     .module-item { 
-       background: var(--layer-4); 
-       padding: 10px; 
-       font-size: 0.65rem; 
        display: flex; 
        gap: 10px; 
        font-family: 'JetBrains Mono', monospace;
+       font-size: 0.75rem;
     }
-    .m-code { color: var(--secondary); font-weight: 900; }
-    .m-name { color: #fff; }
-
-    .system-footer {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.75rem 1rem;
-      background: var(--layer-0);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      color: var(--primary);
-      opacity: 0.4;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .active-val { color: var(--secondary); font-weight: 900; }
 
     .mobile-sidebar-toggle, .mobile-close-sidebar { display: none; }
 
     /* RESPONSIVE OVERRIDES */
     @media (max-width: 1200px) {
-      .operational-grid { grid-template-columns: 1fr; }
+      .operational-grid { grid-template-columns: 1fr; border-right: none; }
       .secondary-sector:not(.visible) { display: none; }
       
       .mobile-sidebar-toggle {
          display: block;
-         background: var(--layer-4);
-         color: var(--secondary);
-         font-size: 0.6rem;
-         padding: 8px 12px;
+         background: var(--layer-0);
+         color: var(--primary);
+         border: 1px solid var(--layer-0);
+         font-size: 0.7rem;
+         padding: 2px 8px;
       }
 
       .secondary-sector.sidebar.visible {
          display: flex;
          position: fixed;
          top: 0; right: 0;
-         width: 100%; height: 100dvh;
-         background: var(--layer-1);
+         width: 100%; height: calc(100dvh - 25px);
+         background: var(--layer-0);
          z-index: 1000;
-         padding: 2rem;
-         animation: slide-in 0.3s steps(4);
-      }
-
-      @keyframes slide-in {
-         from { transform: translateX(100%); }
-         to { transform: translateX(0); }
+         padding: 1rem;
       }
 
       .mobile-close-sidebar {
@@ -420,14 +376,6 @@ import { CommonModule } from '@angular/common';
          color: #fff;
          border: none;
       }
-    }
-
-    @media (max-width: 600px) {
-       header { flex-direction: column; align-items: stretch; text-align: center; }
-       .logo-group { margin-bottom: 10px; }
-       .stats-monolith { justify-content: space-between; order: -1; margin-bottom: 15px; }
-       .tactical-tabs { width: 100%; justify-content: flex-start; padding-bottom: 5px; }
-       .mobile-sidebar-toggle { width: 100%; margin-top: 10px; }
     }
   `
 })

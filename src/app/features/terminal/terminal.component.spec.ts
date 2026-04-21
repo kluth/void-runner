@@ -13,30 +13,34 @@ describe('TerminalComponent', () => {
 
   beforeEach(() => {
     gameService = {
-      terminalLogs: vi.fn().mockReturnValue([]),
+      terminalLogs: signal([]),
       log: vi.fn(),
-      activeMissions: vi.fn().mockReturnValue([]),
-      playerHandle: vi.fn().mockReturnValue('TEST'),
-      reputation: vi.fn().mockReturnValue(100),
-      campaignLevel: vi.fn().mockReturnValue(1),
-      routingMode: vi.fn().mockReturnValue('DIRECT'),
-      detectionLevel: vi.fn().mockReturnValue(0),
-      systemIntegrity: vi.fn().mockReturnValue(100),
-      botnetSize: vi.fn().mockReturnValue(0),
-      activeRansoms: vi.fn().mockReturnValue(0),
-      credits: vi.fn().mockReturnValue(500),
-      experience: vi.fn().mockReturnValue(100),
-      matrixMode: vi.fn().mockReturnValue(false),
-      activeTeam: vi.fn().mockReturnValue(null),
-      installedSoftware: vi.fn().mockReturnValue([])
+      activeMissions: signal([]),
+      playerHandle: signal('TEST'),
+      reputation: signal(100),
+      campaignLevel: signal(1),
+      routingMode: signal('DIRECT'),
+      detectionLevel: signal(0),
+      systemIntegrity: signal(100),
+      botnetSize: signal(0),
+      activeRansoms: signal(0),
+      credits: signal(500),
+      experience: signal(100),
+      matrixMode: signal(false),
+      activeTeam: signal(null),
+      installedSoftware: signal([]),
+      detectedOS: signal('LINUX'),
+      commandHistory: signal([]),
+      processCommand: vi.fn(),
+      triggerVisualEvent: vi.fn()
     };
 
     TestBed.configureTestingModule({
       imports: [TerminalComponent, FormsModule],
       providers: [
         { provide: GameService, useValue: gameService },
-        { provide: AudioService, useValue: { playError: vi.fn(), playClick: vi.fn(), playGlitch: vi.fn() } },
-        { provide: NeuralService, useValue: { aiMode: vi.fn().mockReturnValue('PROXY'), isProcessing: vi.fn().mockReturnValue(false), askGemini: vi.fn().mockReturnValue(of({ response: 'hi', provider: 'M' })) } }
+        { provide: AudioService, useValue: { playError: vi.fn(), playClick: vi.fn(), playGlitch: vi.fn(), playSuccess: vi.fn() } },
+        { provide: NeuralService, useValue: { aiMode: signal('PROXY'), isProcessing: signal(false), askGemini: vi.fn().mockReturnValue(of({ response: 'hi', provider: 'M' })) } }
       ]
     });
     const fixture = TestBed.createComponent(TerminalComponent);
@@ -46,20 +50,17 @@ describe('TerminalComponent', () => {
   it('should handle help command', () => {
     component.cmdInput = 'help';
     component.handleCmd();
-    expect(gameService.log).toHaveBeenCalledWith(expect.stringContaining('AVAILABLE BINARIES'));
+    expect(gameService.processCommand).toHaveBeenCalledWith('help');
   });
 
   it('should handle whoami command', () => {
     component.cmdInput = 'whoami';
     component.handleCmd();
-    expect(gameService.log).toHaveBeenCalledWith(expect.stringContaining('USER: TEST'));
+    expect(gameService.processCommand).toHaveBeenCalledWith('whoami');
   });
 
   it('should navigate history', () => {
-    component.cmdInput = 'test1';
-    component.handleCmd();
-    component.cmdInput = 'test2';
-    component.handleCmd();
+    gameService.commandHistory.set(['test1', 'test2']);
     
     component.navigateHistory(1);
     expect(component.cmdInput).toBe('test2');

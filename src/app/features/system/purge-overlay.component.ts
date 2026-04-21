@@ -8,130 +8,49 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     @if (gameService.purgeActive()) {
-      <div class="purge-overlay" role="dialog" aria-label="System Purge Imminent">
-        <div class="purge-box">
-          <div class="alert-icon" aria-hidden="true">[!]</div>
-          <h2 class="title glitch-title">CRITICAL TRACE REACHED</h2>
-          <div class="desc">
-            Blue Team has isolated your node. System Purge initiated.<br>
-            All hardware, credits, and active operations will be incinerated.
-          </div>
-          
-          <div class="timer" [class.danger]="gameService.purgeTimer() < 10">
-            T-MINUS: {{ gameService.purgeTimer() }}s
-          </div>
-          
-          <div class="instruction">
-            Open terminal and execute override protocol:<br>
-            <span class="code">abort_purge {{ gameService.purgeCode() }}</span>
-          </div>
+      <div class="purge-terminal-overlay" role="dialog" aria-label="System Purge Imminent">
+        <div class="ascii-modal">
+          <pre>
+┌────────────────────────────────────────────────────────────┐
+│ <span class="alert-title">!!! CRITICAL_TRACE_DETECTED !!!</span>                            │
+├────────────────────────────────────────────────────────────┤
+│ BLUE_TEAM_INTERVENTION: ISOLATION_SUCCESSFUL               │
+│ SYSTEM_PURGE: <span class="status-warn">INITIALIZED</span>                                   │
+│                                                            │
+│ ASSET_INCINERATION_SEQUENCE: <span class="status-warn">READY</span>                         │
+│                                                            │
+│ <span class="timer-label">T-MINUS:</span> <span class="timer-val" [class.danger]="gameService.purgeTimer() < 10">{{ gameService.purgeTimer().toString().padStart(2, '0') }}s</span>                                        │
+│                                                            │
+├────────────────────────────────────────────────────────────┤
+│ <span class="instruction-label">EMERGENCY_OVERRIDE_REQUIRED</span>                                │
+│ EXECUTE: <span class="code">abort_purge {{ gameService.purgeCode() }}</span>                    │
+└────────────────────────────────────────────────────────────┘
+          </pre>
         </div>
       </div>
     }
   `,
   styles: `
-    .purge-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(193, 0, 20, 0.2);
-      backdrop-filter: blur(5px);
-      z-index: 20000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: bg-pulse 1s infinite alternate;
-    }
-
-    @keyframes bg-pulse {
-      from { background: rgba(193, 0, 20, 0.2); }
-      to { background: rgba(193, 0, 20, 0.4); }
-    }
-
-    .purge-box {
-      width: 100%;
-      max-width: 500px;
-      padding: 3rem;
-      background: var(--layer-1);
-      border: 4px solid var(--tertiary);
-      text-align: center;
-      box-shadow: 0 0 100px var(--tertiary);
-      animation: shake 0.5s infinite;
-    }
-
-    @keyframes shake {
-      0% { transform: translate(1px, 1px) rotate(0deg); }
-      10% { transform: translate(-1px, -2px) rotate(-1deg); }
-      20% { transform: translate(-3px, 0px) rotate(1deg); }
-      30% { transform: translate(3px, 2px) rotate(0deg); }
-      40% { transform: translate(1px, -1px) rotate(1deg); }
-      50% { transform: translate(-1px, 2px) rotate(-1deg); }
-      60% { transform: translate(-3px, 1px) rotate(0deg); }
-      70% { transform: translate(3px, 1px) rotate(-1deg); }
-      80% { transform: translate(-1px, -1px) rotate(1deg); }
-      90% { transform: translate(1px, 2px) rotate(0deg); }
-      100% { transform: translate(1px, -2px) rotate(-1deg); }
-    }
-
-    .alert-icon {
-      font-size: 4rem;
-      color: var(--tertiary);
+    .purge-terminal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 20000; display: flex; align-items: center; justify-content: center;
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 900;
-      margin-bottom: 1rem;
     }
-
-    .title {
-      color: var(--tertiary);
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .desc {
-      font-size: 0.85rem;
-      color: #fff;
-      margin-bottom: 2rem;
-      line-height: 1.6;
-    }
-
-    .timer {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 3rem;
-      font-weight: 900;
+    .ascii-modal {
       color: var(--primary);
-      margin-bottom: 2rem;
-      text-shadow: 0 0 20px var(--primary);
+      text-align: left;
     }
+    pre { margin: 0; line-height: 1.2; }
+    .alert-title { color: var(--tertiary); font-weight: bold; }
+    .status-warn { color: var(--tertiary); }
+    .timer-label { opacity: 0.8; }
+    .timer-val { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+    .timer-val.danger { color: var(--tertiary); animation: blink 0.2s steps(1) infinite; }
+    .instruction-label { opacity: 0.7; font-size: 0.8rem; }
+    .code { color: var(--secondary); font-weight: bold; text-decoration: underline; }
 
-    .timer.danger {
-      color: var(--tertiary);
-      text-shadow: 0 0 30px var(--tertiary);
-      animation: scale-pulse 0.5s infinite alternate;
-    }
-
-    @keyframes scale-pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    .instruction {
-      font-size: 0.75rem;
-      color: var(--primary);
-      opacity: 0.8;
-      background: var(--layer-2);
-      padding: 1rem;
-    }
-
-    .code {
-      display: block;
-      margin-top: 0.5rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.2rem;
-      font-weight: 900;
-      color: var(--secondary);
-    }
+    @keyframes blink { 50% { opacity: 0; } }
   `
 })
 export class PurgeOverlayComponent {

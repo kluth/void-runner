@@ -17,121 +17,158 @@ export interface Threat {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="threat-container hud-panel">
-      <div class="sec-header">0x_THREAT_DATABASE // CLASSIFIED</div>
+    <div class="terminal-window">
+      <div class="header">
+        ┌── 0x_THREAT_DATABASE // CLASSIFIED ──────────────────────────────────────────┐
+      </div>
       
       <div class="threat-grid">
         @for (threat of threats(); track threat.id) {
           <div class="threat-card" [class]="threat.riskLevel.toLowerCase()">
-            <div class="risk-indicator"></div>
-            <div class="threat-info">
+            <div class="ascii-top">┌──────────────────────────────────┐</div>
+            <div class="card-content">
               <div class="t-top">
                 <span class="t-type">[{{ threat.type }}]</span>
-                <span class="t-risk">RISK: {{ threat.riskLevel }}</span>
+                <span class="t-risk">! {{ threat.riskLevel }} !</span>
               </div>
-              <div class="t-name">{{ threat.name }}</div>
-              <div class="t-status">STATUS: <span [class.active]="threat.status === 'ACTIVE_THREAT'">{{ threat.status }}</span></div>
+              <div class="t-name">> {{ threat.name }}</div>
+              <div class="t-status">STATUS: <span [class.active]="threat.status === 'ACTIVE_THREAT'">[{{ threat.status }}]</span></div>
               <p class="t-desc">{{ threat.description }}</p>
               <div class="t-vuln">
-                <span class="label-tactical">VULNERABILITY:</span>
+                <span class="label-tactical">VULN_VEC:</span>
                 <span class="vuln-text">{{ threat.vulnerability }}</span>
               </div>
+              <button class="track-btn" (click)="trackThreat(threat)">[ INIT_TRACKING ]</button>
             </div>
-            <div class="action-overlay">
-                <button class="primary" (click)="trackThreat(threat)">INIT_TRACKING</button>
-            </div>
+            <div class="ascii-bottom">└──────────────────────────────────┘</div>
           </div>
         }
+      </div>
+      <div class="footer">
+        └───────────────────────────────────────────────────────────────────────────────┘
       </div>
     </div>
   `,
   styles: `
-    .threat-container {
-      padding: 1.5rem;
-      background: var(--layer-1);
+    :host {
+      display: block;
       height: 100%;
-      overflow-y: auto;
+      background: #000;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 1rem;
     }
 
-    .sec-header {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: var(--tertiary);
-      margin-bottom: 1.5rem;
-      background: var(--layer-2);
-      padding: 0.75rem;
-      text-transform: uppercase;
+    .terminal-window {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
+
+    .header, .footer {
+      white-space: pre;
+      color: var(--primary);
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .footer { margin-top: auto; margin-bottom: 0; }
 
     .threat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+      gap: 1rem;
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 1rem;
+      scrollbar-width: none;
     }
+
+    .threat-grid::-webkit-scrollbar { display: none; }
 
     .threat-card {
-      background: var(--layer-2);
+      background: #000;
       position: relative;
-      padding: 1.5rem;
       display: flex;
-      gap: 1.5rem;
-      transition: all 0.05s steps(2);
+      flex-direction: column;
+    }
+
+    .ascii-top, .ascii-bottom {
+      white-space: pre;
+      line-height: 1;
+      opacity: 0.8;
+    }
+
+    .card-content {
+      border-left: 1px solid var(--primary);
+      border-right: 1px solid var(--primary);
+      padding: 0.5rem 1rem;
+      flex: 1;
+    }
+
+    .t-top { 
+      display: flex; 
+      justify-content: space-between; 
+      font-size: 0.65rem; 
+      margin-bottom: 0.5rem; 
+      opacity: 0.8;
+    }
+    
+    .t-risk { color: var(--primary); font-weight: bold; }
+    .threat-card.high .t-risk { color: #ff5555; }
+    .threat-card.extreme .t-risk { color: #ff0000; animation: blink 1s steps(2) infinite; }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .t-name { 
+      font-size: 1rem; 
+      font-weight: bold; 
+      color: var(--primary); 
+      margin-bottom: 0.25rem; 
+      text-transform: uppercase;
+    }
+
+    .t-status { font-size: 0.6rem; margin-bottom: 0.75rem; opacity: 0.6; }
+    .t-status .active { color: #ff5555; opacity: 1; }
+    
+    .t-desc { 
+      font-size: 0.75rem; 
+      line-height: 1.4; 
+      margin-bottom: 1rem; 
+      opacity: 0.9;
+      height: 3rem;
       overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
     }
-
-    .threat-card:hover {
-      background: var(--layer-4);
-      box-shadow: var(--neon-shadow);
-    }
-
-    .risk-indicator {
-      width: 4px;
-      height: 100%;
-      background: var(--secondary);
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-
-    .threat-card.high .risk-indicator { background: var(--tertiary); opacity: 0.6; }
-    .threat-card.extreme .risk-indicator { background: var(--tertiary); animation: pulse 0.5s steps(2) infinite alternate; }
-
-    @keyframes pulse { from { opacity: 1; } to { opacity: 0.3; } }
-
-    .threat-info { flex: 1; }
-    .t-top { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 900; margin-bottom: 0.75rem; font-family: 'JetBrains Mono', monospace; }
-    .t-type { color: var(--primary); opacity: 0.5; }
-    .t-risk { color: var(--tertiary); }
-    .t-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-    .t-status { font-size: 0.6rem; color: var(--primary); opacity: 0.4; margin-bottom: 1rem; font-weight: 900; }
-    .t-status .active { color: var(--tertiary); opacity: 1; }
-    .t-desc { font-size: 0.7rem; color: #fff; opacity: 0.6; line-height: 1.6; margin-bottom: 1.5rem; }
     
     .t-vuln {
-      background: var(--layer-0);
-      padding: 1rem;
-      border-left: 2px solid var(--secondary);
+      background: rgba(0, 255, 65, 0.05);
+      padding: 0.5rem;
+      border: 1px dashed var(--primary);
+      margin-bottom: 1rem;
     }
-    .vuln-text { font-size: 0.65rem; color: var(--secondary); display: block; margin-top: 4px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+    
+    .label-tactical { font-size: 0.6rem; opacity: 0.5; display: block; }
+    .vuln-text { font-size: 0.7rem; color: var(--secondary); font-weight: bold; }
 
-    .action-overlay {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(14,14,14,0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.1s steps(2);
+    .track-btn {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      padding: 0.5rem;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
     }
 
-    .threat-card:hover .action-overlay { opacity: 1; }
-
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: var(--layer-0); }
-    ::-webkit-scrollbar-thumb { background: var(--layer-5); }
+    .track-btn:hover {
+      background: var(--primary);
+      color: #000;
+    }
   `
 })
 export class ThreatDatabaseComponent {

@@ -7,98 +7,134 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bounty-container hud-panel">
-      <div class="sec-header">DARKNET_EXCHANGE // BOUNTY_BOARD</div>
+    <div class="terminal-window">
+      <div class="header">
+        ┌── DARKNET_EXCHANGE // BOUNTY_BOARD ───────────────────────────────────────────┐
+      </div>
       
       <div class="bounty-list">
         @for (bounty of bounties(); track bounty.id) {
-          <div class="bounty-item">
-            <div class="b-main">
-              <div class="b-target">{{ bounty.target }}</div>
-              <div class="b-meta">
-                <span class="b-type">{{ bounty.type }}</span>
-                <span class="b-issuer">ISSUER: {{ bounty.issuer }}</span>
+          <div class="bounty-wrapper">
+            <div class="ascii-top">┌──────────────────────────────────────────────────────────────────────────────┐</div>
+            <div class="bounty-content">
+              <div class="b-main">
+                <div class="b-target">> TARGET: {{ bounty.target }}</div>
+                <div class="b-meta">
+                  <span>TYPE: {{ bounty.type }}</span>
+                  <span>ISSUER: {{ bounty.issuer }}</span>
+                </div>
               </div>
+              <div class="b-stats">
+                <div class="b-reward">REWARD: {{ bounty.reward }}cr</div>
+                <div class="b-diff" [class]="bounty.difficulty.toLowerCase()">DIFF: [{{ bounty.difficulty }}]</div>
+                <div class="b-timer">TTL: {{ bounty.expiresIn }}</div>
+              </div>
+              <button class="accept-btn" (click)="acceptBounty(bounty)">[ ACCEPT_CONTRACT ]</button>
             </div>
-            <div class="b-stats">
-              <div class="b-reward">{{ bounty.reward }}cr</div>
-              <div class="b-diff" [class]="bounty.difficulty.toLowerCase()">{{ bounty.difficulty }}</div>
-              <div class="b-timer">{{ bounty.expiresIn }}</div>
-            </div>
-            <button class="accept-btn" (click)="acceptBounty(bounty)">ACCEPT_CONTRACT</button>
+            <div class="ascii-bottom">└──────────────────────────────────────────────────────────────────────────────┘</div>
           </div>
         }
+      </div>
+      <div class="footer">
+        └───────────────────────────────────────────────────────────────────────────────┘
       </div>
     </div>
   `,
   styles: `
-    .bounty-container {
-      padding: 1.5rem;
-      background: var(--layer-1);
+    :host {
+      display: block;
       height: 100%;
-      overflow-y: auto;
+      background: #000;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      padding: 1rem;
     }
 
-    .sec-header {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 900;
-      letter-spacing: 2px;
+    .terminal-window {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header, .footer {
+      white-space: pre;
       color: var(--primary);
-      background: var(--layer-2);
-      padding: 0.75rem;
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
+      font-weight: bold;
     }
 
     .bounty-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 1rem;
+      scrollbar-width: none;
     }
 
-    .bounty-item {
-      background: var(--layer-2);
-      padding: 1.5rem;
+    .bounty-list::-webkit-scrollbar { display: none; }
+
+    .bounty-wrapper {
+      margin-bottom: 1rem;
+      white-space: pre;
+    }
+
+    .ascii-top, .ascii-bottom {
+      line-height: 1;
+      opacity: 0.8;
+    }
+
+    .bounty-content {
+      border-left: 1px solid var(--primary);
+      border-right: 1px solid var(--primary);
+      padding: 0 1.5rem;
       display: flex;
       align-items: center;
       gap: 2rem;
-      transition: all 0.05s steps(2);
-    }
-
-    .bounty-item:hover {
-      background: var(--layer-4);
-      box-shadow: var(--neon-shadow);
+      background: #000;
     }
 
     .b-main { flex: 1; }
-    .b-target { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
-    .b-meta { font-size: 0.6rem; color: var(--primary); opacity: 0.4; font-weight: 900; display: flex; gap: 1.5rem; font-family: 'JetBrains Mono', monospace; }
-    .b-type { color: var(--secondary); opacity: 1; }
+    .b-target { 
+      font-size: 1.1rem; 
+      color: var(--primary); 
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+    .b-meta { 
+      font-size: 0.7rem; 
+      display: flex; 
+      gap: 1.5rem; 
+      opacity: 0.7;
+    }
 
-    .b-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 120px; }
-    .b-reward { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--secondary); }
-    .b-diff { font-size: 0.55rem; font-weight: 900; padding: 4px 8px; background: var(--layer-0); color: var(--primary); }
-    .b-diff.hard { color: #ffaa00; box-shadow: inset 0 0 5px #ffaa00; }
-    .b-diff.elite { color: var(--tertiary); box-shadow: inset 0 0 5px var(--tertiary); }
-    .b-timer { font-size: 0.55rem; color: var(--primary); opacity: 0.3; font-family: 'JetBrains Mono', monospace; }
+    .b-stats { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: flex-start; 
+      gap: 2px; 
+      min-width: 150px;
+      font-size: 0.75rem;
+    }
+    
+    .b-reward { color: var(--secondary); font-weight: bold; }
+    .b-diff.hard { color: #ff5555; }
+    .b-diff.elite { color: #ff55ff; }
+    .b-timer { opacity: 0.5; }
 
     .accept-btn {
-      background: var(--layer-4);
-      border: var(--ghost-border);
+      background: transparent;
+      border: none;
       color: var(--primary);
-      padding: 1rem 2rem;
-      font-size: 0.65rem;
-      font-weight: 900;
+      padding: 0.5rem 1rem;
+      font-family: inherit;
+      font-weight: bold;
       cursor: pointer;
-      font-family: 'Space Grotesk', sans-serif;
-      transition: all 0.05s steps(2);
+      transition: all 0.1s;
     }
 
     .accept-btn:hover {
       background: var(--primary);
-      color: var(--on-primary);
-      box-shadow: 0 0 20px var(--primary);
+      color: #000;
+      box-shadow: 0 0 10px var(--primary);
     }
   `
 })

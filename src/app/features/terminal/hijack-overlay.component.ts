@@ -12,57 +12,60 @@ import { FormsModule } from '@angular/forms';
     @if (gameService.isHijacked()) {
       <div class="hijack-container">
         <div class="glitch-overlay"></div>
-        <div class="ascii-background">
-          <pre>{{ currentAscii() }}</pre>
-        </div>
         
-        <div class="hijack-content">
-          <div class="warning-text">NEURAL_OVERRIDE_ACTIVE // SOURCE: UNKNOWN</div>
-          <div class="anonymous-header">WE ARE THE VOID. WE DO NOT FORGET.</div>
+        <div class="ascii-modal">
+          <div class="ascii-border-top">┌── SYSTEM_OVERRIDE_IN_PROGRESS ───────────────────────────────────────────┐</div>
           
-          <div class="system-guide">
-            <span class="pulse">!</span> SYSTEM_ERROR: Neural sync lost. 
-            @if (gameService.campaignLevel() <= 3) {
-                <div class="initiate-help">
-                    HINT: The AI wants you to solve this: <b>{{ gameService.hijackUnlockCode() }}</b>
-                </div>
-            } @else {
-                Solve the AI's riddle to regain control.
-            }
-          </div>
-
-          @if (showHint()) {
-              <div class="debugger-hint">
-                  <span class="tag">NEURAL_DEBUGGER:</span> {{ getHintMessage() }}
-              </div>
-          }
-
-          <div class="message-stream">
-            <span class="cursor">></span> {{ gameService.hijackMessage() || 'ESTABLISHING_NEURAL_UPLINK...' }}
-          </div>
-          
-          <div class="challenge-box">
-             <label>INPUT_RIDDLE_SOLUTION:</label>
-             <input type="text" 
-                    [(ngModel)]="solveInput" 
-                    placeholder="ENTER_KEY_HERE..." 
-                    (keyup.enter)="release()">
-             <div class="hint">Listen to the Void. The solution is the answer to its question.</div>
-          </div>
-
-          <div class="actions">
-            <button class="release-btn" [disabled]="!solveInput" (click)="release()">PURGE_SESSION</button>
-            <button class="replay-btn" (click)="replay()">RECAPTURE_SIGNAL</button>
+          <div class="modal-body">
+            <div class="ascii-border-left">│</div>
             
-            @if (showForcePurge()) {
-                <button class="force-btn" (click)="forcePurge()">FORCE_PURGE (250cr)</button>
-            }
-          </div>
-        </div>
+            <div class="modal-content">
+              <div class="ascii-art-container">
+                <pre>{{ currentAscii() }}</pre>
+              </div>
 
-        <div class="status-bars">
-           <div class="bar left">TRACING_LOCATION... {{ 94 + (timeElapsed() / 10) | number:'1.0-0' }}%</div>
-           <div class="bar right">UPLINK_STABILITY: {{ 100 - timeElapsed() }}%</div>
+              <div class="warning-header">NEURAL_OVERRIDE_ACTIVE // SOURCE: VOID</div>
+              
+              <div class="message-stream">
+                <span class="cursor">></span> {{ gameService.hijackMessage() || 'ESTABLISHING_NEURAL_UPLINK...' }}
+              </div>
+
+              <div class="challenge-box">
+                @if (gameService.campaignLevel() <= 3) {
+                    <div class="hint-box">
+                        [DEBUG_HINT]: KEY_REQUIRED = "{{ gameService.hijackUnlockCode() }}"
+                    </div>
+                }
+
+                <div class="input-area">
+                  <span class="prompt">SYNC_CODE:</span>
+                  <input type="text" 
+                         [(ngModel)]="solveInput" 
+                         (keyup.enter)="release()"
+                         placeholder="........"
+                         autofocus>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="action-btn" [disabled]="!solveInput" (click)="release()">[ PURGE_SESSION ]</button>
+                <button class="action-btn" (click)="replay()">[ REPLAY_SIGNAL ]</button>
+                
+                @if (showForcePurge()) {
+                    <button class="action-btn force" (click)="forcePurge()">[ FORCE_PURGE_250cr ]</button>
+                }
+              </div>
+
+              <div class="status-info">
+                 <span class="status-item">TRACE: {{ 94 + (timeElapsed() / 10) | number:'1.0-0' }}%</span>
+                 <span class="status-item">STABILITY: {{ 100 - timeElapsed() }}%</span>
+              </div>
+            </div>
+
+            <div class="ascii-border-right">│</div>
+          </div>
+
+          <div class="ascii-border-bottom">└──────────────────────────────────────────────────────────────────────────┘</div>
         </div>
       </div>
     }
@@ -70,118 +73,164 @@ import { FormsModule } from '@angular/forms';
   styles: `
     .hijack-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: var(--layer-0); z-index: 10000;
+      background: #000; z-index: 10000;
       display: flex; align-items: center; justify-content: center;
-      color: var(--tertiary); font-family: 'JetBrains Mono', monospace;
+      color: var(--primary); font-family: 'JetBrains Mono', monospace;
       overflow: hidden;
     }
 
-    .ascii-background {
+    .glitch-overlay {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0.15; font-size: 0.7vw; line-height: 1.1;
-      pointer-events: none; user-select: none;
-      animation: flicker 0.15s infinite;
-      color: var(--tertiary);
+      background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03) 0px, rgba(0, 255, 0, 0.03) 1px, transparent 2px, transparent 4px);
+      pointer-events: none; z-index: 5;
+    }
+
+    .ascii-modal {
+      position: relative;
+      z-index: 10;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      max-width: 90vw;
+    }
+
+    .ascii-border-top, .ascii-border-bottom {
+      white-space: nowrap;
+      overflow: hidden;
+      font-size: 0.8rem;
+      color: var(--primary);
+    }
+
+    .modal-body {
+      display: flex;
+    }
+
+    .ascii-border-left, .ascii-border-right {
+      width: 1ch;
+      border-left: 1px solid var(--primary);
+      margin: 0 4px;
+      opacity: 0.5;
+    }
+
+    .modal-content {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .ascii-art-container {
+      font-size: 0.5rem;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      opacity: 0.7;
+      color: var(--primary-bright);
+      animation: flicker 0.2s infinite alternate;
     }
 
     @keyframes flicker {
-      0% { opacity: 0.10; transform: skewX(-1deg); }
-      50% { opacity: 0.20; transform: skewX(1deg); }
-      100% { opacity: 0.15; transform: skewX(0); }
+      from { opacity: 0.5; }
+      to { opacity: 0.8; }
     }
 
-    .debugger-hint {
-        background: var(--layer-2);
-        border: var(--ghost-border);
-        color: var(--primary);
-        padding: 15px;
-        font-size: 0.7rem;
-        margin-bottom: 2rem;
-        text-align: left;
-    }
-    .debugger-hint .tag { font-weight: 900; margin-right: 8px; }
-
-    .initiate-help { color: var(--secondary); margin-top: 8px; font-size: 1rem; font-family: 'Space Grotesk', sans-serif; font-weight: 900; }
-
-    .glitch-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: repeating-linear-gradient(0deg, rgba(193, 0, 20, 0.08) 0px, rgba(193, 0, 20, 0.08) 1px, transparent 2px, transparent 4px);
-      pointer-events: none; z-index: 5;
-    }
-    
-    .hijack-content { 
-      position: relative; z-index: 10;
-      text-align: center; max-width: 800px; padding: 3rem; 
-      border: 2px solid var(--tertiary); box-shadow: 0 0 150px rgba(193, 0, 20, 0.3); 
-      background: rgba(14, 14, 14, 0.95);
-      backdrop-filter: blur(20px);
-    }
-    
-    .system-guide {
-      background: var(--layer-2);
-      padding: 15px;
+    .warning-header {
       font-size: 0.7rem;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      font-weight: 900;
+      background: var(--primary);
+      color: #000;
+      padding: 2px 10px;
+    }
+
+    .message-stream {
+      font-size: 1rem;
       margin-bottom: 2rem;
-      line-height: 1.6;
-      border-left: 4px solid var(--tertiary);
+      min-height: 60px;
+      color: var(--primary-bright);
+      max-width: 500px;
     }
 
-    .system-guide .pulse {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      background: var(--tertiary);
-      margin-right: 10px;
-      animation: guide-pulse 0.8s steps(2) infinite;
+    .cursor { animation: blink 0.5s steps(2) infinite; }
+    @keyframes blink { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+    .challenge-box {
+      width: 100%;
+      margin-bottom: 2rem;
     }
 
-    @keyframes guide-pulse {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(2); opacity: 0; }
+    .hint-box {
+      font-size: 0.65rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+      border: 1px dashed var(--secondary);
+      padding: 5px;
     }
 
-    .warning-text { font-size: 0.7rem; letter-spacing: 4px; margin-bottom: 1rem; color: var(--tertiary); font-weight: 900; opacity: 0.6; }
-    .anonymous-header { 
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.8rem; font-weight: 900; margin-bottom: 2.5rem; 
-      text-transform: uppercase; letter-spacing: -0.05em;
-      color: #fff;
-      text-shadow: 0 0 15px var(--tertiary);
+    .input-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--primary);
+      padding: 10px;
     }
 
-    .message-stream { font-size: 1.1rem; line-height: 1.6; margin-bottom: 3rem; min-height: 100px; color: #fff; }
-    .cursor { animation: blink 0.5s steps(2) infinite; color: var(--tertiary); }
-    @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+    .prompt { font-size: 0.8rem; font-weight: 900; }
 
-    .challenge-box { margin-bottom: 3rem; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-    .challenge-box label { font-size: 0.6rem; color: var(--tertiary); font-weight: 900; letter-spacing: 2px; }
-    .challenge-box input { 
-        background: var(--layer-0); border: var(--ghost-border); color: var(--tertiary); padding: 1.5rem; 
-        font-family: inherit; font-size: 1.4rem; text-align: center; width: 100%;
-        outline: none; text-transform: uppercase;
+    input {
+      background: transparent;
+      border: none;
+      color: var(--primary-bright);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      width: 120px;
+      text-transform: uppercase;
     }
-    .challenge-box input:focus { border-color: var(--tertiary); box-shadow: 0 0 20px rgba(193, 0, 20, 0.2); }
-    .challenge-box .hint { font-size: 0.6rem; color: var(--tertiary); opacity: 0.4; font-style: italic; }
 
-    .actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-
-    .release-btn, .replay-btn, .force-btn {
-      background: transparent; border: var(--ghost-border); color: var(--tertiary);
-      padding: 1rem 2rem; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem;
-      transition: all 0.05s steps(2); font-weight: 900; text-transform: uppercase;
+    .actions {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 2rem;
     }
-    .release-btn:hover:not(:disabled), .replay-btn:hover { background: var(--tertiary); color: #fff; box-shadow: 0 0 30px var(--tertiary); }
-    .release-btn:disabled { opacity: 0.2; cursor: not-allowed; }
-    
-    .force-btn { color: #ffaa00; border-color: #ffaa00; }
-    .force-btn:hover { background: #ffaa00; color: #000; box-shadow: 0 0 30px #ffaa00; }
 
-    .status-bars {
-      position: absolute; bottom: 0; left: 0; width: 100%; 
-      display: flex; justify-content: space-between; padding: 2rem;
-      font-size: 0.6rem; color: var(--tertiary); opacity: 0.4; font-weight: 900;
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      cursor: pointer;
     }
+
+    .action-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .action-btn.force {
+      color: var(--secondary);
+    }
+    .action-btn.force:hover {
+      background: var(--secondary);
+      color: #000;
+    }
+
+    .status-info {
+      display: flex;
+      gap: 30px;
+      font-size: 0.6rem;
+      opacity: 0.6;
+    }
+
+    .status-item { font-weight: 900; }
   `
 })
 export class HijackOverlayComponent implements OnInit, OnDestroy {

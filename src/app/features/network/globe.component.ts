@@ -8,24 +8,82 @@ import { CommonModule } from '@angular/common';
   selector: 'app-globe',
   standalone: true,
   imports: [CommonModule],
-  template: `<div #container class="globe-container">
-      <div class="globe-noise">COORD_TRACK: LAT {{ lat() }} LON {{ lon() }}</div>
-  </div>`,
+  template: `
+    <div class="terminal-frame">
+      <div class="ascii-header">┌── NETWORK_GEOSPATIAL_TRACKER ─────────────────────────────────┐</div>
+      <div #container class="globe-container">
+          <div class="scanline"></div>
+          <div class="globe-noise">
+            [ STATUS: ACTIVE ]<br>
+            [ COORD_TRACK: LAT {{ lat() }} LON {{ lon() }} ]<br>
+            [ SYNC_STATE: ENCRYPTED ]
+          </div>
+          <div class="corner-label top-right">V.0.4.2_NODE</div>
+          <div class="corner-label bottom-right">SECURE_CHANNEL_ESTABLISHED</div>
+      </div>
+      <div class="ascii-footer">└───────────────────────────────────────────────────────────────┘</div>
+    </div>
+  `,
   styles: `
+    .terminal-frame {
+      background: #000;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      padding: 10px;
+    }
+    .ascii-header, .ascii-footer {
+      white-space: pre;
+      line-height: 1.2;
+      font-size: 14px;
+      color: var(--primary);
+    }
     .globe-container {
       width: 100%;
       height: 400px;
-      background: var(--layer-0);
+      background: #000;
       position: relative;
       cursor: grab;
       overflow: hidden;
+      border-left: 1px solid var(--primary);
+      border-right: 1px solid var(--primary);
+    }
+    .scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        rgba(47, 248, 1, 0) 0%,
+        rgba(47, 248, 1, 0.03) 50%,
+        rgba(47, 248, 1, 0) 100%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 10;
+      animation: scan 10s linear infinite;
+    }
+    @keyframes scan {
+      from { background-position: 0 0; }
+      to { background-position: 0 100%; }
     }
     .globe-noise {
-       position: absolute; bottom: 10px; left: 15px;
-       font-family: 'JetBrains Mono', monospace;
-       font-size: 0.5rem; opacity: 0.3; color: var(--primary);
+       position: absolute; top: 15px; left: 15px;
+       font-size: 0.7rem; color: var(--primary);
        z-index: 5;
+       text-shadow: 0 0 5px var(--primary);
+       opacity: 0.8;
     }
+    .corner-label {
+      position: absolute;
+      font-size: 0.6rem;
+      color: var(--primary);
+      opacity: 0.6;
+      z-index: 5;
+    }
+    .top-right { top: 15px; right: 15px; }
+    .bottom-right { bottom: 15px; right: 15px; }
   `
 })
 export class GlobeComponent implements AfterViewInit, OnDestroy {
@@ -91,6 +149,7 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(width, height);
+    this.renderer.setClearColor(0x000000, 1);
     this.containerRef.nativeElement.appendChild(this.renderer.domElement);
 
     this.globeGroup = new THREE.Group();
@@ -106,10 +165,10 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
   private createGlobe() {
     const geometry = new THREE.SphereGeometry(100, 32, 32);
     const material = new THREE.MeshBasicMaterial({
-      color: 0x0df2f2,
+      color: 0x2ff801, // Bright Matrix Green
       wireframe: true,
       transparent: true,
-      opacity: 0.05
+      opacity: 0.1
     });
     const globe = new THREE.Mesh(geometry, material);
     this.globeGroup.add(globe);
@@ -118,7 +177,7 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
     const innerMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
       transparent: true,
-      opacity: 0.7
+      opacity: 0.9
     });
     const inner = new THREE.Mesh(innerGeo, innerMat);
     this.globeGroup.add(inner);
@@ -128,7 +187,11 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
     try {
       const response = await fetch(this.GEO_JSON_URL);
       const data = await response.json();
-      const material = new THREE.LineBasicMaterial({ color: 0x0df2f2, transparent: true, opacity: 0.2 });
+      const material = new THREE.LineBasicMaterial({ 
+        color: 0x2ff801, 
+        transparent: true, 
+        opacity: 0.3 
+      });
       
       data.features.forEach((feature: any) => {
         const { type, coordinates } = feature.geometry;
@@ -157,12 +220,17 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
 
     const nodes = this.networkService.currentPath();
     const mode = this.gameService.routingMode();
-    const color = mode === 'ONION' ? 0xc10014 : mode === 'VPN' ? 0x0df2f2 : 0x2ff801;
+    // Use green variants for consistency with Matrix aesthetic
+    const color = mode === 'ONION' ? 0x2ff801 : mode === 'VPN' ? 0x00ff00 : 0x2ff801;
 
     nodes.forEach(node => {
       const pos = this.latLngToVector3(node.lat, node.lng, 101);
       const pointGeo = new THREE.SphereGeometry(2, 8, 8);
-      const pointMat = new THREE.MeshBasicMaterial({ color: color });
+      const pointMat = new THREE.MeshBasicMaterial({ 
+        color: color,
+        transparent: true,
+        opacity: 0.8
+      });
       const point = new THREE.Mesh(pointGeo, pointMat);
       point.position.copy(pos);
       this.pointGroup.add(point);
@@ -175,7 +243,11 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
       const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
       const curvePoints = curve.getPoints(30);
       const arcGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
-      const arcMat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.8 });
+      const arcMat = new THREE.LineBasicMaterial({ 
+        color: color, 
+        transparent: true, 
+        opacity: 0.6 
+      });
       const arc = new THREE.Line(arcGeo, arcMat);
       this.pointGroup.add(arc);
     }
@@ -192,9 +264,9 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
                 const curvePoints = curve.getPoints(20);
                 const arcGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
                 const arcMat = new THREE.LineBasicMaterial({ 
-                    color: 0xff00ff, 
+                    color: 0x2ff801, 
                     transparent: true, 
-                    opacity: 0.3,
+                    opacity: 0.2,
                     blending: THREE.AdditiveBlending
                 });
                 const arc = new THREE.Line(arcGeo, arcMat);
@@ -224,7 +296,7 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
         let mesh: THREE.Object3D;
         if (ev.type === 'pulse' || ev.type === 'burst') {
           const geo = new THREE.SphereGeometry(ev.type === 'pulse' ? 3 : 5, 16, 16);
-          const mat = new THREE.MeshBasicMaterial({ color: ev.color, transparent: true, opacity: 0.8 });
+          const mat = new THREE.MeshBasicMaterial({ color: 0x2ff801, transparent: true, opacity: 0.8 });
           mesh = new THREE.Mesh(geo, mat);
           mesh.position.copy(pos);
           // Metadata for animation
@@ -237,7 +309,7 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
         } else {
           // Attack - cross/marker
           const geo = new THREE.RingGeometry(4, 6, 8);
-          const mat = new THREE.MeshBasicMaterial({ color: ev.color, transparent: true, opacity: 1, side: THREE.DoubleSide });
+          const mat = new THREE.MeshBasicMaterial({ color: 0x2ff801, transparent: true, opacity: 1, side: THREE.DoubleSide });
           mesh = new THREE.Mesh(geo, mat);
           mesh.position.copy(pos);
           mesh.lookAt(0,0,0);

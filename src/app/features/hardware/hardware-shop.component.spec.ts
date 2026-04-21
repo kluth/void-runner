@@ -11,13 +11,13 @@ describe('HardwareShopComponent', () => {
   beforeEach(() => {
     gameService = {
       availableHardware: vi.fn().mockReturnValue([{ id: 'h1', name: 'H1', price: 100, unlocked: true }]),
-      credits: vi.fn().mockReturnValue(500),
-      experience: vi.fn().mockReturnValue(100),
-      zeroDays: vi.fn().mockReturnValue(0),
+      mountedHardware: vi.fn().mockReturnValue([null, null, null]),
+      inventory: vi.fn().mockReturnValue([]),
+      currentPowerUsage: vi.fn().mockReturnValue(10),
+      totalPowerCapacity: vi.fn().mockReturnValue(100),
       buyHardware: vi.fn(),
-      unlockHardware: vi.fn(),
-      researchZeroDay: vi.fn(),
-      sellZeroDay: vi.fn()
+      mountHardware: vi.fn(),
+      unmountHardware: vi.fn()
     };
 
     TestBed.configureTestingModule({
@@ -31,14 +31,44 @@ describe('HardwareShopComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should buy hardware', () => {
-    const item = { id: 'h1', price: 100 } as any;
-    component.buy(item);
+  it('should buy hardware if unlocked', () => {
+    const item = { id: 'h1', price: 100, unlocked: true } as any;
+    component.buyItem(item);
     expect(gameService.buyHardware).toHaveBeenCalledWith(item);
   });
 
-  it('should calculate research cost', () => {
-    const item = { price: 100 } as any;
-    expect(component.getResearchCost(item)).toBe(200);
+  it('should not buy hardware if locked', () => {
+    const item = { id: 'h1', price: 100, unlocked: false } as any;
+    component.buyItem(item);
+    expect(gameService.buyHardware).not.toHaveBeenCalled();
+  });
+
+  it('should generate power bar ascii', () => {
+    // 10/100 = 10% -> 2 bars of 20
+    expect(component.getPowerBar()).toBe('██');
+    expect(component.getEmptyPowerBar()).toBe('░░░░░░░░░░░░░░░░░░');
+  });
+
+  it('should select slot for mounting', () => {
+    const item = { id: 'i1', name: 'Item 1' } as any;
+    component.selectedInventoryItem = item;
+    component.selectSlot(1);
+    expect(component.selectedSlot).toBe(1);
+  });
+
+  it('should unmount hardware if no item selected', () => {
+    component.selectedInventoryItem = null;
+    component.selectSlot(1);
+    expect(gameService.unmountHardware).toHaveBeenCalledWith(1);
+  });
+
+  it('should confirm mount', () => {
+    const item = { id: 'i1', name: 'Item 1' } as any;
+    component.selectedInventoryItem = item;
+    component.selectedSlot = 1;
+    component.confirmMount();
+    expect(gameService.mountHardware).toHaveBeenCalledWith(item, 1);
+    expect(component.selectedSlot).toBeNull();
+    expect(component.selectedInventoryItem).toBeNull();
   });
 });
