@@ -29,6 +29,6 @@ describe('LiveEventsComponent', () => {
   });
 
   it('should return correct event description', () => {
-    expect(component.getEventDesc()).toContain('double Experience');
+    expect(component.getEventDesc(CTF_ACTIVE)).toContain('double Experience');
   });
 });

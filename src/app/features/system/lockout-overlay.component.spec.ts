@@ -36,7 +36,7 @@ describe('LockoutOverlayComponent', () => {
     (gameService as any).lockoutPuzzles.set([{ q: 'What is 1+1?', a: '2' }]);
     (gameService as any).lockoutSolvedCount.set(0);
     fixture.detectChanges();
-    const challenge = fixture.nativeElement.querySelector('.challenge-text');
+    const challenge = fixture.nativeElement.querySelector('.challenge-box');
     expect(challenge.textContent).toContain('What is 1+1?');
   });
 });

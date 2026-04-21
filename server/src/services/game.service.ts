@@ -95,10 +95,14 @@ export class GameService {
         const otpauth = authenticator.keyuri(decoded.username, 'VOID_RUNNER', secret);
         const qr = await qrcode.toDataURL(otpauth);
         
-        await prisma.player.update({
-          where: { id: decoded.id },
-          data: { twoFactorSecret: secret, twoFactorEnabled: true }
-        });
+        try {
+          await prisma.player.update({
+            where: { id: decoded.id },
+            data: { twoFactorSecret: secret, twoFactorEnabled: true }
+          });
+        } catch (e) {
+          console.error('[2FA_SETUP] Player not found:', decoded.id);
+        }
         socket.emit('auth_2fa_qr', qr);
       });
 
@@ -228,9 +232,10 @@ export class GameService {
         const decoded = await this.verifyToken(data.token);
         if (!decoded) return;
 
-        await prisma.player.update({
-          where: { id: decoded.id },
-          data: { 
+        try {
+          await prisma.player.update({
+            where: { id: decoded.id },
+            data: { 
               score: data.reputation, // Force score to match reputation for ranking consistency
               reputation: data.reputation,
               credits: data.credits ?? undefined,
@@ -246,8 +251,12 @@ export class GameService {
               artifacts: data.artifacts ?? undefined,
               publicExploits: data.publicExploits ?? undefined,
               settings: data.settings ?? undefined
-          }
-        });
+            }
+          });
+        } catch (e) {
+          console.error('[UPDATE_SCORE] Player not found:', decoded.id);
+          return;
+        }
         
         // Mirror updated state to ALL devices owned by this user
         // Ensure username is preserved in the mirror packet
@@ -286,10 +295,14 @@ export class GameService {
         const decoded = await this.verifyToken(data.token);
         if (!decoded) return;
 
-        await prisma.player.update({
-          where: { id: decoded.id },
-          data: { teamId: data.teamId }
-        });
+        try {
+          await prisma.player.update({
+            where: { id: decoded.id },
+            data: { teamId: data.teamId }
+          });
+        } catch (e) {
+          console.error('[JOIN_TEAM] Player not found:', decoded.id);
+        }
         socket.join(data.teamId);
         const team = await prisma.team.findUnique({ where: { id: data.teamId } });
         socket.emit('team_joined', team);
