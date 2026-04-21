@@ -535,3 +535,421 @@ body::before {
     transform: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE LAYOUTS - STITCH DESIGN IMPLEMENTATION
+   Mobile, Ultra-wide, Vertical, Dual-screen adaptations
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Mobile Layout (< 600px) ── */
+@media (max-width: 600px) {
+  .game-wrapper {
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .primary-sector {
+    width: 100%;
+    height: auto;
+    max-height: 40vh;
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 255, 159, 0.15);
+  }
+
+  .primary-sector::after {
+    display: none;
+  }
+
+  .main-terminal-area {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 30vh;
+    overflow-y: auto;
+    border-left: none;
+    border-top: 1px solid rgba(0, 255, 159, 0.06);
+  }
+
+  .tmux-status-bar {
+    font-size: 0.6rem;
+    padding: 2px 5px;
+  }
+
+  .tactical-tabs {
+    gap: 5px;
+  }
+
+  .tactical-tabs button {
+    font-size: 0.6rem;
+    padding: 0 3px;
+  }
+
+  .terminal-frame {
+    margin: 5px;
+  }
+
+  .holographic-preview {
+    min-height: 100px;
+    margin: 5px;
+  }
+
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none;
+  }
+
+  /* Show mobile-only elements */
+  .mobile-only {
+    display: block;
+  }
+}
+
+/* ── Ultra-wide Layout (> 1400px) ── */
+@media (min-width: 1400px) {
+  .game-wrapper {
+    flex-direction: row;
+  }
+
+  .primary-sector {
+    width: 25%;
+    min-width: 300px;
+  }
+
+  .main-terminal-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 25%;
+    min-width: 300px;
+  }
+
+  /* Three-column layout for ultra-wide */
+  .ultrawide-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 10px;
+    height: 100%;
+  }
+
+  .ultrawide-left,
+  .ultrawide-right {
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  .ultrawide-center {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* Enhanced HUD for ultra-wide */
+  .hud-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Vertical Layout (Portrait) ── */
+@media (orientation: portrait) and (max-width: 600px) {
+  .game-wrapper {
+    flex-direction: column;
+  }
+
+  .primary-sector {
+    width: 100%;
+    height: 30vh;
+    overflow-y: auto;
+  }
+
+  .main-terminal-area {
+    flex: 1;
+    min-height: 40vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 30vh;
+    overflow-y: auto;
+    border-left: none;
+    border-top: 1px solid rgba(0, 255, 159, 0.06);
+  }
+
+  /* Stack HUD panels vertically */
+  .hud-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Vertical tab navigation */
+  .tactical-tabs {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tactical-tabs button {
+    width: 100%;
+    text-align: left;
+    padding: 2px 5px;
+  }
+}
+
+/* ── Dual-screen Layout ── */
+@media (min-width: 2000px) {
+  .dual-screen-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    height: 100vh;
+    padding: 10px;
+  }
+
+  .screen-left,
+  .screen-right {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 255, 159, 0.2);
+    background: var(--layer-0);
+  }
+
+  .screen-header {
+    padding: 5px 10px;
+    background: rgba(0, 255, 159, 0.1);
+    border-bottom: 1px solid rgba(0, 255, 159, 0.2);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
+
+  .screen-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Primary screen - Terminal and operations */
+  .screen-left .screen-content {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* Secondary screen - Monitoring and surveillance */
+  .screen-right .screen-content {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+}
+
+/* ── VR/Immersive Layout ── */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .vr-layout {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+
+  .vr-panel {
+    transform: rotateY(-5deg) translateZ(50px);
+    transition: transform 0.3s ease;
+  }
+
+  .vr-panel:hover {
+    transform: rotateY(0deg) translateZ(100px);
+  }
+
+  /* Depth effects */
+  .terminal-frame {
+    box-shadow: 
+      0 0 10px rgba(0, 255, 159, 0.2),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .holographic-preview {
+    transform: translateZ(20px);
+  }
+}
+
+/* ── Handheld/Game Console Layout ── */
+@media (max-width: 480px) and (max-height: 800px) {
+  .handheld-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 5px;
+    gap: 5px;
+  }
+
+  .handheld-header {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    background: rgba(0, 255, 159, 0.1);
+    border: 1px solid rgba(0, 255, 159, 0.2);
+    font-size: 0.6rem;
+  }
+
+  .handheld-main {
+    flex: 1;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 159, 0.2);
+    background: var(--layer-1);
+  }
+
+  .handheld-controls {
+    height: 80px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 5px;
+  }
+
+  .control-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .control-btn {
+    background: rgba(0, 255, 159, 0.1);
+    border: 1px solid rgba(0, 255, 159, 0.3);
+    color: var(--neon-green);
+    font-size: 0.5rem;
+    cursor: pointer;
+  }
+
+  .control-btn:active {
+    background: var(--neon-green);
+    color: #000;
+  }
+}
+
+/* ── Retro CRT Layout ── */
+.crt-mode {
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 159, 0.03) 2px,
+      rgba(0, 255, 159, 0.03) 4px
+    );
+  pointer-events: none;
+  z-index: 9998;
+  animation: crt-flicker 0.15s infinite;
+}
+
+.crt-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 9997;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* ── Neural Interface Layout ── */
+.neural-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--layer-0) 0%, var(--layer-2) 100%);
+}
+
+.neural-header {
+  padding: 10px 20px;
+  background: rgba(191, 64, 255, 0.1);
+  border-bottom: 1px solid rgba(191, 64, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.neural-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--neon-violet);
+  letter-spacing: 3px;
+}
+
+.neural-status {
+  display: flex;
+  gap: 20px;
+  font-size: 0.7rem;
+}
+
+.neural-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 250px 1fr 250px;
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.neural-left,
+.neural-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.neural-center {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.neural-panel {
+  background: var(--layer-1);
+  border: 1px solid rgba(191, 64, 255, 0.2);
+  clip-path: var(--clip-notch);
+  overflow: hidden;
+}
+
+.neural-panel-header {
+  padding: 8px 12px;
+  background: rgba(191, 64, 255, 0.1);
+  border-bottom: 1px solid rgba(191, 64, 255, 0.2);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: var(--neon-violet);
+}
+

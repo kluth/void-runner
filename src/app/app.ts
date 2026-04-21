@@ -30,6 +30,7 @@ import { PurgeOverlayComponent } from './features/system/purge-overlay.component
 import { FakeBluescreenComponent } from './features/system/fake-bluescreen.component';
 import { LockoutOverlayComponent } from './features/system/lockout-overlay.component';
 import { SurveillanceOverlayComponent } from './features/system/surveillance-overlay.component';
+import { HighDensityHudComponent } from './features/system/high-density-hud.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { CommonModule } from '@angular/common';
 
@@ -64,7 +65,8 @@ import { CommonModule } from '@angular/common';
     PurgeOverlayComponent,
     FakeBluescreenComponent,
     LockoutOverlayComponent,
-SurveillanceOverlayComponent
+SurveillanceOverlayComponent,
+    HighDensityHudComponent,
   ],
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
@@ -92,6 +94,9 @@ SurveillanceOverlayComponent
       <app-fake-bluescreen />
       <app-lockout-overlay />
       <app-surveillance-overlay />
+
+            <!-- High Density HUD -->
+      <app-high-density-hud />
 
       <div class="game-wrapper" 
            [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
