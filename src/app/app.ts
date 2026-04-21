@@ -3,10 +3,6 @@ import { GameService } from './core/services/game.service';
 import { AudioService } from './core/services/audio.service';
 import { StreamerIntegrationService } from './core/services/streamer-integration.service';
 import { ActivatedRoute } from '@angular/router';
-import { OnboardAiService } from './core/services/onboard-ai.service';
-import { PvpService } from './core/services/pvp.service';
-import { FactionService } from './core/services/faction.service';
-import { CreepyAudioService } from './core/services/creepy-audio.service';
 import { TerminalComponent } from './features/terminal/terminal.component';
 import { HardwareShopComponent } from './features/hardware/hardware-shop.component';
 import { MissionComponent } from './features/missions/missions.component';
@@ -32,6 +28,8 @@ import { OverclockStationComponent } from './features/hardware/overclock-station
 import { AssetVaultComponent } from './features/hardware/asset-vault.component';
 import { PurgeOverlayComponent } from './features/system/purge-overlay.component';
 import { LockoutOverlayComponent } from './features/system/lockout-overlay.component';
+import { SurveillanceOverlayComponent } from './features/system/surveillance-overlay.component';
+import { OnboardAiService } from './core/services/onboard-ai.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -63,7 +61,8 @@ import { CommonModule } from '@angular/common';
     OverclockStationComponent,
     AssetVaultComponent,
     PurgeOverlayComponent,
-    LockoutOverlayComponent
+    LockoutOverlayComponent,
+SurveillanceOverlayComponent
   ],
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
@@ -84,6 +83,7 @@ import { CommonModule } from '@angular/common';
       <app-walkthrough-overlay />
       <app-purge-overlay />
       <app-lockout-overlay />
+      <app-surveillance-overlay />
 
       <div class="game-wrapper" 
            [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
@@ -295,11 +295,8 @@ export class AppComponent implements OnInit {
   gameService = inject(GameService);
   audioService = inject(AudioService);
   streamerService = inject(StreamerIntegrationService);
+onboardAi = inject(OnboardAiService);
   private route = inject(ActivatedRoute);
-  onboard = inject(OnboardAiService);
-  pvp = inject(PvpService);
-  factions = inject(FactionService);
-  creepyAudio = inject(CreepyAudioService);
 
   globeModalOpen = signal(false);
   mobileTelemetryOpen = signal(false);
@@ -310,20 +307,12 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
-
-    // Defer all initialization to after the first change detection cycle
-    // to avoid NG0200 (ExpressionChangedAfterItHasBeenCheckedError)
-    queueMicrotask(() => {
-      this.onboard.initialize();
-      this.pvp.initialize();
-      this.factions.initialize();
-      this.creepyAudio.initialize();
-      this.route.queryParamMap.subscribe(params => {
-          const token = params.get('token');
-          if (token) {
-              this.gameService.handleOAuthToken(token);
-          }
-      });
+    this.onboardAi.initialize();
+    this.route.queryParamMap.subscribe(params => {
+        const token = params.get('token');
+        if (token) {
+            this.gameService.handleOAuthToken(token);
+        }
     });
   }
 
