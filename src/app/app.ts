@@ -302,11 +302,21 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe(params => {
-        const token = params.get('token');
-        if (token) {
-            this.gameService.handleOAuthToken(token);
-        }
+
+    // Defer all initialization to after the first change detection cycle
+    // to avoid NG0200 (ExpressionChangedAfterItHasBeenCheckedError)
+    queueMicrotask(() => {
+      this.onboard.initialize();
+      this.pvp.initialize();
+      this.factions.initialize();
+      this.creepyAudio.initialize();
+      this.route.queryParamMap.subscribe(params => {
+          const token = params.get('token');
+          if (token) {
+              this.gameService.handleOAuthToken(token);
+          }
+      });
+ 15143c8 (feat: Enhanced CI/CD pipeline with comprehensive quality gates)
     });
   }
 

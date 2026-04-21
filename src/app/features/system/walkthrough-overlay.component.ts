@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, untracked } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { NeuralService } from '../../core/services/neural.service';
@@ -199,11 +199,15 @@ export class WalkthroughOverlayComponent {
   constructor() {
     // Synchronize the highlighted selector in GameService
     effect(() => {
-      if (this.gameService.tutorialActive()) {
-        this.gameService.currentTutorialSelector.set(this.currentStep().selector || null);
-      } else {
-        this.gameService.currentTutorialSelector.set(null);
-      }
+      const active = this.gameService.tutorialActive();
+      const selector = this.currentStep().selector || null;
+      untracked(() => {
+        if (active) {
+          this.gameService.currentTutorialSelector.set(selector);
+        } else {
+          this.gameService.currentTutorialSelector.set(null);
+        }
+      });
     });
   }
 
