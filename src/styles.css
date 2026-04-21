@@ -175,7 +175,7 @@ body::before {
 
 /* ── PHASE 1: FAMILIAR (Subtle) ── */
 /* Occasional horizontal tear, slight color shift */
-body.phase-familiar .terminal-frame {
+.phase-familiar .terminal-frame {
   animation: subtle-glitch 8s infinite;
 }
 
@@ -196,15 +196,15 @@ body.phase-familiar .terminal-frame {
 
 /* ── PHASE 2: AWARE (Moderate) ── */
 /* Horizontal tears, RGB separation, scanline intensity increase */
-body.phase-aware .terminal-frame {
+.phase-aware .terminal-frame {
   animation: aware-glitch 5s infinite;
 }
 
-body.phase-aware {
+.phase-aware {
   --scanline-opacity: 0.08;
 }
 
-body.phase-aware .terminal-frame::before {
+.phase-aware .terminal-frame::before {
   animation: rgb-shift 3s infinite;
 }
 
@@ -248,19 +248,19 @@ body.phase-aware .terminal-frame::before {
 
 /* ── PHASE 3: INTRUSIVE (Heavy) ── */
 /* Chromatic aberration, screen tears, flicker */
-body.phase-intrusive .terminal-frame {
+.phase-intrusive .terminal-frame {
   animation: intrusive-glitch 3s infinite;
 }
 
-body.phase-intrusive {
+.phase-intrusive {
   --scanline-opacity: 0.12;
 }
 
-body.phase-intrusive .game-wrapper {
+.phase-intrusive .game-wrapper {
   animation: screen-tear 4s infinite;
 }
 
-body.phase-intrusive .terminal-frame::after {
+.phase-intrusive .terminal-frame::after {
   animation: chromatic-pulse 2s infinite;
 }
 
@@ -340,23 +340,23 @@ body.phase-intrusive .terminal-frame::after {
 
 /* ── PHASE 4: HOSTILE (Extreme) ── */
 /* Full screen corruption, fake blue screen, severe distortion */
-body.phase-hostile .terminal-frame {
+.phase-hostile .terminal-frame {
   animation: hostile-glitch 1.5s infinite;
 }
 
-body.phase-hostile {
+.phase-hostile {
   --scanline-opacity: 0.2;
 }
 
-body.phase-hostile .game-wrapper {
+.phase-hostile .game-wrapper {
   animation: hostile-screen 2s infinite;
 }
 
-body.phase-hostile .tmux-status-bar {
+.phase-hostile .tmux-status-bar {
   animation: status-corrupt 3s infinite;
 }
 
-body.phase-hostile::before {
+.phase-hostile::before {
   content: '';
   position: fixed;
   top: 0;
@@ -508,8 +508,8 @@ body.phase-hostile::before {
 }
 
 /* ── Global text distortion for hostile phase ── */
-body.phase-hostile .terminal-text,
-body.phase-hostile .log-line {
+.phase-hostile .terminal-text,
+.phase-hostile .log-line {
   animation: text-corrupt 4s infinite;
 }
 
@@ -535,4 +535,3 @@ body.phase-hostile .log-line {
     transform: none;
   }
 }
-
