@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, Injector } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { NeuralService } from './neural.service';
 import { AudioService } from './audio.service';
@@ -213,11 +213,13 @@ export const AVAILABLE_HARDWARE: HardwareItem[] = [
 })
 export class GameService {
   public socket!: Socket;
+  private injector = inject(Injector);
   private neuralService = inject(NeuralService);
   private audioService = inject(AudioService);
   vision = inject(VisionAnalysisService);
-  factions = inject(FactionService);
-  creepyAudio = inject(CreepyAudioService);
+  
+  get factions() { return this.injector.get(FactionService); }
+  get creepyAudio() { return this.injector.get(CreepyAudioService); }
   playerHandle = signal('VOID_RUNNER_' + Math.floor(Math.random() * 9999));
 
   // Hardware & Software State
@@ -955,6 +957,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         this.log(`ROLE: NEURAL_OPERATIVE_L${Math.floor(this.experience()/1000) + 1}`);
         this.log(`PRIVILEGE: 0x${(this.reputation()).toString(16)}`);
         this.log('BIOMETRICS: 88% SYNCHRONIZED');
+        this.creepyAudio.playRandomCreepySound('paranoia');
         this.audioService.speakCreepy(`Operative ${this.playerHandle()} identified. Your pulse is elevated.`);
         break;
       case 'nmap':
@@ -1028,7 +1031,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         } else {
            this.log('PLAYING_ACOUSTIC_SHARD...');
            this.audioService.playGlitch();
-           // In a real game we'd play the m.data audio buffer
+           this.creepyAudio.playRandomCreepySound('intrusive');
            this.audioService.speakCreepy("Listening to the echoes of the grid.");
         }
         break;
@@ -2109,6 +2112,14 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       if (activeWars.length === 0) this.log('No active wars. Enjoy the peace while it lasts.');
     } else {
       this.log('Usage: faction [list|join|leave|war|wars]');
+    }
+  }
+}
+.log('Usage: faction [list|join|leave|war|wars]');
+    }
+  }
+}
+og('Usage: faction [list|join|leave|war|wars]');
     }
   }
 }

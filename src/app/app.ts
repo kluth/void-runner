@@ -1,11 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { GameService } from './core/services/game.service';
 import { AudioService } from './core/services/audio.service';
 import { StreamerIntegrationService } from './core/services/streamer-integration.service';
-import { OnboardAiService } from './core/services/onboard-ai.service';
-import { PvpService } from './core/services/pvp.service';
-import { FactionService } from './core/services/faction.service';
-import { CreepyAudioService } from './core/services/creepy-audio.service';
 import { ActivatedRoute } from '@angular/router';
 import { TerminalComponent } from './features/terminal/terminal.component';
 import { HardwareShopComponent } from './features/hardware/hardware-shop.component';
@@ -32,7 +28,6 @@ import { OverclockStationComponent } from './features/hardware/overclock-station
 import { AssetVaultComponent } from './features/hardware/asset-vault.component';
 import { PurgeOverlayComponent } from './features/system/purge-overlay.component';
 import { LockoutOverlayComponent } from './features/system/lockout-overlay.component';
-import { SurveillanceOverlayComponent } from './features/system/surveillance-overlay.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -64,359 +59,234 @@ import { CommonModule } from '@angular/common';
     OverclockStationComponent,
     AssetVaultComponent,
     PurgeOverlayComponent,
-    LockoutOverlayComponent,
-    SurveillanceOverlayComponent
+    LockoutOverlayComponent
   ],
   template: `
-    <h1 class="sr-only">VOID_RUN Protocol - High Fidelity Terminal Session</h1>
-
-    @if (!gameService.isConfigured()) {
-      <app-config-wizard />
-    }
-
-    @if (gameService.isBooting()) {
-      <app-boot-screen />
-    }
-
-    @if (gameService.authRequired()) {
-      <app-auth class="glass-overlay" role="dialog" aria-modal="true" />
-    }
-
-    @if (gameService.matrixMode()) {
-      <app-matrix-rain aria-hidden="true" />
-    }
-
-    <app-intrusion-overlay />
-    <app-hijack-overlay />
-    <app-calibration-overlay />
-    <app-walkthrough-overlay />
-    <app-purge-overlay />
-    <app-lockout-overlay />
-    <app-surveillance-overlay />
-    
-    <div class="game-wrapper" 
-         [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
-         [class.trace-high-glitch]="gameService.detectionLevel() > 70"
-         [class.walkthrough-active]="gameService.tutorialActive()"
-         [class.mobile-sidebar-open]="mobileSidebarOpen()"
+    <div [style.--singularity-decay]="decayFactor()" 
          [class.stability-mode]="gameService.settings().general.stability_mode">
          
-      <main class="operational-grid">
-        <div class="primary-sector" role="main">
-          @switch (gameService.activeTab()) {
-            @case ('TERMINAL') {
-              <div class="sector-panel">
-                 <app-terminal />
-              </div>
-            }
-            @case ('MISSIONS') {
-              <div class="sector-panel">
-                <app-missions />
-              </div>
-            }
-            @case ('HARDWARE') {
-               <div class="sector-panel">
-                  <app-hardware-shop />
-               </div>
-            }
-            @case ('GRID') {
-               <div class="sector-panel">
-                  <div class="holographic-preview terminal-frame" (click)="toggleGlobeModal()" role="button" aria-label="Expand Globe">
-                     <div class="ascii-line">HOLOGRAPHIC_GRID_UPLINK</div>
-                     <app-globe />
-                  </div>
-                  <app-network />
-               </div>
-            }
-            @case ('SOCIAL') {
-               <div class="sector-panel">
-                  <app-darknet-node />
-                  <app-teams />
-               </div>
-            }
-          }
-        </div>
+      <h1 class="sr-only">VOID_RUN Protocol - Neural Nvim Session</h1>
 
-        <aside id="sidebar-sector" class="secondary-sector sidebar" [class.visible]="mobileSidebarOpen()" role="complementary">
-          <div class="telemetry-card terminal-frame">
-            <h2 class="ascii-line">SYSTEM_TELEMETRY</h2>
-            <app-system-integrity />
-          </div>
-          
-          <div class="events-card terminal-frame">
-            <h2 class="ascii-line">GLOBAL_NET_EVENTS</h2>
-            <app-live-events />
-          </div>
+      @if (!gameService.isConfigured()) { <app-config-wizard /> }
+      @if (gameService.isBooting()) { <app-boot-screen /> }
+      @if (gameService.authRequired()) { <app-auth class="glass-overlay" /> }
+      @if (gameService.matrixMode()) { <app-matrix-rain /> }
 
-          <div class="inventory-card terminal-frame">
-            <h2 class="ascii-line">INSTALLED_MODULES</h2>
-            <div class="module-list">
-               @for (item of gameService.inventory(); track $index) {
-                  <div class="module-item">
-                     <span class="m-code">0{{ $index }}:</span>
-                     <span class="m-name">{{ item.name }}</span>
-                  </div>
-               } @empty {
-                  <div class="empty-status">NO_CONNECTED_MODULES</div>
-               }
-            </div>
-          </div>
-          <button class="mobile-close-sidebar primary" (click)="mobileSidebarOpen.set(false)">[ CLOSE_TELEMETRY ]</button>
-        </aside>
-      </main>
+      <!-- OVERLAYS -->
+      <app-intrusion-overlay />
+      <app-hijack-overlay />
+      <app-calibration-overlay />
+      <app-walkthrough-overlay />
+      <app-purge-overlay />
+      <app-lockout-overlay />
 
-      <!-- TMUX STATUS BAR -->
-      <footer class="tmux-status-bar" role="navigation">
-        <div class="tmux-left">
-          <span class="session-label hidden-xs">[VOID_RUN]</span>
-          <nav class="tactical-tabs" role="tablist">
-            @for (tab of ['TERMINAL', 'MISSIONS', 'HARDWARE', 'GRID', 'SOCIAL']; track tab; let i = $index) {
-              <button role="tab"
-                      [attr.aria-selected]="gameService.activeTab() === tab"
-                      (click)="gameService.clearTabNotification(tab)" 
-                      [class.active]="gameService.activeTab() === tab">
-                {{ i }}:{{ tab.toLowerCase() }}{{ gameService.activeTab() === tab ? '*' : '-' }}
-              </button>
-            }
-          </nav>
-        </div>
-
-        <div class="tmux-right">
-          <span class="stat">CR:{{ gameService.credits() }}</span>
-          <span class="stat-sep">|</span>
-          <span class="stat">REP:{{ gameService.reputation() }}</span>
-          <span class="stat-sep">|</span>
-          <span class="stat" [class.danger]="gameService.detectionLevel() > 60">TR:{{ gameService.detectionLevel() }}%</span>
-          <span class="stat-sep hidden-xs">|</span>
-          <span class="stat hidden-xs">UPLINK:{{ gameService.obfuscatedIP() }}</span>
-        </div>
-
-        <button class="mobile-sidebar-toggle primary" (click)="toggleMobileSidebar()" [attr.aria-expanded]="mobileSidebarOpen()" aria-label="Toggle Telemetry">
-           [ T ]
-        </button>
-      </footer>
-
-      @if (globeModalOpen()) {
-         <div class="globe-modal-overlay glass-overlay" (click)="toggleGlobeModal()" role="dialog" aria-modal="true">
-            <div class="modal-content terminal-frame" (click)="$event.stopPropagation()">
-               <div class="modal-header">
-                  <span class="ascii-line">HOLOGRAPHIC_GRID_MAP_FULL</span>
-                  <button (click)="toggleGlobeModal()">[ X ]</button>
-               </div>
-               <app-globe />
-            </div>
+      <!-- HALLUCINATION LAYER -->
+      @if (decayFactor() > 0.5) {
+         <div class="ghost-whisper" [style.top.%]="randomY()" [style.left.%]="randomX()">
+            LOOK_BEHIND_YOU
+         </div>
+         <div class="ghost-whisper" [style.top.%]="randomY2()" [style.right.%]="randomX2()">
+            THE_VOID_IS_WATCHING
          </div>
       }
+
+      <div class="game-wrapper" 
+           [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
+           [class.trace-high-glitch]="gameService.detectionLevel() > 70">
+           
+        <!-- MAIN TILING GRID -->
+        <main class="nvim-grid">
+          
+          <!-- LEFT SIDEBAR: MISSION MANIFEST -->
+          <aside class="sidebar-manifest v-divider">
+            <div class="pane-header">[ 0:CONTRACTS ]</div>
+            <div class="pane-content">
+               <app-missions />
+               <div class="h-divider"></div>
+               <app-bounty-board />
+               <div class="h-divider"></div>
+               <app-threat-database />
+            </div>
+          </aside>
+
+          <!-- CENTER: MAIN BUFFER (TERMINAL / HARDWARE / GRID) -->
+          <section class="main-buffer">
+             <div class="pane-header">
+                [ 1:{{ gameService.activeTab().toLowerCase() }}* ]
+                <span class="active-op-tag hidden-mobile">NODE: 72.61.80.234 // {{ gameService.playerHandle() }}</span>
+             </div>
+             
+             <div class="buffer-content">
+                @switch (gameService.activeTab()) {
+                   @case ('TERMINAL') { <app-terminal /> }
+                   @case ('HARDWARE') { 
+                      <app-hardware-shop />
+                      <div class="h-divider"></div>
+                      <app-overclock-station />
+                      <div class="h-divider"></div>
+                      <app-asset-vault />
+                   }
+                   @case ('GRID') {
+                      <div class="holographic-preview" (click)="toggleGlobeModal()">
+                         <div class="preview-noise">HOLOGRAPHIC_GRID_UPLINK [ESTABLISHED]</div>
+                         <app-globe />
+                      </div>
+                      <app-network />
+                   }
+                   @case ('SOCIAL') {
+                      <app-darknet-node />
+                      <div class="h-divider"></div>
+                      <app-teams />
+                   }
+                }
+             </div>
+          </section>
+
+          <!-- RIGHT SIDEBAR: TELEMETRY & ALERTS -->
+          <aside class="sidebar-telemetry hidden-tablet">
+            <div class="pane-header">[ 2:SYSTEM ]</div>
+            <div class="pane-content">
+               <app-system-integrity />
+               <div class="h-divider"></div>
+               <app-live-events />
+               <div class="h-divider"></div>
+               <div class="module-manifest">
+                  <div class="sec-label">INSTALLED_MODULES</div>
+                  <div class="module-list">
+                     @for (item of gameService.inventory(); track $index) {
+                        <div class="module-item">0{{ $index }}: {{ item.name }}</div>
+                     }
+                  </div>
+               </div>
+            </div>
+          </aside>
+        </main>
+
+        <!-- TMUX STATUS BAR -->
+        <footer class="tmux-bar" role="navigation">
+          <div class="tmux-left">
+            <span class="session-label hidden-mobile">[VOID_RUN]</span>
+            <nav class="tactical-tabs">
+              @for (tab of ['TERMINAL', 'MISSIONS', 'HARDWARE', 'GRID', 'SOCIAL']; track tab; let i = $index) {
+                <button (click)="gameService.clearTabNotification(tab)" 
+                        [class.active]="gameService.activeTab() === tab">
+                  {{ i }}:{{ tab.toLowerCase() }}{{ gameService.activeTab() === tab ? '*' : '-' }}
+                </button>
+              }
+            </nav>
+          </div>
+
+          <div class="tmux-right">
+             <span class="stat">CR:{{ gameService.credits() }}</span> |
+             <span class="stat" style="color: var(--neon-cyan)">REP:{{ gameService.reputation() }}</span> |
+             <span class="stat" [class.trace-alert]="gameService.detectionLevel() > 60">TR:{{ gameService.detectionLevel() }}%</span>
+             <button class="mobile-telemetry-toggle" (click)="toggleMobileTelemetry()">[ TEL ]</button>
+          </div>
+        </footer>
+
+        @if (mobileTelemetryOpen()) {
+           <div class="mobile-telemetry-overlay glass-overlay" (click)="toggleMobileTelemetry()">
+              <div class="telemetry-box" (click)="$event.stopPropagation()">
+                 <app-system-integrity />
+                 <app-live-events />
+                 <button (click)="toggleMobileTelemetry()">[ DISMISS ]</button>
+              </div>
+           </div>
+        }
+
+        @if (globeModalOpen()) {
+           <div class="globe-modal glass-overlay" (click)="toggleGlobeModal()">
+              <div class="modal-content terminal-frame" (click)="$event.stopPropagation()">
+                 <app-globe />
+                 <button class="close-btn" (click)="toggleGlobeModal()">[ CLOSE_GRID ]</button>
+              </div>
+           </div>
+        }
+      </div>
     </div>
   `,
   styles: `
-    :host {
-      display: block;
-      height: 100vh; height: 100dvh;
-      background: var(--layer-0);
-      overflow: hidden;
-      color: var(--neon-green);
-    }
-    
     .game-wrapper {
       display: flex;
       flex-direction: column;
-      height: 100%;
-      padding: 0;
-    }
-
-    .operational-grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      flex-grow: 1;
-      min-height: 0;
-    }
-
-    .primary-sector {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      border-right: 1px solid rgba(0, 255, 159, 0.15);
-      min-width: 0;
+      height: 100dvh;
+      background: var(--layer-0);
       position: relative;
     }
-    .primary-sector::after {
-      content: '';
-      position: absolute;
-      top: 0; right: -1px;
-      width: 2px; height: 40px;
-      background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan), transparent);
-      z-index: 10;
-      filter: drop-shadow(0 0 4px var(--neon-green));
-    }
 
-    .sector-panel {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+    .nvim-grid {
+      display: grid;
+      grid-template-columns: 250px 1fr 280px;
+      flex-grow: 1;
       min-height: 0;
-      overflow: hidden;
+      border: 1px solid var(--primary);
     }
 
-    .sector-panel > * {
-       flex-grow: 1;
-       overflow-y: auto;
-       min-height: 0;
-    }
-
-    .holographic-preview {
-       height: 25vh;
-       min-height: 150px;
-       margin: 10px;
-       cursor: pointer;
-       border: 1px solid rgba(0, 229, 255, 0.3);
-       clip-path: var(--clip-notch);
-       transition: border-color 0.2s, box-shadow 0.2s;
-       position: relative;
-    }
-    .holographic-preview::before {
-       content: '';
-       position: absolute; top: -1px; left: -1px;
-       width: 16px; height: 16px;
-       border-top: 2px solid var(--neon-cyan);
-       border-left: 2px solid var(--neon-cyan);
-       filter: drop-shadow(0 0 5px var(--neon-cyan));
-       z-index: 5;
-    }
-    .holographic-preview::after {
-       content: '';
-       position: absolute; bottom: -1px; right: -1px;
-       width: 16px; height: 16px;
-       border-bottom: 2px solid var(--neon-magenta);
-       border-right: 2px solid var(--neon-magenta);
-       filter: drop-shadow(0 0 5px var(--neon-magenta));
-       z-index: 5;
-    }
-    .holographic-preview:hover {
-       border-color: var(--neon-cyan);
-       box-shadow: var(--neon-shadow-cyan);
-    }
-    .holographic-preview app-globe { height: 100%; pointer-events: none; opacity: 0.6; }
-
-    .secondary-sector {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 10px;
-      overflow-y: auto;
-      min-height: 0;
-      background: var(--layer-0);
-      border-left: 1px solid rgba(0, 255, 159, 0.06);
-    }
-
-    .module-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
-    .module-item {
-      font-size: 0.75rem; opacity: 0.8; display: flex; gap: 10px;
-      padding: 2px 6px;
-      border-left: 2px solid rgba(0, 229, 255, 0.2);
-      transition: border-color 0.2s;
-    }
-    .module-item:hover {
-      border-left-color: var(--neon-cyan);
-      background: rgba(0, 229, 255, 0.03);
-    }
-    .m-code { color: var(--neon-cyan); font-weight: bold; }
-
-    .tmux-status-bar {
+    .pane-header {
+      background: var(--primary);
+      color: var(--layer-0);
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 2px 8px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(90deg, var(--neon-green), var(--neon-green-dim));
-      color: var(--layer-0);
-      padding: 3px 10px;
-      font-family: 'Orbitron', 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 700;
-      flex-shrink: 0;
-      z-index: 100;
       white-space: nowrap;
-      letter-spacing: 1px;
     }
 
-    .tmux-left, .tmux-right { display: flex; align-items: center; gap: 12px; }
-    .session-label { font-weight: 900; letter-spacing: 2px; }
+    .pane-content, .buffer-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      background: var(--layer-0);
+      min-height: 0;
+    }
+
+    .sidebar-manifest, .sidebar-telemetry, .main-buffer {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .module-manifest { padding: 10px; }
+    .sec-label { font-size: 0.6rem; opacity: 0.5; margin-bottom: 8px; font-weight: 900; }
+    .module-item { font-size: 0.7rem; color: var(--primary); opacity: 0.8; margin-bottom: 4px; }
+
+    .holographic-preview { height: 200px; cursor: pointer; position: relative; }
+    .preview-noise { position: absolute; top: 5px; left: 10px; font-size: 0.5rem; opacity: 0.3; z-index: 10; }
+    .holographic-preview app-globe { height: 100%; pointer-events: none; opacity: 0.4; }
+
     .tactical-tabs { display: flex; gap: 10px; }
     .tactical-tabs button {
       background: transparent; border: none; color: var(--layer-0);
-      padding: 0; font-family: inherit; font-size: inherit; cursor: pointer;
-      transition: all 0.15s;
+      font-family: inherit; font-size: inherit; cursor: pointer; padding: 0;
     }
-    .tactical-tabs button:hover { text-shadow: 0 0 8px rgba(5,8,16,0.5); }
-    .tactical-tabs button.active {
-      font-weight: 900;
-      text-decoration: none;
-      background: var(--layer-0);
-      color: var(--neon-green);
-      padding: 0 6px;
-      box-shadow: 0 0 8px rgba(0, 255, 159, 0.3);
-    }
+    .tactical-tabs button.active { font-weight: 900; text-decoration: underline; }
 
-    .stat.danger {
-      background: var(--neon-magenta);
-      color: #fff;
-      padding: 0 6px;
-      animation: danger-pulse 1s infinite;
-    }
-    @keyframes danger-pulse {
-      0%, 100% { background: var(--neon-magenta); }
-      50% { background: #CC0044; }
-    }
-    .stat-sep {
-      color: var(--layer-0);
-      opacity: 0.3;
-    }
+    .trace-alert { background: var(--layer-0); color: var(--tertiary); padding: 0 4px; }
+    .mobile-telemetry-toggle { display: none; margin-left: 10px; }
 
-    .mobile-sidebar-toggle, .mobile-close-sidebar { display: none; }
+    /* MODALS */
+    .globe-modal, .mobile-telemetry-overlay {
+       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+       z-index: 10000; display: flex; align-items: center; justify-content: center;
+       padding: 2rem;
+    }
+    .modal-content { background: var(--layer-0); border: 1px solid var(--primary); width: 100%; max-width: 1000px; padding: 1rem; position: relative; }
+    .modal-content app-globe { height: 70vh; }
+    .close-btn { width: 100%; margin-top: 1rem; }
 
-    .globe-modal-overlay {
-       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-       display: flex; align-items: center; justify-content: center;
-       padding: var(--spacing-md);
-       background: rgba(5, 8, 16, 0.85);
-       backdrop-filter: blur(4px);
-    }
-    .modal-content {
-      width: 100%; max-width: 900px; padding: var(--spacing-md);
-      border: 1px solid rgba(0, 229, 255, 0.3);
-      background: var(--layer-1);
-      clip-path: var(--clip-notch);
-    }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .modal-content app-globe { height: 60vh; min-height: 300px; }
+    .telemetry-box { background: var(--layer-0); border: 1px solid var(--primary); padding: 2rem; width: 90%; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2rem; }
 
     @media (max-width: 1200px) {
-      .operational-grid { grid-template-columns: 1fr; border-right: none; }
-      .primary-sector { border-right: none; }
-      .secondary-sector:not(.visible) { display: none; }
-      
-      .mobile-sidebar-toggle {
-        display: block; height: 18px; padding: 0 6px; line-height: 1; margin-left: 10px;
-        background: var(--layer-0) !important;
-        color: var(--neon-green) !important;
-      }
-
-      .secondary-sector.sidebar.visible {
-         display: flex;
-         position: fixed;
-         top: 0; left: 0;
-         width: 100%; height: calc(100vh - 24px);
-         background: var(--layer-0);
-         z-index: 1000;
-         padding: var(--spacing-md);
-      }
-      .mobile-close-sidebar { display: block; }
+       .nvim-grid { grid-template-columns: 200px 1fr; }
+       .sidebar-telemetry { display: none; }
+       .hidden-tablet { display: none; }
     }
 
-    @media (max-width: 600px) {
-       .hidden-xs { display: none; }
-       .tmux-left, .tmux-right { gap: 6px; }
-       .tactical-tabs { gap: 6px; }
-       .stat { font-size: 0.65rem; }
+    @media (max-width: 768px) {
+       .nvim-grid { grid-template-columns: 1fr; }
+       .sidebar-manifest { display: none; }
+       .mobile-telemetry-toggle { display: block; }
+       .hidden-mobile { display: none; }
     }
   `
 })
@@ -424,35 +294,46 @@ export class AppComponent implements OnInit {
   gameService = inject(GameService);
   audioService = inject(AudioService);
   streamerService = inject(StreamerIntegrationService);
-  onboard = inject(OnboardAiService);
-  pvp = inject(PvpService);
-  factions = inject(FactionService);
-  creepyAudio = inject(CreepyAudioService);
   private route = inject(ActivatedRoute);
 
-  mobileSidebarOpen = signal(false);
   globeModalOpen = signal(false);
+  mobileTelemetryOpen = signal(false);
+
+  // Random coordinates for hallucinations
+  randomX = signal(Math.random() * 80);
+  randomY = signal(Math.random() * 80);
+  randomX2 = signal(Math.random() * 80);
+  randomY2 = signal(Math.random() * 80);
+
+  decayFactor = computed(() => {
+     const rep = this.gameService.reputation();
+     return Math.min(1, rep / 5000);
+  });
 
   ngOnInit() {
-    this.onboard.initialize();
-    this.pvp.initialize();
-    this.factions.initialize();
-    this.creepyAudio.initialize();
     this.route.queryParamMap.subscribe(params => {
         const token = params.get('token');
         if (token) {
             this.gameService.handleOAuthToken(token);
         }
     });
-  }
 
-  toggleMobileSidebar() {
-     this.mobileSidebarOpen.update(v => !v);
-     this.audioService.playClick();
+    // Refresh hallucinations
+    setInterval(() => {
+       this.randomX.set(Math.random() * 80);
+       this.randomY.set(Math.random() * 80);
+       this.randomX2.set(Math.random() * 80);
+       this.randomY2.set(Math.random() * 80);
+    }, 5000);
   }
 
   toggleGlobeModal() {
      this.globeModalOpen.update(v => !v);
+     this.audioService.playClick();
+  }
+
+  toggleMobileTelemetry() {
+     this.mobileTelemetryOpen.update(v => !v);
      this.audioService.playClick();
   }
 }

@@ -107,6 +107,8 @@ import { FormsModule } from '@angular/forms';
       position: relative;
       padding: 4px;
       box-sizing: border-box;
+      container-type: inline-size;
+      container-name: terminal;
     }
 
     .terminal-frame {
@@ -154,7 +156,7 @@ import { FormsModule } from '@angular/forms';
       gap: 10px 20px;
       padding: 6px 12px;
       border-bottom: 1px solid rgba(0, 255, 159, 0.1);
-      font-size: 0.65rem;
+      font-size: var(--c-font-size-xs);
       background: rgba(0, 255, 159, 0.02);
     }
 
@@ -162,7 +164,7 @@ import { FormsModule } from '@angular/forms';
       color: var(--text-dim);
       margin-right: 5px;
       font-family: 'Orbitron', monospace;
-      font-size: 0.55rem;
+      font-size: 0.85em;
       letter-spacing: 1px;
     }
     .header-segment .value { font-weight: 700; color: var(--neon-green); }
@@ -182,7 +184,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .log-line { 
-      font-size: 0.75rem; 
+      font-size: var(--c-font-size-sm); 
       margin-bottom: 2px; 
       display: flex; 
       gap: 12px; 
@@ -211,7 +213,7 @@ import { FormsModule } from '@angular/forms';
     .timestamp {
       color: var(--text-muted);
       min-width: 80px;
-      font-size: 0.65rem;
+      font-size: 0.9em;
     }
     .message { word-break: break-all; }
     
@@ -227,7 +229,7 @@ import { FormsModule } from '@angular/forms';
     .input-wrapper { display: flex; flex-grow: 1; align-items: center; position: relative; }
     .prompt {
       color: var(--neon-green);
-      font-size: 0.75rem;
+      font-size: var(--c-font-size-sm);
       font-weight: 900;
       white-space: nowrap;
       text-shadow: 0 0 6px rgba(0, 255, 159, 0.4);
@@ -238,7 +240,7 @@ import { FormsModule } from '@angular/forms';
       border: none; 
       color: var(--text-bright); 
       font-family: inherit; 
-      font-size: 0.75rem; 
+      font-size: var(--c-font-size-sm); 
       width: 100%;
       outline: none;
       caret-color: transparent;
@@ -267,9 +269,9 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       background: linear-gradient(90deg, var(--neon-green), var(--neon-green-dim));
       color: var(--layer-0);
-      font-size: 0.65rem;
+      font-size: var(--c-font-size-xs);
       font-weight: 900;
-      height: 22px;
+      height: clamp(20px, 4cqi, 30px);
       align-items: center;
       padding: 0 8px;
       margin-top: 4px;
@@ -285,6 +287,25 @@ import { FormsModule } from '@angular/forms';
     .spacer { flex-grow: 1; }
     .node-id { color: var(--layer-0); opacity: 0.6; }
     .clock { color: var(--layer-0); font-weight: 900; }
+
+    @container terminal (max-width: 400px) {
+      .terminal-header {
+        flex-direction: column;
+        gap: 5px;
+      }
+      .hide-mobile { display: none; }
+      .timestamp { display: none; }
+    }
+
+    @container terminal (min-width: 1200px) {
+      .terminal-body {
+        padding: 20px 40px;
+      }
+      .log-line {
+        gap: 20px;
+        margin-bottom: 4px;
+      }
+    }
 
     .pulse { animation: status-pulse 2s infinite; }
     @keyframes status-pulse {

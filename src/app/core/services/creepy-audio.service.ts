@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, Injector } from '@angular/core';
 import { GameService } from './game.service';
 
 export interface CreepySound {
@@ -12,7 +12,9 @@ export interface CreepySound {
 
 @Injectable({ providedIn: 'root' })
 export class CreepyAudioService {
-  private game = inject(GameService);
+  private injector = inject(Injector);
+  private get game() { return this.injector.get(GameService); }
+
   private audioCtx: AudioContext | null = null;
   private isInitialized = false;
 

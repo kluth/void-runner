@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, Injector } from '@angular/core';
 import { GameService } from './game.service';
 
 export interface Faction {
@@ -61,7 +61,8 @@ export interface Bounty {
 
 @Injectable({ providedIn: 'root' })
 export class FactionService {
-  private game = inject(GameService);
+  private injector = inject(Injector);
+  private get game() { return this.injector.get(GameService); }
 
   factions = signal<Faction[]>([]);
   activeWars = signal<FactionWar[]>([]);
