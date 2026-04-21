@@ -154,7 +154,11 @@ import { FormsModule } from '@angular/forms';
     .terminal-body { 
       flex-grow: 1; 
       padding: 10px 15px; 
-      overflow-y: auto; 
+      overflow-y: auto;
+      max-height: 60vh;
+      min-height: 200px;
+      position: relative;
+      flex: 1; 
       display: flex; 
       flex-direction: column; 
     }
@@ -378,6 +382,7 @@ export class TerminalComponent implements AfterViewChecked {
   }
 
   handleScroll() {
+      // Auto-scroll to bottom when new logs are added
     const element = this.scrollContainer.nativeElement;
     const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
     this.autoScroll = atBottom;

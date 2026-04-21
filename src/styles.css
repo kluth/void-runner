@@ -953,3 +953,73 @@ body::before {
   color: var(--neon-violet);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM SCROLLBAR STYLES - CYBERPUNK THEME
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--layer-0);
+  border-left: 1px solid rgba(0, 255, 159, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 159, 0.3);
+  border: 1px solid rgba(0, 255, 159, 0.2);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 159, 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--neon-green);
+}
+
+/* Terminal-specific scrollbar */
+.terminal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(0, 255, 159, 0.1);
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan));
+  border: none;
+}
+
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-green));
+}
+
+/* Sidebar scrollbar */
+.sidebar::-webkit-scrollbar,
+.primary-sector::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.primary-sector::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.3);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.primary-sector::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 159, 0.3) var(--layer-0);
+}
+
