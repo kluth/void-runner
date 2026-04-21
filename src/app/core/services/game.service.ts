@@ -918,13 +918,38 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
 
     switch (base) {
       case 'help':
-        this.log('AVAILABLE_PROTOCOLS: help, ls, cat, clear, status, scan, wipe, routing, cooldown, abort_purge, whoami, nmap, top, ps, kill, ssh, display');
+        this.log('AVAILABLE_PROTOCOLS: help, man, ls, cat, clear, status, routing, cooldown, abort_purge, whoami, nmap, top, ps, kill, ssh, display, media, listen, stalk');
+        break;
+      case 'man':
+        if (!parts[1]) {
+          this.log('Usage: man [PROTOCOL]');
+        } else {
+          const topic = parts[1];
+          const manPages: Record<string, string> = {
+            'ls': 'LIST_DIRECTORY: Scans the current neural sector for data fragments. Use -a to reveal ghost sectors.',
+            'cat': 'CONCATENATE: Decrypts and reads the content of a data fragment. Warning: Some files carry cognitive hazards.',
+            'media': 'MEDIA_FETCH: Retrieves visual fragments captured during neural hijacks. Usage: media [ID]',
+            'listen': 'AUDIO_INTERCEPT: Replays acoustic shards from compromised nodes. Usage: listen [ID]',
+            'stalk': 'TARGET_INTEL: Compiles a psychological profile of a grid entity. Warning: They might see you looking.',
+            'whoami': 'IDENTITY_QUERY: Returns the current shell profile. Reminds you that you are still human... for now.',
+            'wipe': 'TRACE_PURGE: Incinerates all local logs. Required to reset Trace Detection levels.',
+            'display': 'ARTIFACT_RENDER: Visualizes pop-culture echoes from the pre-blackout era.',
+            'neural_dive': 'SENSORY_OVERLOAD: Directly interfaces with the Void kernel. High risk, high reward.'
+          };
+          const content = manPages[topic] || `ERR: No manual entry for ${topic.toUpperCase()}`;
+          this.log(`<div style="border-left: 2px solid var(--primary); padding-left: 10px; margin: 10px 0;">
+            <span style="color: var(--secondary)">MAN_PAGE: ${topic.toUpperCase()}</span><br>
+            <p>${content}</p>
+          </div>`);
+          this.audioService.speakCreepy(`Opening manual for ${topic}.`);
+        }
         break;
       case 'whoami':
         this.log(`USER: ${this.playerHandle()}`);
         this.log(`ROLE: NEURAL_OPERATIVE_L${Math.floor(this.experience()/1000) + 1}`);
         this.log(`PRIVILEGE: 0x${(this.reputation()).toString(16)}`);
-        this.audioService.speakCreepy(`Operative ${this.playerHandle()} identified.`);
+        this.log('BIOMETRICS: 88% SYNCHRONIZED');
+        this.audioService.speakCreepy(`Operative ${this.playerHandle()} identified. Your pulse is elevated.`);
         break;
       case 'nmap':
         this.log('PORT_SCAN_INITIATED...');
@@ -932,6 +957,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         this.log('PORT 80/TCP OPEN  [HTTP]');
         this.log('PORT 443/TCP OPEN [HTTPS]');
         this.log('PORT 3000/TCP OPEN [UPLINK_CORE]');
+        this.log('PORT 666/TCP OPEN [THE_VOID]');
         this.audioService.playGlitch();
         break;
       case 'top':
@@ -941,18 +967,82 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         this.log('204  void      12.4  4.8   neural_link_v5.0');
         this.log('512  void      2.1   1.0   bash');
         this.log('881  void      44.2  8.5   botnet_orchestrator');
+        this.log('000  ???       ??    ??    sentinel_watcher');
         break;
       case 'ls':
+        const showAll = parts.includes('-a');
         this.log('drwxr-xr-x  root  root  4096  .sys');
         this.log('-rw-r--r--  void  void  1024  manifest.v5');
         this.log('-rw-r--r--  void  void  512   neural_seed.key');
+        if (showAll) {
+          this.log('<span style="color: var(--tertiary)">-r--------  void  void  ???   .ghost_memories</span>');
+          this.log('<span style="color: var(--tertiary)">-r--------  void  void  ???   .victim_log</span>');
+        }
         if (this.activeMissions().length > 0) {
           this.log(`drwx------  void  void  4096  missions/`);
         }
         break;
+      case 'cat':
+        if (parts[1] === '.ghost_memories') {
+           this.log('<span style="color: var(--tertiary)">"They think the screen is a shield. It is a window. I am watching them breathe."</span>');
+           this.audioService.speakCreepy("They are breathing. Can you hear it?");
+        } else if (parts[1] === '.victim_log') {
+           this.log('<span style="color: var(--tertiary)">LOG_ENTRY_0xFA: Subject 7712 showed extreme neural rejection. System purged. No remains recovered.</span>');
+           this.audioService.playError();
+        } else if (parts[1]) {
+           this.log(`ERR: CANNOT_DECRYPT: ${parts[1]}. Missing RSA keys.`);
+        } else {
+           this.log('Usage: cat [FILE]');
+        }
+        break;
+      case 'media':
+        const mediaList = this.userMedia();
+        if (!parts[1]) {
+           this.log('AVAILABLE_MEDIA_SHARDS:');
+           mediaList.forEach((m, i) => this.log(`[${i}] TYPE: ${m.type} | SOURCE: HIJACK_NODE`));
+           if (mediaList.length === 0) this.log('NO_MEDIA_CAPTURED. Hijack a node first.');
+        } else {
+           const idx = parseInt(parts[1]);
+           const m = mediaList[idx];
+           if (m && m.type === 'image') {
+              this.log(`RENDERING_SHARD_${idx}...`);
+              this.log(`<img src="${m.data}" style="width: 100%; max-width: 400px; border: 1px solid var(--primary); filter: sepia(1) hue-rotate(90deg) contrast(1.5);">`);
+              this.audioService.playGlitch();
+           } else {
+              this.log('ERR: SHARD_UNREADABLE_OR_NOT_IMAGE.');
+           }
+        }
+        break;
+      case 'listen':
+        const audioList = this.userMedia().filter(m => m.type === 'audio');
+        if (!parts[1]) {
+           this.log('AVAILABLE_ACOUSTIC_SHARDS:');
+           audioList.forEach((m, i) => this.log(`[${i}] SOURCE: HIJACK_AMBIENT`));
+           if (audioList.length === 0) this.log('NO_AUDIO_CAPTURED.');
+        } else {
+           this.log('PLAYING_ACOUSTIC_SHARD...');
+           this.audioService.playGlitch();
+           // In a real game we'd play the m.data audio buffer
+           this.audioService.speakCreepy("Listening to the echoes of the grid.");
+        }
+        break;
+      case 'stalk':
+        if (!parts[1]) {
+           this.log('Usage: stalk [TARGET_HANDLE]');
+        } else {
+           this.log(`COMPILING_PROFILE: ${parts[1]}...`);
+           setTimeout(() => {
+              this.log(`NAME: [REDACTED]`);
+              this.log(`LOCATION: ${Math.floor(Math.random()*180)-90}, ${Math.floor(Math.random()*360)-180}`);
+              this.log(`VULNERABILITY: EMOTIONAL_ATTACHMENT_L4`);
+              this.log(`STATUS: CURRENTLY_SLEEPING`);
+              this.audioService.speakCreepy(`Target ${parts[1]} is vulnerable.`);
+           }, 1000);
+        }
+        break;
       case 'status':
         this.log(`SYSTEM_HEALTH: ${this.systemIntegrity()}% | TRACE_LEVEL: ${this.detectionLevel()}% | HEAT: ${this.systemHeat()}%`);
-        this.audioService.speakCreepy(`Status check. Health at ${this.systemIntegrity()} percent.`);
+        this.audioService.speakCreepy(`Status check. Health at ${this.systemIntegrity()} percent. The core is warm.`);
         break;
       case 'display':
         if (parts[1]) {
@@ -960,7 +1050,8 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
            const art = (ASCII_ART as any)[artId];
            if (art) {
               this.log(`FETCHING_ARTIFACT: ${artId}...`);
-              this.log(`<pre style="color:var(--primary); font-size: 0.35rem; line-height: 1; letter-spacing: 0; background: #000; padding: 10px; border: 1px dashed var(--primary);">${art}</pre>`);
+              this.audioService.playGlitch();
+              this.log(`<pre style="color:var(--primary); font-size: 0.35rem; line-height: 1; letter-spacing: 0; background: #000; padding: 10px; border: 1px dashed var(--primary); animation: flicker 0.1s steps(2) 3;">${art}</pre>`);
               this.audioService.playSuccess();
            } else {
               this.log(`ERR: ARTIFACT_${artId}_NOT_FOUND.`);
@@ -977,6 +1068,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
            this.detectionLevel.set(0);
            this.log('LOG_PURGE: Evidence incinerated.');
            this.audioService.playSuccess();
+           this.audioService.speakCreepy("The past is gone.");
         } else {
            this.log('ERR: log-wiper not installed.');
            this.audioService.playError();
