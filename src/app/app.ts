@@ -208,7 +208,7 @@ import { CommonModule } from '@angular/common';
       height: 100vh; height: 100dvh;
       background: var(--layer-0);
       overflow: hidden;
-      color: var(--primary);
+      color: var(--neon-green);
     }
     
     .game-wrapper {
@@ -229,8 +229,18 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       min-height: 0;
-      border-right: 1px solid var(--primary);
+      border-right: 1px solid rgba(0, 255, 159, 0.15);
       min-width: 0;
+      position: relative;
+    }
+    .primary-sector::after {
+      content: '';
+      position: absolute;
+      top: 0; right: -1px;
+      width: 2px; height: 40px;
+      background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan), transparent);
+      z-index: 10;
+      filter: drop-shadow(0 0 4px var(--neon-green));
     }
 
     .sector-panel {
@@ -252,6 +262,32 @@ import { CommonModule } from '@angular/common';
        min-height: 150px;
        margin: 10px;
        cursor: pointer;
+       border: 1px solid rgba(0, 229, 255, 0.3);
+       clip-path: var(--clip-notch);
+       transition: border-color 0.2s, box-shadow 0.2s;
+       position: relative;
+    }
+    .holographic-preview::before {
+       content: '';
+       position: absolute; top: -1px; left: -1px;
+       width: 16px; height: 16px;
+       border-top: 2px solid var(--neon-cyan);
+       border-left: 2px solid var(--neon-cyan);
+       filter: drop-shadow(0 0 5px var(--neon-cyan));
+       z-index: 5;
+    }
+    .holographic-preview::after {
+       content: '';
+       position: absolute; bottom: -1px; right: -1px;
+       width: 16px; height: 16px;
+       border-bottom: 2px solid var(--neon-magenta);
+       border-right: 2px solid var(--neon-magenta);
+       filter: drop-shadow(0 0 5px var(--neon-magenta));
+       z-index: 5;
+    }
+    .holographic-preview:hover {
+       border-color: var(--neon-cyan);
+       box-shadow: var(--neon-shadow-cyan);
     }
     .holographic-preview app-globe { height: 100%; pointer-events: none; opacity: 0.6; }
 
@@ -263,38 +299,70 @@ import { CommonModule } from '@angular/common';
       overflow-y: auto;
       min-height: 0;
       background: var(--layer-0);
+      border-left: 1px solid rgba(0, 255, 159, 0.06);
     }
 
     .module-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
-    .module-item { font-size: 0.75rem; opacity: 0.8; display: flex; gap: 10px; }
-    .m-code { color: var(--secondary); font-weight: bold; }
+    .module-item {
+      font-size: 0.75rem; opacity: 0.8; display: flex; gap: 10px;
+      padding: 2px 6px;
+      border-left: 2px solid rgba(0, 229, 255, 0.2);
+      transition: border-color 0.2s;
+    }
+    .module-item:hover {
+      border-left-color: var(--neon-cyan);
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .m-code { color: var(--neon-cyan); font-weight: bold; }
 
     .tmux-status-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--primary);
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-green-dim));
       color: var(--layer-0);
-      padding: 2px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
+      padding: 3px 10px;
+      font-family: 'Orbitron', 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
       font-weight: 700;
       flex-shrink: 0;
       z-index: 100;
       white-space: nowrap;
+      letter-spacing: 1px;
     }
 
     .tmux-left, .tmux-right { display: flex; align-items: center; gap: 12px; }
-    .session-label { font-weight: 900; }
+    .session-label { font-weight: 900; letter-spacing: 2px; }
     .tactical-tabs { display: flex; gap: 10px; }
     .tactical-tabs button {
       background: transparent; border: none; color: var(--layer-0);
       padding: 0; font-family: inherit; font-size: inherit; cursor: pointer;
+      transition: all 0.15s;
     }
-    .tactical-tabs button.active { font-weight: 900; text-decoration: underline; }
+    .tactical-tabs button:hover { text-shadow: 0 0 8px rgba(5,8,16,0.5); }
+    .tactical-tabs button.active {
+      font-weight: 900;
+      text-decoration: none;
+      background: var(--layer-0);
+      color: var(--neon-green);
+      padding: 0 6px;
+      box-shadow: 0 0 8px rgba(0, 255, 159, 0.3);
+    }
 
-    .stat.danger { background: var(--layer-0); color: var(--tertiary); padding: 0 4px; }
-    .stat-sep { opacity: 0.5; }
+    .stat.danger {
+      background: var(--neon-magenta);
+      color: #fff;
+      padding: 0 6px;
+      animation: danger-pulse 1s infinite;
+    }
+    @keyframes danger-pulse {
+      0%, 100% { background: var(--neon-magenta); }
+      50% { background: #CC0044; }
+    }
+    .stat-sep {
+      color: var(--layer-0);
+      opacity: 0.3;
+    }
 
     .mobile-sidebar-toggle, .mobile-close-sidebar { display: none; }
 
@@ -302,8 +370,15 @@ import { CommonModule } from '@angular/common';
        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
        display: flex; align-items: center; justify-content: center;
        padding: var(--spacing-md);
+       background: rgba(5, 8, 16, 0.85);
+       backdrop-filter: blur(4px);
     }
-    .modal-content { width: 100%; max-width: 900px; padding: var(--spacing-md); }
+    .modal-content {
+      width: 100%; max-width: 900px; padding: var(--spacing-md);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      background: var(--layer-1);
+      clip-path: var(--clip-notch);
+    }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .modal-content app-globe { height: 60vh; min-height: 300px; }
 
@@ -312,7 +387,11 @@ import { CommonModule } from '@angular/common';
       .primary-sector { border-right: none; }
       .secondary-sector:not(.visible) { display: none; }
       
-      .mobile-sidebar-toggle { display: block; height: 18px; padding: 0 6px; line-height: 1; margin-left: 10px; }
+      .mobile-sidebar-toggle {
+        display: block; height: 18px; padding: 0 6px; line-height: 1; margin-left: 10px;
+        background: var(--layer-0) !important;
+        color: var(--neon-green) !important;
+      }
 
       .secondary-sector.sidebar.visible {
          display: flex;
@@ -330,7 +409,7 @@ import { CommonModule } from '@angular/common';
        .hidden-xs { display: none; }
        .tmux-left, .tmux-right { gap: 6px; }
        .tactical-tabs { gap: 6px; }
-       .stat { font-size: 0.7rem; }
+       .stat { font-size: 0.65rem; }
     }
   `
 })

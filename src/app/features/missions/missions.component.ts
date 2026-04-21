@@ -207,7 +207,7 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       gap: 4px;
     }
     .det-label { font-size: var(--font-size-xs); }
-    .det-bar-ascii { color: var(--tertiary); font-family: 'JetBrains Mono', monospace; font-size: var(--font-size-sm); }
+    .det-bar-ascii { color: var(--neon-magenta); font-family: 'JetBrains Mono', monospace; font-size: var(--font-size-sm); }
 
     .contract-grid {
       display: grid;
@@ -219,12 +219,27 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       display: flex;
       flex-direction: column;
       background: var(--layer-1);
-      transition: transform 0.2s ease;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0, 255, 159, 0.12);
+      clip-path: var(--clip-notch);
+      position: relative;
+    }
+    /* Cyan corner accent on cards */
+    .contract-card::before {
+      content: '';
+      position: absolute; top: -1px; right: -1px;
+      width: 12px; height: 12px;
+      border-top: 2px solid var(--neon-cyan);
+      border-right: 2px solid var(--neon-cyan);
+      filter: drop-shadow(0 0 4px var(--neon-cyan));
+      z-index: 5;
     }
     
     .contract-card:hover {
       transform: translateY(-4px);
       background: var(--layer-2);
+      border-color: rgba(0, 255, 159, 0.35);
+      box-shadow: var(--neon-shadow);
     }
 
     .card-body {
@@ -236,34 +251,36 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       padding: var(--spacing-sm);
       display: flex;
       justify-content: center;
-      border-top: 1px dashed var(--primary);
+      border-top: 1px solid rgba(0, 255, 159, 0.12);
+      background: rgba(0, 255, 159, 0.02);
     }
 
-    .c-id { font-size: var(--font-size-xs); opacity: 0.7; margin-bottom: 0.5rem; }
-    .c-name { font-size: var(--font-size-base); font-weight: 900; margin: 0 0 0.5rem 0; color: var(--primary); }
-    .c-target { font-size: var(--font-size-sm); margin-bottom: 1rem; }
+    .c-id { font-size: var(--font-size-xs); color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 1px; }
+    .c-name { font-size: var(--font-size-base); font-weight: 900; margin: 0 0 0.5rem 0; color: var(--neon-green); font-family: 'Orbitron', monospace; text-shadow: 0 0 6px rgba(0, 255, 159, 0.3); }
+    .c-target { font-size: var(--font-size-sm); margin-bottom: 1rem; color: var(--text-dim); }
 
     .c-reward-strip {
-      border-top: 1px dashed var(--primary);
+      border-top: 1px solid rgba(0, 255, 159, 0.12);
       padding-top: 0.5rem;
       margin-bottom: 0.5rem;
       display: flex;
       justify-content: space-between;
     }
-    .r-label { font-size: var(--font-size-xs); }
-    .r-val { font-weight: 900; color: var(--secondary); }
+    .r-label { font-size: var(--font-size-xs); color: var(--text-dim); font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+    .r-val { font-weight: 900; color: var(--neon-cyan); text-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
 
     .terminal-btn.small { font-size: var(--font-size-xs); }
 
     .active-ops-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(5, 8, 16, 0.92);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 100;
       padding: var(--spacing-md);
+      backdrop-filter: blur(4px);
     }
 
     .active-ops-view {
@@ -272,8 +289,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       max-width: 100%;
       width: 800px;
       max-height: 90vh;
-      background: var(--layer-0);
+      background: var(--layer-1);
       overflow: hidden;
+      border: 1px solid rgba(0, 255, 159, 0.2);
+      clip-path: var(--clip-notch);
     }
 
     .ops-header {
@@ -289,7 +308,7 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       justify-content: center;
     }
 
-    .blink { animation: blink 1s steps(2) infinite; color: var(--tertiary); }
+    .blink { animation: blink 1s steps(2) infinite; color: var(--neon-magenta); }
     @keyframes blink { to { opacity: 0; } }
 
     .mini-game-chamber {
@@ -317,7 +336,7 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       gap: var(--spacing-lg);
     }
     .target-sync-panel { text-align: center; width: 100%; }
-    .freq-value { font-size: var(--font-size-xl); color: var(--primary); font-weight: 900; }
+    .freq-value { font-size: var(--font-size-xl); color: var(--neon-green); font-weight: 900; text-shadow: 0 0 10px var(--neon-green); }
 
     .ports-matrix {
       display: grid;
@@ -327,8 +346,8 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     }
     .port-cell {
       background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
       padding: 10px;
       font-family: 'JetBrains Mono', monospace;
       cursor: pointer;
@@ -337,10 +356,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       align-items: center;
       font-size: var(--font-size-sm);
     }
-    .port-cell:hover { background: rgba(var(--primary-rgb), 0.1); }
+    .port-cell:hover { background: rgba(0, 255, 159, 0.08); }
     .port-cell.scanned { opacity: 0.3; }
-    .port-cell.matching { box-shadow: 0 0 10px var(--primary); border-width: 2px; }
-    .port-cell.open { background: var(--secondary); color: #000; }
+    .port-cell.matching { box-shadow: 0 0 10px var(--neon-green); border-width: 2px; }
+    .port-cell.open { background: var(--neon-cyan); color: #000; }
 
     .brute-chamber {
       display: flex;
@@ -352,8 +371,8 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     .code-readout {
       font-size: var(--font-size-xl);
       letter-spacing: 0.5rem;
-      color: var(--primary);
-      text-shadow: 0 0 10px var(--primary);
+      color: var(--neon-green);
+      text-shadow: 0 0 10px var(--neon-green);
     }
     .code-grid {
       display: grid;
@@ -379,10 +398,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     }
 
     .abort-btn {
-      color: var(--tertiary);
-      border-color: var(--tertiary);
+      color: var(--neon-magenta);
+      border-color: var(--neon-magenta);
     }
-    .abort-btn:hover { background: var(--tertiary); color: #000; }
+    .abort-btn:hover { background: var(--neon-magenta); color: #000; }
 
     @media (max-width: 600px) {
       .ports-matrix { grid-template-columns: repeat(3, 1fr); }
