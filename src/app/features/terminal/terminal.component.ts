@@ -10,10 +10,8 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="terminal-container">
-      <div class="ascii-border-top">┌── VOID_RUN_TERMINAL_v5.0 ──────────────────────────────────────────────────────────────────────┐</div>
-      
-      <div class="terminal-main">
-        <div class="ascii-border-left">│</div>
+      <div class="terminal-frame">
+        <div class="ascii-line">VOID_RUN_TERMINAL_v5.0</div>
         
         <div class="terminal-content">
           <div class="terminal-header">
@@ -60,11 +58,7 @@ import { FormsModule } from '@angular/forms';
             </div>
           </div>
         </div>
-
-        <div class="ascii-border-right">│</div>
       </div>
-
-      <div class="ascii-border-bottom">└────────────────────────────────────────────────────────────────────────────────────────────────┘</div>
 
       <div class="tmux-status-bar">
         <div class="status-left">
@@ -112,36 +106,15 @@ import { FormsModule } from '@angular/forms';
       overflow: hidden;
       position: relative;
       padding: 4px;
+      box-sizing: border-box;
     }
 
-    .ascii-border-top, .ascii-border-bottom {
-      white-space: nowrap;
-      overflow: hidden;
-      font-size: 0.75rem;
-      line-height: 1.2;
-      flex-shrink: 0;
-      color: var(--primary);
-      opacity: 0.8;
-    }
-
-    .terminal-main {
-      display: flex;
+    .terminal-frame {
       flex-grow: 1;
-      overflow: hidden;
-    }
-
-    .ascii-border-left, .ascii-border-right {
-      width: 1ch;
-      font-size: 0.75rem;
-      color: var(--primary);
-      opacity: 0.8;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      line-height: 1;
-      /* Using a repeating border instead of many divs */
-      border-left: 1px solid rgba(0, 255, 0, 0.3);
-      margin: 0 2px;
+      margin-bottom: 4px;
     }
 
     .terminal-content {
@@ -149,11 +122,13 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      margin-top: 8px;
     }
 
     .terminal-header { 
       display: flex; 
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 10px 20px;
       padding: 4px 10px;
       border-bottom: 1px dashed rgba(0, 255, 0, 0.2);
       font-size: 0.65rem;

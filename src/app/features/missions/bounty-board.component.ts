@@ -8,14 +8,11 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="terminal-window">
-      <div class="header">
-        ┌── DARKNET_EXCHANGE // BOUNTY_BOARD ───────────────────────────────────────────┐
-      </div>
+      <div class="ascii-line header">DARKNET_EXCHANGE // BOUNTY_BOARD</div>
       
       <div class="bounty-list">
         @for (bounty of bounties(); track bounty.id) {
-          <div class="bounty-wrapper">
-            <div class="ascii-top">┌──────────────────────────────────────────────────────────────────────────────┐</div>
+          <div class="terminal-frame bounty-card">
             <div class="bounty-content">
               <div class="b-main">
                 <div class="b-target">> TARGET: {{ bounty.target }}</div>
@@ -31,13 +28,10 @@ import { CommonModule } from '@angular/common';
               </div>
               <button class="accept-btn" (click)="acceptBounty(bounty)">[ ACCEPT_CONTRACT ]</button>
             </div>
-            <div class="ascii-bottom">└──────────────────────────────────────────────────────────────────────────────┘</div>
           </div>
         }
       </div>
-      <div class="footer">
-        └───────────────────────────────────────────────────────────────────────────────┘
-      </div>
+      <div class="ascii-line footer" dir="rtl">PROTOCOL_v5.0.2</div>
     </div>
   `,
   styles: `
@@ -47,60 +41,61 @@ import { CommonModule } from '@angular/common';
       background: #000;
       color: var(--primary);
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      padding: 1rem;
+      padding: var(--spacing-md);
     }
 
     .terminal-window {
       height: 100%;
       display: flex;
       flex-direction: column;
+      gap: var(--spacing-md);
     }
 
-    .header, .footer {
-      white-space: pre;
-      color: var(--primary);
+    .header {
       font-weight: bold;
+      margin-bottom: var(--spacing-sm);
     }
 
     .bounty-list {
       flex: 1;
       overflow-y: auto;
-      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+      gap: var(--spacing-md);
+      padding: 0 var(--spacing-xs);
       scrollbar-width: none;
     }
 
     .bounty-list::-webkit-scrollbar { display: none; }
 
-    .bounty-wrapper {
-      margin-bottom: 1rem;
-      white-space: pre;
+    .bounty-card {
+      background: var(--layer-1);
+      transition: transform 0.2s ease;
     }
-
-    .ascii-top, .ascii-bottom {
-      line-height: 1;
-      opacity: 0.8;
+    
+    .bounty-card:hover {
+      transform: translateY(-2px);
+      background: var(--layer-2);
     }
 
     .bounty-content {
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
-      padding: 0 1.5rem;
+      padding: var(--spacing-sm);
       display: flex;
       align-items: center;
-      gap: 2rem;
-      background: #000;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
     }
 
-    .b-main { flex: 1; }
+    .b-main { flex: 1; min-width: 200px; }
     .b-target { 
-      font-size: 1.1rem; 
+      font-size: var(--font-size-base); 
       color: var(--primary); 
       font-weight: bold;
       text-transform: uppercase;
       margin-bottom: 0.25rem;
     }
     .b-meta { 
-      font-size: 0.7rem; 
+      font-size: var(--font-size-xs); 
       display: flex; 
       gap: 1.5rem; 
       opacity: 0.7;
@@ -111,8 +106,8 @@ import { CommonModule } from '@angular/common';
       flex-direction: column; 
       align-items: flex-start; 
       gap: 2px; 
-      min-width: 150px;
-      font-size: 0.75rem;
+      min-width: 120px;
+      font-size: var(--font-size-sm);
     }
     
     .b-reward { color: var(--secondary); font-weight: bold; }
@@ -121,20 +116,30 @@ import { CommonModule } from '@angular/common';
     .b-timer { opacity: 0.5; }
 
     .accept-btn {
-      background: transparent;
-      border: none;
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      font-family: inherit;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.1s;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
-    .accept-btn:hover {
-      background: var(--primary);
-      color: #000;
-      box-shadow: 0 0 10px var(--primary);
+    .footer {
+      margin-top: auto;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 600px) {
+      .bounty-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .b-stats {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        border-top: 1px dashed var(--primary);
+        padding-top: var(--spacing-xs);
+      }
+      .accept-btn {
+        width: 100%;
+      }
     }
   `
 })

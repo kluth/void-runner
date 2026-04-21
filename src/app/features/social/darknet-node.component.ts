@@ -9,27 +9,26 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   template: `
     @if (gameService.hasDarknetAccess()) {
-      <div class="terminal-frame">
-        <div class="t-row top">┌── SECURE_NODE // GLOBAL_DARKNET ────────────────────────────────────────────────────────┐</div>
+      <div class="terminal-frame h-full flex flex-col overflow-hidden">
+        <div class="ascii-line mb-2">SECURE_NODE // GLOBAL_DARKNET</div>
         
         <div class="t-mid">
           <div class="t-sidebar">
             <div class="t-tab" [class.active]="activeTab === 'global'" (click)="activeTab = 'global'">
-              │ [01] GLOBAL │
+              [01] GLOBAL
             </div>
             <div class="t-tab" [class.active]="activeTab === 'teams'" (click)="activeTab = 'teams'">
-              │ [02] SYNDIC │
+              [02] SYNDIC
             </div>
             <div class="t-tab" [class.active]="activeTab === 'dms'" (click)="activeTab = 'dms'">
-              │ [03] SECURE │
+              [03] SECURE
             </div>
-            <div class="t-fill">│           │</div>
           </div>
 
           <div class="t-main">
             @if (activeTab === 'global') {
               <div class="t-view">
-                <div class="t-view-header">│ > CHANNEL: #GLOBAL_RECON ───────────────────────────────────────────────────┤</div>
+                <div class="ascii-line mb-2 text-xs">CHANNEL: #GLOBAL_RECON</div>
                 <div class="t-log" #globalScroll>
                   @for (msg of gameService.teamMessages(); track $index) {
                     <div class="t-msg">
@@ -48,20 +47,19 @@ import { FormsModule } from '@angular/forms';
               </div>
             } @else if (activeTab === 'teams') {
               <div class="t-view">
-                <div class="t-view-header">│ > CHANNEL: #SYNDICATE_MGR ──────────────────────────────────────────────────┤</div>
+                <div class="ascii-line mb-2 text-xs">CHANNEL: #SYNDICATE_MGR</div>
                 <div class="t-scroll">
                   <div class="t-section">
                     <div class="t-label">[ CREATE_NEW_SYNDICATE ]</div>
-                    <div class="t-input-area">
+                    <div class="t-input-area border border-dashed border-primary p-2">
                        <span class="t-prompt">ID></span>
                        <input type="text" [(ngModel)]="newTeamName" placeholder="syndicate_id..." class="t-input">
                        <button (click)="createTeam()" class="t-btn">[ INIT ]</button>
                     </div>
                   </div>
                   
-                  <div class="t-divider">├─────────────────────────────────────────────────────────────────────────────┤</div>
+                  <div class="ascii-line my-4">AVAILABLE_SYNDICATES</div>
                   
-                  <div class="t-label">[ AVAILABLE_SYNDICATES ]</div>
                   <div class="t-grid">
                     @for (team of gameService.availableTeams(); track team.id) {
                       <div class="t-node">
@@ -79,7 +77,7 @@ import { FormsModule } from '@angular/forms';
               </div>
             } @else if (activeTab === 'dms') {
               <div class="t-view">
-                <div class="t-view-header">│ > CHANNEL: #SECURE_DMS ──────────────────────────────────────────────────────┤</div>
+                <div class="ascii-line mb-2 text-xs">CHANNEL: #SECURE_DMS</div>
                 
                 <div class="t-ops-bar">
                   <span class="t-label">OPERATIVES_ONLINE:</span>
@@ -93,9 +91,8 @@ import { FormsModule } from '@angular/forms';
                 </div>
 
                 @if (selectedOp) {
-                  <div class="t-divider">├─────────────────────────────────────────────────────────────────────────────┤</div>
+                  <div class="ascii-line my-2">SECURE_TUNNEL // {{ selectedOp.name }}</div>
                   <div class="t-dm-session">
-                    <div class="t-label">SECURE_TUNNEL // {{ selectedOp.name }}</div>
                     <div class="t-log">
                       @for (msg of getDmsWithOp(); track $index) {
                         <div class="t-msg" [class.sent]="msg.senderId === 'ME'">
@@ -117,18 +114,14 @@ import { FormsModule } from '@angular/forms';
             }
           </div>
         </div>
-        
-        <div class="t-row bottom">└──────────────────────────────────────────────────────────────────────────────────────────┘</div>
       </div>
     } @else {
-      <div class="t-locked">
-         <div class="t-locked-box">
-           <div>┌───────────────────────────────────┐</div>
-           <div>│        [ ACCESS_DENIED ]          │</div>
-           <div>├───────────────────────────────────┤</div>
-           <div>│ ENCRYPTED_COMMS_MODULE: OFFLINE   │</div>
-           <div>│ REQ: 1000 REPUTATION              │</div>
-           <div>└───────────────────────────────────┘</div>
+      <div class="t-locked flex items-center justify-center h-full">
+         <div class="terminal-frame max-w-md w-full text-center p-8">
+           <div class="ascii-line mb-4">ACCESS_DENIED</div>
+           <div class="my-4 text-tertiary font-bold tracking-widest">ENCRYPTED_COMMS_MODULE: OFFLINE</div>
+           <div class="text-sm opacity-60">REQUIREMENT: 1000 REPUTATION</div>
+           <div class="ascii-line mt-6"></div>
          </div>
       </div>
     }
@@ -142,48 +135,33 @@ import { FormsModule } from '@angular/forms';
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .terminal-frame {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-    }
-
-    .t-row {
-      white-space: pre;
-      line-height: 1;
-      font-size: 12px;
-      overflow: hidden;
-    }
-
     .t-mid {
       display: flex;
       flex-grow: 1;
       overflow: hidden;
+      margin-top: 10px;
     }
 
     .t-sidebar {
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
+      border-right: 1px solid var(--primary);
+      padding-right: 10px;
     }
 
     .t-tab {
-      padding: 5px 0;
+      padding: 8px 12px;
       cursor: pointer;
-      white-space: pre;
-      line-height: 1.2;
+      font-size: 12px;
+      margin-bottom: 4px;
+      border: 1px transparent solid;
     }
 
     .t-tab.active {
       background: var(--primary);
       color: #000;
-    }
-
-    .t-fill {
-      flex-grow: 1;
-      white-space: pre;
+      font-weight: bold;
     }
 
     .t-main {
@@ -191,7 +169,7 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      border-left: none;
+      padding-left: 15px;
     }
 
     .t-view {
@@ -201,16 +179,9 @@ import { FormsModule } from '@angular/forms';
       overflow: hidden;
     }
 
-    .t-view-header {
-      white-space: pre;
-      line-height: 1.2;
-      font-size: 12px;
-      overflow: hidden;
-    }
-
     .t-log {
       flex-grow: 1;
-      padding: 10px;
+      padding: 10px 0;
       overflow-y: auto;
       display: flex;
       flex-direction: column-reverse;
@@ -228,19 +199,20 @@ import { FormsModule } from '@angular/forms';
 
     .t-sender {
       font-weight: bold;
+      color: var(--secondary);
     }
 
     .t-input-area {
       display: flex;
       align-items: center;
-      padding: 5px 10px;
-      background: #000;
+      padding: 8px 0;
       border-top: 1px dashed var(--primary);
     }
 
     .t-prompt {
       margin-right: 10px;
       font-weight: bold;
+      color: var(--secondary);
     }
 
     .t-input {
@@ -255,11 +227,12 @@ import { FormsModule } from '@angular/forms';
 
     .t-btn {
       background: transparent;
-      border: none;
+      border: 1px solid var(--primary);
       color: var(--primary);
       cursor: pointer;
       font-weight: bold;
-      padding: 0 10px;
+      padding: 4px 12px;
+      margin-left: 10px;
     }
 
     .t-btn:hover {
@@ -270,7 +243,7 @@ import { FormsModule } from '@angular/forms';
     .t-scroll {
       flex-grow: 1;
       overflow-y: auto;
-      padding: 10px;
+      padding-right: 10px;
     }
 
     .t-section {
@@ -281,13 +254,7 @@ import { FormsModule } from '@angular/forms';
       font-weight: bold;
       margin-bottom: 10px;
       display: block;
-    }
-
-    .t-divider {
-      white-space: pre;
-      margin: 15px 0;
-      line-height: 1;
-      overflow: hidden;
+      color: var(--secondary);
     }
 
     .t-grid {
@@ -300,7 +267,7 @@ import { FormsModule } from '@angular/forms';
       justify-content: space-between;
       align-items: center;
       border: 1px dashed var(--primary);
-      padding: 8px;
+      padding: 10px;
     }
 
     .t-btn-small {
@@ -309,6 +276,7 @@ import { FormsModule } from '@angular/forms';
       color: var(--primary);
       font-size: 11px;
       cursor: pointer;
+      padding: 2px 8px;
     }
 
     .t-btn-small:disabled {
@@ -317,8 +285,9 @@ import { FormsModule } from '@angular/forms';
     }
 
     .t-ops-bar {
-      padding: 10px;
+      padding: 10px 0;
       border-bottom: 1px dashed var(--primary);
+      margin-bottom: 10px;
     }
 
     .t-ops-list {
@@ -330,14 +299,17 @@ import { FormsModule } from '@angular/forms';
 
     .t-op-btn {
       background: transparent;
-      border: none;
+      border: 1px solid var(--primary);
       color: var(--primary);
       cursor: pointer;
       font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 2px 8px;
     }
 
     .t-op-btn:hover {
-      text-decoration: underline;
+      background: var(--primary);
+      color: #000;
     }
 
     .t-dm-session {
@@ -345,21 +317,6 @@ import { FormsModule } from '@angular/forms';
       flex-direction: column;
       flex-grow: 1;
       overflow: hidden;
-    }
-
-    .t-locked {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-    }
-
-    .t-locked-box {
-      font-family: 'JetBrains Mono', monospace;
-      text-align: center;
-      line-height: 1.2;
-      color: var(--primary);
     }
   `
 })

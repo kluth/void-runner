@@ -18,14 +18,11 @@ export interface Threat {
   imports: [CommonModule],
   template: `
     <div class="terminal-window">
-      <div class="header">
-        ┌── 0x_THREAT_DATABASE // CLASSIFIED ──────────────────────────────────────────┐
-      </div>
+      <div class="ascii-line header">0x_THREAT_DATABASE // CLASSIFIED</div>
       
       <div class="threat-grid">
         @for (threat of threats(); track threat.id) {
-          <div class="threat-card" [class]="threat.riskLevel.toLowerCase()">
-            <div class="ascii-top">┌──────────────────────────────────┐</div>
+          <div class="terminal-frame threat-card" [class]="threat.riskLevel.toLowerCase()">
             <div class="card-content">
               <div class="t-top">
                 <span class="t-type">[{{ threat.type }}]</span>
@@ -40,13 +37,10 @@ export interface Threat {
               </div>
               <button class="track-btn" (click)="trackThreat(threat)">[ INIT_TRACKING ]</button>
             </div>
-            <div class="ascii-bottom">└──────────────────────────────────┘</div>
           </div>
         }
       </div>
-      <div class="footer">
-        └───────────────────────────────────────────────────────────────────────────────┘
-      </div>
+      <div class="ascii-line footer" dir="rtl">SECURE_ACCESS_ONLY</div>
     </div>
   `,
   styles: `
@@ -56,60 +50,49 @@ export interface Threat {
       background: #000;
       color: var(--primary);
       font-family: 'JetBrains Mono', monospace;
-      padding: 1rem;
+      padding: var(--spacing-md);
     }
 
     .terminal-window {
       height: 100%;
       display: flex;
       flex-direction: column;
+      gap: var(--spacing-md);
     }
 
-    .header, .footer {
-      white-space: pre;
-      color: var(--primary);
+    .header {
       font-weight: bold;
-      margin-bottom: 1rem;
     }
-
-    .footer { margin-top: auto; margin-bottom: 0; }
 
     .threat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+      gap: var(--spacing-md);
       flex: 1;
       overflow-y: auto;
-      padding: 0 1rem;
+      padding: 0 var(--spacing-xs);
       scrollbar-width: none;
     }
 
     .threat-grid::-webkit-scrollbar { display: none; }
 
     .threat-card {
-      background: #000;
-      position: relative;
+      background: var(--layer-1);
       display: flex;
       flex-direction: column;
     }
 
-    .ascii-top, .ascii-bottom {
-      white-space: pre;
-      line-height: 1;
-      opacity: 0.8;
-    }
-
     .card-content {
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
-      padding: 0.5rem 1rem;
+      padding: var(--spacing-sm);
       flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .t-top { 
       display: flex; 
       justify-content: space-between; 
-      font-size: 0.65rem; 
+      font-size: var(--font-size-xs); 
       margin-bottom: 0.5rem; 
       opacity: 0.8;
     }
@@ -121,53 +104,42 @@ export interface Threat {
     @keyframes blink { 50% { opacity: 0; } }
 
     .t-name { 
-      font-size: 1rem; 
+      font-size: var(--font-size-base); 
       font-weight: bold; 
       color: var(--primary); 
       margin-bottom: 0.25rem; 
       text-transform: uppercase;
     }
 
-    .t-status { font-size: 0.6rem; margin-bottom: 0.75rem; opacity: 0.6; }
+    .t-status { font-size: var(--font-size-xs); margin-bottom: 0.75rem; opacity: 0.6; }
     .t-status .active { color: #ff5555; opacity: 1; }
     
     .t-desc { 
-      font-size: 0.75rem; 
+      font-size: var(--font-size-sm); 
       line-height: 1.4; 
       margin-bottom: 1rem; 
       opacity: 0.9;
-      height: 3rem;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
+      min-height: 3rem;
     }
     
     .t-vuln {
       background: rgba(0, 255, 65, 0.05);
       padding: 0.5rem;
       border: 1px dashed var(--primary);
+      margin-top: auto;
       margin-bottom: 1rem;
     }
     
-    .label-tactical { font-size: 0.6rem; opacity: 0.5; display: block; }
-    .vuln-text { font-size: 0.7rem; color: var(--secondary); font-weight: bold; }
+    .label-tactical { font-size: var(--font-size-xs); opacity: 0.5; display: block; }
+    .vuln-text { font-size: var(--font-size-sm); color: var(--secondary); font-weight: bold; }
 
     .track-btn {
       width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--primary);
-      padding: 0.5rem;
-      font-family: inherit;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: center;
     }
 
-    .track-btn:hover {
-      background: var(--primary);
-      color: #000;
+    .footer {
+      margin-top: auto;
+      opacity: 0.5;
     }
   `
 })

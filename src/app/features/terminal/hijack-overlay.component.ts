@@ -13,59 +13,51 @@ import { FormsModule } from '@angular/forms';
       <div class="hijack-container">
         <div class="glitch-overlay"></div>
         
-        <div class="ascii-modal">
-          <div class="ascii-border-top">┌── SYSTEM_OVERRIDE_IN_PROGRESS ───────────────────────────────────────────┐</div>
+        <div class="ascii-modal terminal-frame">
+          <div class="ascii-line">SYSTEM_OVERRIDE_IN_PROGRESS</div>
           
-          <div class="modal-body">
-            <div class="ascii-border-left">│</div>
+          <div class="modal-content">
+            <div class="ascii-art-container">
+              <pre>{{ currentAscii() }}</pre>
+            </div>
+
+            <div class="warning-header">NEURAL_OVERRIDE_ACTIVE // SOURCE: VOID</div>
             
-            <div class="modal-content">
-              <div class="ascii-art-container">
-                <pre>{{ currentAscii() }}</pre>
-              </div>
+            <div class="message-stream">
+              <span class="cursor">></span> {{ gameService.hijackMessage() || 'ESTABLISHING_NEURAL_UPLINK...' }}
+            </div>
 
-              <div class="warning-header">NEURAL_OVERRIDE_ACTIVE // SOURCE: VOID</div>
-              
-              <div class="message-stream">
-                <span class="cursor">></span> {{ gameService.hijackMessage() || 'ESTABLISHING_NEURAL_UPLINK...' }}
-              </div>
+            <div class="challenge-box">
+              @if (gameService.campaignLevel() <= 3) {
+                  <div class="hint-box">
+                      [DEBUG_HINT]: KEY_REQUIRED = "{{ gameService.hijackUnlockCode() }}"
+                  </div>
+              }
 
-              <div class="challenge-box">
-                @if (gameService.campaignLevel() <= 3) {
-                    <div class="hint-box">
-                        [DEBUG_HINT]: KEY_REQUIRED = "{{ gameService.hijackUnlockCode() }}"
-                    </div>
-                }
-
-                <div class="input-area">
-                  <span class="prompt">SYNC_CODE:</span>
-                  <input type="text" 
-                         [(ngModel)]="solveInput" 
-                         (keyup.enter)="release()"
-                         placeholder="........"
-                         autofocus>
-                </div>
-              </div>
-
-              <div class="actions">
-                <button class="action-btn" [disabled]="!solveInput" (click)="release()">[ PURGE_SESSION ]</button>
-                <button class="action-btn" (click)="replay()">[ REPLAY_SIGNAL ]</button>
-                
-                @if (showForcePurge()) {
-                    <button class="action-btn force" (click)="forcePurge()">[ FORCE_PURGE_250cr ]</button>
-                }
-              </div>
-
-              <div class="status-info">
-                 <span class="status-item">TRACE: {{ 94 + (timeElapsed() / 10) | number:'1.0-0' }}%</span>
-                 <span class="status-item">STABILITY: {{ 100 - timeElapsed() }}%</span>
+              <div class="input-area">
+                <span class="prompt">SYNC_CODE:</span>
+                <input type="text" 
+                       [(ngModel)]="solveInput" 
+                       (keyup.enter)="release()"
+                       placeholder="........"
+                       autofocus>
               </div>
             </div>
 
-            <div class="ascii-border-right">│</div>
-          </div>
+            <div class="actions">
+              <button class="action-btn" [disabled]="!solveInput" (click)="release()">[ PURGE_SESSION ]</button>
+              <button class="action-btn" (click)="replay()">[ REPLAY_SIGNAL ]</button>
+              
+              @if (showForcePurge()) {
+                  <button class="action-btn force" (click)="forcePurge()">[ FORCE_PURGE_250cr ]</button>
+              }
+            </div>
 
-          <div class="ascii-border-bottom">└──────────────────────────────────────────────────────────────────────────┘</div>
+            <div class="status-info">
+               <span class="status-item">TRACE: {{ 94 + (timeElapsed() / 10) | number:'1.0-0' }}%</span>
+               <span class="status-item">STABILITY: {{ 100 - timeElapsed() }}%</span>
+            </div>
+          </div>
         </div>
       </div>
     }
@@ -91,33 +83,18 @@ import { FormsModule } from '@angular/forms';
       background: #000;
       display: flex;
       flex-direction: column;
-      max-width: 90vw;
-    }
-
-    .ascii-border-top, .ascii-border-bottom {
-      white-space: nowrap;
-      overflow: hidden;
-      font-size: 0.8rem;
-      color: var(--primary);
-    }
-
-    .modal-body {
-      display: flex;
-    }
-
-    .ascii-border-left, .ascii-border-right {
-      width: 1ch;
-      border-left: 1px solid var(--primary);
-      margin: 0 4px;
-      opacity: 0.5;
+      max-width: 95vw;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .modal-content {
-      padding: 2rem;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
+      overflow: hidden;
     }
 
     .ascii-art-container {
@@ -127,6 +104,14 @@ import { FormsModule } from '@angular/forms';
       opacity: 0.7;
       color: var(--primary-bright);
       animation: flicker 0.2s infinite alternate;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    @media (max-width: 400px) {
+      .ascii-art-container { font-size: 0.35rem; }
+      .message-stream { font-size: 0.8rem; }
+      .status-info { gap: 10px; }
     }
 
     @keyframes flicker {

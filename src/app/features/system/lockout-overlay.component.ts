@@ -9,31 +9,44 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   template: `
     @if (gameService.lockoutActive()) {
-      <div class="lockout-terminal-overlay" role="dialog" aria-modal="true" aria-label="Emergency System Lockout">
-        <div class="ascii-modal">
-          <pre>
-┌────────────────────────────────────────────────────────────┐
-│ <span class="alert-title">NODE_LOCKOUT_ENGAGED</span>                                       │
-├────────────────────────────────────────────────────────────┤
-│ STATUS: <span class="status-warn">AUTHENTICATION_FAILURE</span>                              │
-│ PURGE_ESTIMATED: <span class="timer-val" [class.danger]="gameService.lockoutTimer() < 10">{{ gameService.lockoutTimer().toString().padStart(2, '0') }}s</span>                                │
-│ RESOLVED: [{{ getProgress() }}] {{ gameService.lockoutSolvedCount() }}/3                   │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│ CHALLENGE:                                                 │
-│ <span class="challenge-text">"{{ currentPuzzle()?.q }}"</span>                                 │
-│                                                            │
-│ <span class="input-prompt">></span> <input type="text" [(ngModel)]="puzzleInput" 
-                         (keyup.enter)="submitAnswer()"
-                         placeholder="RESOLVE_SYNTAX..."
-                         class="terminal-input"
-                         autofocus>                            │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│ <span class="hint-text">FAILURE_PENALTY: -5 SECONDS</span>                                  │
-│ <span class="noise-text">PROTOCOL: PENDING_RE_SYNC</span>                                    │
-└────────────────────────────────────────────────────────────┘
-          </pre>
+      <div class="lockout-terminal-overlay p-4" role="dialog" aria-modal="true" aria-label="Emergency System Lockout">
+        <div class="terminal-frame max-w-lg w-full bg-black/95 shadow-2xl">
+          <div class="ascii-line mb-4 text-tertiary font-bold">NODE_LOCKOUT_ENGAGED</div>
+          
+          <div class="flex flex-col gap-4">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="opacity-70">STATUS: <span class="text-tertiary">AUTHENTICATION_FAILURE</span></span>
+              <span class="opacity-70">TIMER: <span class="timer-val" [class.danger]="gameService.lockoutTimer() < 10">{{ gameService.lockoutTimer() }}s</span></span>
+            </div>
+
+            <div class="text-xs font-mono opacity-70">
+              RESOLVED: [{{ getProgress() }}] {{ gameService.lockoutSolvedCount() }}/3
+            </div>
+
+            <div class="ascii-line">CHALLENGE</div>
+            
+            <div class="challenge-box py-4 px-2 text-center italic text-white text-base">
+              "{{ currentPuzzle()?.q }}"
+            </div>
+
+            <div class="ascii-line">INPUT</div>
+
+            <div class="input-area flex items-center gap-2 p-2 border border-dashed border-primary">
+              <span class="text-secondary font-bold">></span>
+              <input type="text" [(ngModel)]="puzzleInput" 
+                     (keyup.enter)="submitAnswer()"
+                     placeholder="RESOLVE_SYNTAX..."
+                     class="flex-grow bg-transparent border-none outline-none text-primary font-mono text-base"
+                     autofocus>
+            </div>
+
+            <div class="footer-info mt-4 flex flex-col gap-1 text-[10px] opacity-40 uppercase">
+              <div class="text-tertiary font-bold">FAILURE_PENALTY: -5 SECONDS</div>
+              <div>PROTOCOL: PENDING_RE_SYNC</div>
+            </div>
+          </div>
+          
+          <div class="ascii-line mt-4"></div>
         </div>
       </div>
     }
@@ -41,42 +54,20 @@ import { FormsModule } from '@angular/forms';
   styles: `
     .lockout-terminal-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.95);
+      background: rgba(0, 0, 0, 0.9);
       z-index: 30000; display: flex; align-items: center; justify-content: center;
       font-family: 'JetBrains Mono', monospace;
+      backdrop-filter: blur(4px);
     }
-    .ascii-modal {
-      color: var(--primary);
-    }
-    pre { margin: 0; line-height: 1.2; position: relative; }
-    .alert-title { color: var(--tertiary); font-weight: bold; }
-    .status-warn { color: var(--tertiary); }
-    .timer-val { font-weight: bold; }
-    .timer-val.danger { color: var(--tertiary); animation: blink 0.1s steps(1) infinite; }
     
-    .challenge-text { 
-      display: block;
-      padding: 0 2rem;
-      white-space: normal;
-      color: #fff;
-      font-style: italic;
-    }
-
-    .input-prompt { color: var(--secondary); font-weight: bold; margin-left: 1rem; }
-    .terminal-input {
-      background: transparent;
-      border: none;
-      color: var(--primary);
-      font-family: 'JetBrains Mono', monospace;
-      outline: none;
-      width: 300px;
-      font-size: 0.9rem;
-    }
-
-    .hint-text { color: var(--tertiary); font-size: 0.7rem; opacity: 0.6; padding-left: 1rem; }
-    .noise-text { opacity: 0.2; font-size: 0.6rem; padding-left: 1rem; }
-
+    .timer-val { font-weight: bold; color: var(--primary); }
+    .timer-val.danger { color: var(--tertiary); animation: blink 0.2s steps(1) infinite; }
+    
     @keyframes blink { 50% { opacity: 0; } }
+
+    input::placeholder {
+      opacity: 0.3;
+    }
   `
 })
 export class LockoutOverlayComponent {

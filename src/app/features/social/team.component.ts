@@ -9,68 +9,64 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="terminal-container" role="region" aria-label="Syndicate Faction Interface">
-      <div class="ascii-header">
-        ┌──────────────────────────────────────────────────────────────────┐
-        │ SYNDICATE_NODE // FACTION_ALIGNMENT                              │
-        └──────────────────────────────────────────────────────────────────┘
+      <div class="terminal-frame mb-4">
+        <div class="ascii-line">SYNDICATE_NODE // FACTION_ALIGNMENT</div>
       </div>
       
       @if (!gameService.activeTeam()) {
         <div class="faction-browser">
-          <div class="status-line">SCANNING_ACTIVE_CELLS... [OK]</div>
+          <div class="status-line text-xs opacity-70 mb-4">SCANNING_ACTIVE_CELLS... [OK]</div>
           
-          <div class="teams-list" role="list">
+          <div class="teams-list grid gap-6" role="list">
             @for (team of gameService.availableTeams(); track team.id) {
-              <div class="team-card-ascii" role="listitem" [class.locked]="(team.reqRep || 0) > gameService.reputation()">
-                <div class="c-border">┌── {{ team.name }} ───────────────────</div>
-                <div class="c-content">
-                  <div class="c-row">
-                    <span class="c-label">REQ:</span> {{ team.reqRep || 0 }} REP
-                    <span class="c-label" style="margin-left: 20px">BONUS:</span> {{ team.bonus }}
+              <div class="terminal-frame" role="listitem" [class.locked]="(team.reqRep || 0) > gameService.reputation()">
+                <div class="ascii-line mb-3">{{ team.name }}</div>
+                
+                <div class="c-content flex flex-col gap-2">
+                  <div class="c-row flex justify-between text-xs opacity-80">
+                    <span>REQ: {{ team.reqRep || 0 }} REP</span>
+                    <span class="text-secondary">BONUS: {{ team.bonus }}</span>
                   </div>
-                  <div class="c-desc">{{ team.description }}</div>
+                  <div class="c-desc text-sm leading-relaxed my-2">{{ team.description }}</div>
                   
-                  <div class="c-actions">
+                  <div class="c-actions mt-2 flex justify-end">
                     <button [disabled]="(team.reqRep || 0) > gameService.reputation()" 
                             (click)="gameService.joinTeam(team.id)"
-                            class="term-btn">
+                            class="primary text-xs">
                        [ JOIN_CELL ]
                     </button>
                   </div>
                 </div>
-                <div class="c-border">└──────────────────────────────────────</div>
               </div>
             }
           </div>
         </div>
       } @else {
-        <div class="active-cell-view" role="region" [attr.aria-label]="'Connected to ' + gameService.activeTeam()?.name">
-          <div class="cell-status">
-            <div class="status-line">
-              <span class="c-label">CONNECTED_TO:</span> {{ gameService.activeTeam()?.name }}
-              <button class="term-btn exit-btn" (click)="leave()">[ DISCONNECT ]</button>
-            </div>
+        <div class="active-cell-view flex flex-col h-full gap-4" role="region" [attr.aria-label]="'Connected to ' + gameService.activeTeam()?.name">
+          <div class="terminal-frame">
+             <div class="ascii-line">CONNECTED_TO: {{ gameService.activeTeam()?.name }}</div>
+             <div class="flex justify-end mt-2">
+               <button class="text-xs border-tertiary text-tertiary" (click)="leave()">[ DISCONNECT ]</button>
+             </div>
           </div>
 
-          <div class="comms-window">
-             <div class="w-border">┌── CELL_COMMUNICATIONS ────────────────────────────────────┐</div>
-             <div class="comms-log" aria-live="polite">
+          <div class="terminal-frame flex-grow flex flex-col overflow-hidden min-h-[300px]">
+             <div class="ascii-line mb-2">CELL_COMMUNICATIONS</div>
+             <div class="comms-log flex-grow overflow-y-auto p-2 flex flex-col gap-2 border-b border-dashed border-primary mb-2" aria-live="polite">
                 @for (msg of gameService.teamMessages(); track $index) {
-                   <div class="msg">
-                      <span class="m-sender">[{{ msg.sender }}]</span>: {{ msg.text }}
+                   <div class="msg text-sm">
+                      <span class="m-sender font-bold text-secondary">[{{ msg.sender }}]</span>: {{ msg.text }}
                    </div>
                 }
              </div>
-             <div class="w-border">├────────────────────────────────────────────────────────────┤</div>
-             <div class="comms-input">
-                <span class="prompt">></span>
+             <div class="comms-input flex items-center gap-3 p-1">
+                <span class="prompt font-bold text-secondary">></span>
                 <input type="text" [(ngModel)]="chatText" 
                        (keyup.enter)="send()" 
                        placeholder="SIGNAL_BROADCAST..."
-                       class="term-input">
-                <button (click)="send()" class="term-btn">[ SEND ]</button>
+                       class="flex-grow bg-transparent border-none outline-none text-primary text-sm font-mono">
+                <button (click)="send()" class="text-xs">[ SEND ]</button>
              </div>
-             <div class="w-border">└────────────────────────────────────────────────────────────┘</div>
           </div>
         </div>
       }
@@ -86,155 +82,14 @@ import { FormsModule } from '@angular/forms';
     }
 
     .terminal-container {
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      padding: var(--spacing-md);
       height: 100%;
       overflow-y: auto;
     }
 
-    .ascii-header {
-      white-space: pre;
-      line-height: 1;
-      font-size: 0.8rem;
-      margin-bottom: 1rem;
-    }
-
-    .status-line {
-      font-size: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .teams-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .team-card-ascii {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .team-card-ascii.locked {
-      opacity: 0.3;
-    }
-
-    .c-border {
-      white-space: pre;
-      line-height: 1;
-      font-size: 0.8rem;
-    }
-
-    .c-content {
-      border-left: 1px solid var(--primary);
-      padding: 0.5rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .c-row {
-      font-size: 0.7rem;
-    }
-
-    .c-label {
-      opacity: 0.6;
-      margin-right: 5px;
-    }
-
-    .c-desc {
-      font-size: 0.75rem;
-      line-height: 1.4;
-    }
-
-    .term-btn {
-      background: transparent;
-      border: none;
-      color: var(--primary);
-      font-family: inherit;
-      font-size: 0.75rem;
-      cursor: pointer;
-      padding: 0.2rem 0.5rem;
-    }
-
-    .term-btn:hover:not(:disabled) {
-      background: var(--primary);
-      color: #000;
-    }
-
-    .term-btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-
-    .active-cell-view {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      height: 100%;
-    }
-
-    .exit-btn {
-      margin-left: 20px;
-      color: var(--tertiary);
-    }
-
-    .comms-window {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      min-height: 400px;
-    }
-
-    .w-border {
-      white-space: pre;
-      line-height: 1;
-      font-size: 0.8rem;
-    }
-
-    .comms-log {
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .msg {
-      font-size: 0.75rem;
-    }
-
-    .m-sender {
-      font-weight: bold;
-    }
-
-    .comms-input {
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .prompt {
-      font-weight: bold;
-    }
-
-    .term-input {
-      flex-grow: 1;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--primary);
-      color: var(--primary);
-      font-family: inherit;
-      font-size: 0.75rem;
-      outline: none;
+    .locked {
+      opacity: 0.4;
+      filter: grayscale(1);
     }
   `
 })

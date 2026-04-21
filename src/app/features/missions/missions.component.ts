@@ -13,19 +13,14 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
   imports: [CommonModule, FormsModule, SqlInjectionComponent, RfidCloneComponent, PhishingCampaignComponent],
   template: `
     <div class="missions-container" role="region" aria-label="Available Missions">
-      <div class="ascii-header">
-        <pre>
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ MISSION_PROTOCOL_ACTIVE // SESSION_ID: {{ (gameService.credits() * 1.3).toString(16).toUpperCase() }} // STATUS: ONLINE        │
-└──────────────────────────────────────────────────────────────────────────────┘</pre>
+      <div class="terminal-frame ascii-header">
+        MISSION_PROTOCOL_ACTIVE // SESSION_ID: {{ (gameService.credits() * 1.3).toString(16).toUpperCase() }} // STATUS: ONLINE
       </div>
       
       @if (!activeMission()) {
         <div class="mission-hub">
           <div class="hub-header">
-            <div class="title-box">
-              <pre>┌─ ACTIVE_CONTRACTS_NODE ─┐</pre>
-            </div>
+            <div class="ascii-line title-box">ACTIVE_CONTRACTS_NODE</div>
             <div class="det-meter" aria-label="Detection Risk">
                <span class="det-label">TRACE_STRENGTH:</span>
                <div class="det-bar-ascii">
@@ -36,11 +31,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
 
           <div class="contract-grid" role="list">
             @for (mission of gameService.activeMissions(); track mission.id) {
-              <div class="contract-card" role="listitem">
-                <pre class="card-border-top">┌── [{{ mission.type.toUpperCase() }}] {{ '─'.repeat(Math.max(0, 24 - mission.type.length)) }}┐</pre>
+              <div class="terminal-frame contract-card" role="listitem">
                 <div class="card-body">
                   <div class="c-id">ID: {{ mission.id.substring(0,8) }}</div>
-                  <h4 class="c-name">{{ mission.name }}</h4>
+                  <h4 class="c-name">[{{ mission.type.toUpperCase() }}] {{ mission.name }}</h4>
                   <div class="c-target">TARGET: {{ mission.target }}</div>
                   
                   <div class="c-reward-strip">
@@ -49,22 +43,20 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
                   </div>
                 </div>
                 <div class="card-actions">
-                   <button class="terminal-btn" (click)="startMission(mission)">[ INIT_HANDSHAKE ]</button>
+                   <button class="terminal-btn primary" (click)="startMission(mission)">[ INIT_HANDSHAKE ]</button>
                 </div>
-                <pre class="card-border-bottom">└─────────────────────────────────┘</pre>
               </div>
             }
           </div>
         </div>
       } @else {
         <div class="active-ops-overlay">
-          <div class="active-ops-view" role="dialog" aria-modal="true">
-            <pre class="modal-border">┌──────────────────────────────────────────────────────────────────────────────┐</pre>
+          <div class="terminal-frame active-ops-view" role="dialog" aria-modal="true">
             <div class="ops-header">
                 <span class="blink">●</span> 
                 <span class="title">OPR: {{ activeMission()?.name }} // STATUS: IN_PROGRESS</span>
             </div>
-            <pre class="modal-divider">├──────────────────────────────────────────────────────────────────────────────┤</pre>
+            <div class="ascii-line divider"></div>
 
             <div class="mini-game-chamber">
                 <div class="chamber-noise">VECTOR_BUFFER: {{ byteBuffer() }}</div>
@@ -72,9 +64,8 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
                 @if (activeMission()?.type === 'port-scan') {
                   <div class="port-scan-ui">
                       <div class="target-sync-panel">
-                        <pre>┌─ TARGET_FREQUENCY ─┐</pre>
+                        <div class="ascii-line">TARGET_FREQUENCY</div>
                         <span class="freq-value">{{ targetFrequency() }} Hz</span>
-                        <pre>└────────────────────┘</pre>
                       </div>
                       <div class="ports-matrix" role="grid">
                         @for (port of ports(); track $index) {
@@ -159,11 +150,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
                 }
             </div>
 
-            <pre class="modal-divider">├──────────────────────────────────────────────────────────────────────────────┤</pre>
+            <div class="ascii-line divider"></div>
             <div class="ops-footer">
               <button class="abort-btn" (click)="stopMission()">[ ABORT_DEPLOYMENT ]</button>
             </div>
-            <pre class="modal-border">└──────────────────────────────────────────────────────────────────────────────┘</pre>
           </div>
         </div>
       }
@@ -181,30 +171,33 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     .missions-container {
       background: #000;
       height: 100%;
-      padding: 1rem;
+      padding: var(--spacing-md);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-    }
-
-    pre {
-      margin: 0;
-      line-height: 1.2;
-      color: var(--primary);
-      font-family: 'JetBrains Mono', monospace;
+      gap: var(--spacing-md);
     }
 
     .ascii-header {
-      margin-bottom: 1rem;
-      align-self: center;
+      align-self: stretch;
+      text-align: center;
+      font-weight: bold;
+      background: var(--layer-1);
     }
 
     .hub-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
-      padding: 0 1rem;
+      margin-bottom: var(--spacing-lg);
+      padding: 0 var(--spacing-sm);
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+
+    .title-box {
+      flex: 1;
+      min-width: 200px;
     }
 
     .det-meter {
@@ -213,39 +206,42 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       align-items: flex-end;
       gap: 4px;
     }
-    .det-label { font-size: 0.7rem; }
-    .det-bar-ascii { color: var(--tertiary); font-family: 'JetBrains Mono', monospace; }
+    .det-label { font-size: var(--font-size-xs); }
+    .det-bar-ascii { color: var(--tertiary); font-family: 'JetBrains Mono', monospace; font-size: var(--font-size-sm); }
 
     .contract-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2rem;
-      padding: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+      gap: var(--spacing-lg);
     }
 
     .contract-card {
       display: flex;
       flex-direction: column;
-      position: relative;
+      background: var(--layer-1);
+      transition: transform 0.2s ease;
+    }
+    
+    .contract-card:hover {
+      transform: translateY(-4px);
+      background: var(--layer-2);
     }
 
     .card-body {
-      padding: 0 1.5rem;
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
+      padding: var(--spacing-sm);
+      flex: 1;
     }
 
     .card-actions {
-      padding: 0.5rem 1.5rem;
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
+      padding: var(--spacing-sm);
       display: flex;
       justify-content: center;
+      border-top: 1px dashed var(--primary);
     }
 
-    .c-id { font-size: 0.7rem; opacity: 0.7; margin-bottom: 0.5rem; }
-    .c-name { font-size: 1.1rem; font-weight: 900; margin: 0 0 0.5rem 0; color: var(--primary); }
-    .c-target { font-size: 0.8rem; margin-bottom: 1rem; }
+    .c-id { font-size: var(--font-size-xs); opacity: 0.7; margin-bottom: 0.5rem; }
+    .c-name { font-size: var(--font-size-base); font-weight: 900; margin: 0 0 0.5rem 0; color: var(--primary); }
+    .c-target { font-size: var(--font-size-sm); margin-bottom: 1rem; }
 
     .c-reward-strip {
       border-top: 1px dashed var(--primary);
@@ -254,23 +250,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       display: flex;
       justify-content: space-between;
     }
-    .r-label { font-size: 0.7rem; }
+    .r-label { font-size: var(--font-size-xs); }
     .r-val { font-weight: 900; color: var(--secondary); }
 
-    .terminal-btn {
-      background: transparent;
-      border: none;
-      color: var(--primary);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      cursor: pointer;
-      padding: 5px 10px;
-    }
-    .terminal-btn:hover {
-      background: var(--primary);
-      color: #000;
-    }
-    .terminal-btn.small { font-size: 0.7rem; }
+    .terminal-btn.small { font-size: var(--font-size-xs); }
 
     .active-ops-overlay {
       position: fixed;
@@ -280,27 +263,28 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       align-items: center;
       justify-content: center;
       z-index: 100;
+      padding: var(--spacing-md);
     }
 
     .active-ops-view {
       display: flex;
       flex-direction: column;
-      max-width: 90vw;
+      max-width: 100%;
       width: 800px;
+      max-height: 90vh;
+      background: var(--layer-0);
+      overflow: hidden;
     }
 
     .ops-header {
-      padding: 0.5rem 2rem;
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
+      padding: var(--spacing-sm) var(--spacing-md);
       display: flex;
       align-items: center;
       gap: 1rem;
     }
+
     .ops-footer {
-      padding: 0.5rem 2rem;
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
+      padding: var(--spacing-sm);
       display: flex;
       justify-content: center;
     }
@@ -309,10 +293,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     @keyframes blink { to { opacity: 0; } }
 
     .mini-game-chamber {
-      padding: 2rem;
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
-      min-height: 400px;
+      padding: var(--spacing-lg);
+      flex: 1;
+      overflow-y: auto;
+      min-height: 300px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -322,7 +306,7 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
 
     .chamber-noise {
       position: absolute; top: 10px; left: 20px;
-      font-size: 0.6rem; opacity: 0.5;
+      font-size: var(--font-size-xs); opacity: 0.5;
     }
 
     .port-scan-ui {
@@ -330,15 +314,16 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
+      gap: var(--spacing-lg);
     }
-    .target-sync-panel { text-align: center; }
-    .freq-value { font-size: 1.5rem; color: var(--primary); font-weight: 900; }
+    .target-sync-panel { text-align: center; width: 100%; }
+    .freq-value { font-size: var(--font-size-xl); color: var(--primary); font-weight: 900; }
 
     .ports-matrix {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: 10px;
+      width: 100%;
     }
     .port-cell {
       background: transparent;
@@ -350,6 +335,7 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       display: flex;
       flex-direction: column;
       align-items: center;
+      font-size: var(--font-size-sm);
     }
     .port-cell:hover { background: rgba(var(--primary-rgb), 0.1); }
     .port-cell.scanned { opacity: 0.3; }
@@ -361,9 +347,10 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
       flex-direction: column;
       align-items: center;
       gap: 1.5rem;
+      width: 100%;
     }
     .code-readout {
-      font-size: 3rem;
+      font-size: var(--font-size-xl);
       letter-spacing: 0.5rem;
       color: var(--primary);
       text-shadow: 0 0 10px var(--primary);
@@ -371,43 +358,36 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     .code-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 10px;
     }
-    .code-grid button {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 10px;
-      cursor: pointer;
+    
+    @media (max-width: 400px) {
+      .code-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    .code-grid button:hover { background: var(--primary); color: #000; }
-    .code-grid button.glow { box-shadow: 0 0 15px var(--primary); background: var(--primary); color: #000; }
 
     .buffer-chamber {
-      width: 300px;
+      width: 100%;
+      max-width: 300px;
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
     .buffer-track-ascii {
-      font-size: 1.2rem;
+      font-size: var(--font-size-lg);
       letter-spacing: 2px;
       text-align: center;
     }
 
     .abort-btn {
-      background: transparent;
-      border: none;
       color: var(--tertiary);
-      font-family: 'JetBrains Mono', monospace;
-      cursor: pointer;
-      padding: 5px 20px;
+      border-color: var(--tertiary);
     }
     .abort-btn:hover { background: var(--tertiary); color: #000; }
 
     @media (max-width: 600px) {
       .ports-matrix { grid-template-columns: repeat(3, 1fr); }
-      .contract-grid { grid-template-columns: 1fr; }
+      .hub-header { flex-direction: column; align-items: stretch; }
+      .det-meter { align-items: flex-start; }
     }
   `
 })

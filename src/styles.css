@@ -1,5 +1,6 @@
 /* 
-   VOID_RUN: THE TERMINAL MONOLITH (MATRIX PROTOCOL v5.0) 
+   VOID_RUN: THE TERMINAL MONOLITH (MATRIX PROTOCOL v5.0.2) 
+   ULTRA-RESPONSIVE & ACCESSIBLE
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&family=JetBrains+Mono:wght@400;700;900&display=swap');
@@ -9,7 +10,6 @@
 @tailwind utilities;
 
 :root {
-  /* TMUX / MATRIX Core Palette */
   --layer-0: #000000;
   --layer-1: #020802;
   --layer-2: #051105;
@@ -17,7 +17,6 @@
   --layer-4: #0a220a;
   --layer-5: #0d2b0d;
 
-  /* Classic Matrix Green */
   --primary: #00ff00;
   --primary-bright: #55ff55;
   --secondary: #00ffff;
@@ -28,59 +27,38 @@
   --ghost-border: solid 1px var(--primary);
   --neon-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
   --glass-filter: blur(5px);
-  --scanline-opacity: 0.05;
+  --scanline-opacity: 0.04;
 
-  /* FLUID TYPOGRAPHY & SPACING */
-  --font-size-xs: clamp(0.5rem, 0.4vw + 0.4rem, 0.65rem);
-  --font-size-sm: clamp(0.65rem, 0.5vw + 0.55rem, 0.85rem);
-  --font-size-base: clamp(0.85rem, 0.6vw + 0.7rem, 1.1rem);
-  --font-size-lg: clamp(1.1rem, 1vw + 1rem, 1.8rem);
-  --font-size-xl: clamp(1.8rem, 2vw + 1.5rem, 3.5rem);
+  /* FLUID TYPOGRAPHY */
+  --font-size-xs: clamp(0.6rem, 0.8vw + 0.3rem, 0.75rem);
+  --font-size-sm: clamp(0.7rem, 1vw + 0.4rem, 0.9rem);
+  --font-size-base: clamp(0.85rem, 1.2vw + 0.5rem, 1.1rem);
+  --font-size-lg: clamp(1.1rem, 2vw + 0.6rem, 1.6rem);
+  --font-size-xl: clamp(1.6rem, 5vw + 1rem, 3.5rem);
   
-  --spacing-sm: clamp(0.5rem, 1vw, 1rem);
-  --spacing-md: clamp(1rem, 2vw, 2rem);
-  --spacing-lg: clamp(1.5rem, 4vw, 4rem);
+  --spacing-xs: clamp(0.2rem, 0.5vw, 0.4rem);
+  --spacing-sm: clamp(0.4rem, 1vw, 0.8rem);
+  --spacing-md: clamp(0.8rem, 2vw, 1.5rem);
+  --spacing-lg: clamp(1.2rem, 4vw, 3rem);
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
 :focus-visible {
-  outline: 1px dashed var(--primary) !important;
-  outline-offset: 2px;
+  outline: 2px solid var(--primary) !important;
+  outline-offset: -1px;
 }
 
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-.stability-mode *, .stability-mode ::before, .stability-mode ::after {
-  animation: none !important;
-  transition: none !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  button:active, .haptic-glitch:active {
-    background: var(--primary) !important;
-    color: var(--layer-1) !important;
-    transition: none !important;
-  }
+  width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border-width: 0;
 }
 
 *, ::before, ::after {
@@ -89,145 +67,91 @@
 }
 
 body {
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
   background-color: var(--layer-0);
   color: var(--primary);
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   overflow: hidden;
-  height: 100vh;
+  height: 100vh; height: 100dvh;
   cursor: crosshair;
   -webkit-font-smoothing: none;
-  font-size: var(--font-size-base);
 }
 
-.hud-panel {
-  background: var(--layer-1);
-  border: 1px solid var(--primary) !important;
+/* 
+   DYNAMIC ASCII FRAME SYSTEM 
+   Replaces rigid <pre> borders with responsive CSS
+*/
+.terminal-frame {
   position: relative;
+  border: 1px solid var(--primary);
+  padding: var(--spacing-sm);
+  background: var(--layer-0);
 }
 
-.hud-panel-nested {
-  background: var(--layer-2);
-  border: 1px dashed var(--primary);
+/* Corner Decorations */
+.terminal-frame::before, .terminal-frame::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  pointer-events: none;
+  z-index: 5;
 }
 
+.terminal-frame::before {
+  top: -1px; left: -1px;
+  border-top: 3px solid var(--primary);
+  border-left: 3px solid var(--primary);
+}
+
+.terminal-frame::after {
+  bottom: -1px; right: -1px;
+  border-bottom: 3px solid var(--primary);
+  border-right: 3px solid var(--primary);
+}
+
+/* Horizontal Line Utility */
+.ascii-line {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--primary);
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+.ascii-line::after {
+  content: "────────────────────────────────────────────────────────────────────────────────────────────────────";
+  margin-left: 1ch;
+  flex-grow: 1;
+}
+
+/* Interactive Components */
+button {
+  font-family: inherit; font-weight: 700; text-transform: uppercase;
+  padding: 6px 12px; border: 1px solid var(--primary);
+  background: transparent; color: var(--primary); cursor: pointer;
+}
+button:hover { background: var(--layer-2); box-shadow: var(--neon-shadow); }
+button:active { background: var(--primary); color: var(--layer-0); transform: scale(0.98); }
+button.primary { background: var(--primary); color: var(--layer-0); }
+
+/* Global Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--layer-0); }
+::-webkit-scrollbar-thumb { background: var(--primary); }
+
+/* CRT Scanlines */
 body::after {
   content: " ";
   display: block;
   position: fixed;
   top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(0, 255, 0, 0) 50%, rgba(0, 255, 0, 0.05) 50%), 
-              linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.01));
+  background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 255, 0, 0.02) 50%);
+  background-size: 100% 4px;
   z-index: 99999;
-  background-size: 100% 4px, 4px 100%;
-  pointer-events: none;
-  opacity: var(--scanline-opacity);
-}
-
-h1, h2, h3, .display-lg {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 900;
-  text-transform: uppercase;
-  margin: 0;
-}
-
-.glitch-title {
-  text-shadow: 2px 0 var(--tertiary), -2px 0 var(--primary);
-}
-
-button {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 8px 16px;
-  border: 1px solid var(--primary);
-  background: var(--layer-1);
-  color: var(--primary);
-  transition: none;
-  cursor: pointer;
-}
-
-button.primary {
-  background: var(--primary);
-  color: var(--on-primary);
-  border: 1px solid var(--primary);
-}
-
-button.primary:hover {
-  background: var(--primary-bright);
-}
-
-button:hover {
-  background: var(--layer-3);
-}
-
-button:active {
-  background: var(--on-primary) !important;
-  color: var(--primary) !important;
-}
-
-input[type="text"], textarea {
-  background: var(--layer-0);
-  border: 1px solid var(--primary);
-  color: var(--primary);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: var(--font-size-sm);
-  padding: 8px;
-  outline: none;
-}
-
-input:focus {
-  background: var(--layer-2);
-}
-
-.cursor-block {
-  display: inline-block;
-  width: 10px;
-  height: 1.2em;
-  background: var(--primary);
-  animation: blink 1s steps(2) infinite;
-  vertical-align: middle;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.noise-data {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--primary);
-  opacity: 0.5;
-  position: absolute;
   pointer-events: none;
 }
 
-.glass-overlay {
-  background: rgba(0, 10, 0, 0.85);
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--primary);
-}
-
-.holographic-viz {
-  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 255, 0, 0.1) 10px, rgba(0, 255, 0, 0.1) 11px);
-}
-
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--layer-0); border-left: 1px solid var(--primary); }
-::-webkit-scrollbar-thumb { background: var(--primary); }
-::-webkit-scrollbar-thumb:hover { background: var(--primary-bright); }
-
-@media (max-width: 768px) {
-  body { overflow-y: auto; height: auto; min-height: 100vh; }
-  .game-wrapper { height: auto; overflow: visible; padding: 5px; gap: 5px; }
-  .operational-grid { grid-template-columns: 1fr !important; }
-}
-
-@media (max-width: 480px) {
-  :root {
-    --spacing-md: 0.5rem;
-    --spacing-lg: 1rem;
-  }
+@media (max-width: 600px) {
+  body { overflow-y: auto; }
 }
