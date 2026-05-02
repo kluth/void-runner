@@ -35,6 +35,9 @@ import { WorkspaceComponent } from './features/system/workspace.component';
 import { EchoCollectorComponent } from './features/system/echo-collector.component';
 import { MarginScribeComponent } from './features/system/margin-scribe.component';
 import { AgenticHudComponent } from './features/system/agentic-hud.component';
+import { PulseDiagnosticsComponent } from './features/system/pulse-diagnostics.component';
+import { SystemShatterComponent } from './features/system/system-shatter.component';
+import { NeuralLinkWidgetsComponent } from './features/system/neural-link-widgets.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { CommonModule } from '@angular/common';
 
@@ -75,8 +78,10 @@ WorkspaceComponent,
 EchoCollectorComponent,
 MarginScribeComponent,
 AgenticHudComponent,
-],
-template: `
+PulseDiagnosticsComponent,
+    SystemShatterComponent,
+    NeuralLinkWidgetsComponent,
+],template: `
 <div [style.--singularity-decay]="decayFactor()" 
      [class.stability-mode]="gameService.settings().general.stability_mode"
      class="h-full"
@@ -86,9 +91,15 @@ template: `
      [class.phase-intrusive]="onboardAi.phase() === 'INTRUSIVE'"
      [class.phase-hostile]="onboardAi.phase() === 'HOSTILE'">
 
+  <app-system-shatter />
+  <app-neural-link-widgets />
   <app-echo-collector />
   <app-margin-scribe />
   <app-agentic-hud />
+
+  @defer (when gameService.systemStress() > 60) {
+    <app-pulse-diagnostics />
+  }
 
   <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>      @if (!gameService.isConfigured()) { <app-config-wizard /> }
       @if (gameService.isBooting()) { <app-boot-screen /> }

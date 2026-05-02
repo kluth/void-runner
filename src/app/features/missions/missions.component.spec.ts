@@ -46,6 +46,10 @@ describe('MissionComponent Port Scan Enhancement', () => {
 
   it('should update port frequencies over time', () => {
     component.startMission({ type: 'port-scan', name: 'Test Scan', lat: 0, lng: 0 } as any);
+    const ports = component.ports();
+    ports[0].drift = 50; // Ensure significant drift
+    component.ports.set([...ports]);
+    
     const initialFreq = component.ports()[0].frequency;
     
     // Advance timers

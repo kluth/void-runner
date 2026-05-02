@@ -9,7 +9,10 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="terminal-container">
+    <div class="terminal-container" 
+         [class.overclocked]="typingSpeed() > 100"
+         [class.neural-lag]="typingSpeed() > 0 && typingSpeed() < 30"
+         [class.hijacked]="gameService.isHijacked()">
       <div class="terminal-frame">
         <div class="ascii-line">VOID_RUN_TERMINAL_v5.0</div>
         
@@ -48,6 +51,7 @@ import { FormsModule } from '@angular/forms';
                        #cmdInputRef
                        [(ngModel)]="cmdInput" 
                        (input)="onInputChange()"
+                       (keydown)="handleKey()"
                        (keyup.enter)="handleCmd()"
                        (keydown.tab)="handleTab($event)"
                        (keydown.arrowUp)="navigateHistory(1)"
@@ -122,6 +126,24 @@ import { FormsModule } from '@angular/forms';
       box-sizing: border-box;
       container-type: inline-size;
       container-name: terminal;
+    }
+
+    .overclocked {
+      text-shadow: 0 0 5px var(--neon-cyan);
+      box-shadow: inset 0 0 50px rgba(0, 229, 255, 0.1);
+    }
+    .neural-lag {
+      filter: blur(0.5px);
+      opacity: 0.8;
+    }
+    
+    .hijacked {
+      animation: terminal-liquify 2s infinite alternate;
+    }
+
+    @keyframes terminal-liquify {
+      from { filter: url(#liquify); transform: none; }
+      to { filter: url(#liquify); transform: skewX(2deg) scale(1.01); }
     }
 
     .terminal-frame {
@@ -465,6 +487,23 @@ export class TerminalComponent implements AfterViewChecked {
     this.cmdInput = sug;
     this.gameService.commandSuggestions.set([]);
     this.audioService.playClick();
+  }
+
+  // Cognitive-Sync (Issue #19)
+  typingSpeed = signal(0);
+  typingAccuracy = signal(100);
+  private lastTypeTime = 0;
+  private keystrokes = 0;
+
+  handleKey() {
+    const now = Date.now();
+    if (this.lastTypeTime > 0) {
+      const diff = now - this.lastTypeTime;
+      const wpm = Math.floor(60000 / diff);
+      this.typingSpeed.set(Math.min(200, wpm));
+    }
+    this.lastTypeTime = now;
+    this.keystrokes++;
   }
 
   handleCmd() {

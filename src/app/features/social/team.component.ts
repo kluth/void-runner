@@ -6,20 +6,26 @@ import { SocialHeatmapComponent } from './social-heatmap.component';
 import { InfluenceMatrixComponent } from './influence-matrix.component';
 import { SocialExploitComponent } from './social-exploit.component';
 import { PresenceMeshComponent } from './presence-mesh.component';
+import { DarknetPredictorComponent } from './darknet-predictor.component';
+import { GlobalFeedComponent } from './global-feed.component';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, FormsModule, SocialHeatmapComponent, InfluenceMatrixComponent, SocialExploitComponent, PresenceMeshComponent],
+  imports: [CommonModule, FormsModule, SocialHeatmapComponent, InfluenceMatrixComponent, SocialExploitComponent, PresenceMeshComponent, DarknetPredictorComponent, GlobalFeedComponent],
   template: `
     <div class="terminal-container" role="region" aria-label="Syndicate Faction Interface">
       <div class="terminal-frame mb-4">
         <div class="ascii-line">SYNDICATE_NODE // FACTION_ALIGNMENT</div>
       </div>
 
-      <app-presence-mesh />
+      <app-global-feed />
       <div class="h-divider"></div>
-      <app-social-exploit />
+      <app-darknet-predictor />
+      <div class="h-divider"></div>
+...
+      <div class="h-divider"></div>
+...
       <div class="h-divider"></div>
       <app-influence-matrix />
       <div class="h-divider"></div>

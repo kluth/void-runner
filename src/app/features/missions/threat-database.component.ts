@@ -20,7 +20,25 @@ export interface Threat {
     <div class="terminal-window">
       <div class="ascii-line header">0x_THREAT_DATABASE // CLASSIFIED</div>
       
-      <div class="threat-grid">
+      <div class="threat-layout">
+        <!-- Threat Map (Heavy) -->
+        <div class="threat-map terminal-frame">
+          <div class="ascii-line cyan">THREAT_INTEL_MAP</div>
+          @defer (on viewport) {
+            <svg class="map-svg" viewBox="0 0 100 100">
+               @for (threat of threats(); track threat.id) {
+                 <circle [attr.cx]="getX(threat.id)" [attr.cy]="getY(threat.id)" r="3" 
+                         [attr.fill]="getColor(threat.riskLevel)" class="threat-node"
+                         (click)="selectedThreat.set(threat)" />
+               }
+            </svg>
+          } @placeholder {
+            <div class="loading-map">LOADING_INTEL_LAYER...</div>
+          }
+        </div>
+
+        <!-- Bento Grid 2.0 Profiles -->
+        <div class="threat-grid">
         @for (threat of threats(); track threat.id) {
           <div class="terminal-frame threat-card" [class]="threat.riskLevel.toLowerCase()">
             <div class="card-content">
@@ -39,6 +57,7 @@ export interface Threat {
             </div>
           </div>
         }
+      </div>
       </div>
       <div class="ascii-line footer" dir="rtl">SECURE_ACCESS_ONLY</div>
     </div>
@@ -60,15 +79,28 @@ export interface Threat {
       gap: var(--spacing-md);
     }
 
+    .threat-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+      flex: 1;
+      overflow: hidden;
+    }
+    .threat-map { height: 100%; position: relative; background: rgba(0,0,0,0.5); }
+    .map-svg { width: 100%; height: 100%; }
+    .threat-node { cursor: pointer; animation: pulse 2s infinite; stroke: rgba(255,255,255,0.2); stroke-width: 1; }
+    .loading-map { display: flex; align-items: center; justify-content: center; height: 100%; opacity: 0.5; }
+    
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0.4; } }
+
     .header {
       font-weight: bold;
     }
 
     .threat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+      grid-template-columns: 1fr;
       gap: var(--spacing-md);
-      flex: 1;
       overflow-y: auto;
       padding: 0 var(--spacing-xs);
       scrollbar-width: none;
@@ -80,7 +112,11 @@ export interface Threat {
       background: var(--layer-1);
       display: flex;
       flex-direction: column;
+      transition: all 0.2s ease;
+      cursor: pointer;
     }
+    .threat-card:hover { border-color: var(--primary); background: rgba(0,255,159,0.05); }
+    .threat-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); }
 
     .card-content {
       padding: var(--spacing-sm);
@@ -145,6 +181,16 @@ export interface Threat {
 })
 export class ThreatDatabaseComponent {
   gameService = inject(GameService);
+
+  selectedThreat = signal<Threat | null>(null);
+
+  getX(id: string) { return (id.charCodeAt(0) * 13) % 80 + 10; }
+  getY(id: string) { return (id.charCodeAt(1) * 17) % 80 + 10; }
+  getColor(risk: string) {
+    if (risk === 'HIGH') return 'var(--neon-orange)';
+    if (risk === 'EXTREME') return 'var(--neon-magenta)';
+    return 'var(--neon-green)';
+  }
 
   threats = signal<Threat[]>([
     {

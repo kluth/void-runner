@@ -92,9 +92,12 @@ export class FactionService {
   initialize() {
     this.initFactions();
     this.initInfluenceMatrix();
+    (this.game as any).updatePredictions();
     this.generateBounties();
     this.startBountyRotation();
     this.startFactionWarSimulation();
+    
+    setInterval(() => (this.game as any).updatePredictions(), 60000);
   }
 
   private initInfluenceMatrix() {

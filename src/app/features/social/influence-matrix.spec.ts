@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InfluenceMatrixComponent } from './influence-matrix.component';
 import { FactionService } from '../../core/services/faction.service';
 import { GameService } from '../../core/services/game.service';
+import { signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 
@@ -15,7 +16,7 @@ describe('InfluenceMatrixComponent (Issue #35)', () => {
       imports: [InfluenceMatrixComponent],
       providers: [
         FactionService,
-        GameService,
+        { provide: GameService, useValue: { updatePredictions: vi.fn(), log: vi.fn(), credits: signal(0), experience: signal(0), reputation: signal(0) } },
         provideHttpClient(),
         provideHttpClientTesting()
       ]

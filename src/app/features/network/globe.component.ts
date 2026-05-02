@@ -291,6 +291,19 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
                   this.pointGroup.add(arc);
                 }
                 });
+
+                // Draw Predictive Paths (Issue #16)
+                this.networkService.predictivePaths().forEach(path => {
+                  const start = this.latLngToVector3(path.from.lat, path.from.lng, 100.5);
+                  const end = this.latLngToVector3(path.to.lat, path.to.lng, 100.5);
+                  const mid = start.clone().lerp(end, 0.5).multiplyScalar(1.1);
+                  const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+                  const curvePoints = curve.getPoints(15);
+                  const arcGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+                  const arcMat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.3 });
+                  const arc = new THREE.Line(arcGeo, arcMat);
+                  this.pointGroup.add(arc);
+                });
                 }    }
   }
 

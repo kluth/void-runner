@@ -3,13 +3,20 @@ import { NetworkService } from '../../core/services/network.service';
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { CommonModule } from '@angular/common';
+import { DataStreamComponent } from './data-stream.component';
+import { GhostProbeComponent } from './ghost-probe.component';
+import { TopologyMapComponent } from './topology-map.component';
 
 @Component({
   selector: 'app-network',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DataStreamComponent, GhostProbeComponent, TopologyMapComponent],
   template: `
     <div class="terminal-network">
+      <app-topology-map />
+      <app-data-stream />
+      <app-ghost-probe />
+      
       <!-- BOTNET SECTION -->
       <div class="ascii-window">
         <div class="ascii-header">┌── BOTNET_RESOURCES ──────────────────────────────────────────┐</div>

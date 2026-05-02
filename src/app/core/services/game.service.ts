@@ -379,6 +379,57 @@ export class GameService {
     cortisol: this.psychStability() < 50 ? 'ELEVATED' : 'STABLE'
   }));
 
+  // Darknet Mesh Predictive Intelligence (Issue #11)
+  predictiveEvents = signal<{type: string, probability: number, eta: number, reasoning: string}[]>([]);
+
+  // System-Shatter Visceral Failure State (Issue #8)
+  isShattered = signal(false);
+
+  // Ghost-Probe Orchestration (Issue #7)
+  ghostProbes = signal<{id: string, targetId: string, progress: number, data: string}[]>([]);
+
+  // Skill-Tree and Terminal Progression (Issue #5)
+  skills = signal<{id: string, name: string, cost: number, unlocked: boolean, unlocks: string}[]>([
+    { id: 'bash_v2', name: 'Advanced Bash', cost: 500, unlocked: false, unlocks: 'ls -a, find' },
+    { id: 'net_scan', name: 'Active Recon', cost: 1000, unlocked: false, unlocks: 'scan, probe' },
+    { id: 'stealth_v1', name: 'Shadow Protocol', cost: 1500, unlocked: false, unlocks: 'spoof, hide' }
+  ]);
+
+  // Runner's Log Global Feed (Issue #4)
+  globalFeed = signal<{id: string, handle: string, message: string, timestamp: number}[]>([]);
+  sendFeedMessage(msg: string) {
+    const handle = this.playerHandle();
+    this.socket.emit('send_feed', { handle, message: msg });
+  }
+
+  unlockSkill(id: string) {
+    const skill = this.skills().find(s => s.id === id);
+    if (skill && this.experience() >= skill.cost && !skill.unlocked) {
+        this.experience.update(e => e - skill.cost);
+        this.skills.update(ss => ss.map(s => s.id === id ? { ...s, unlocked: true } : s));
+        this.log(`SKILL_UNLOCKED: ${skill.name}. System capabilities expanded.`);
+        this.audioService.playSuccess();
+        return true;
+    }
+    return false;
+  }
+
+  deployProbe(targetId: string) {
+    const id = 'PROBE_' + Math.random().toString(36).substring(7);
+    this.ghostProbes.update(probes => [...probes, { id, targetId, progress: 0, data: '' }]);
+    this.log(`PROBE_DEPLOYED: ${id} targetting ${targetId}. Asynchronous collection active.`);
+    this.audioService.playClick();
+  }
+
+  updatePredictions() {
+    const events = [
+      { type: 'PATCH_TUESDAY', probability: 85, eta: 120, reasoning: 'Predictive analytics indicate a high likelihood of a system-wide patch deployment based on corporate maintenance cycles.' },
+      { type: 'ICE_STORM', probability: 45, eta: 300, reasoning: 'Anomalous traffic patterns in sector 7 suggest an imminent ICE deployment by NetWatch.' },
+      { type: 'BLACKOUT', probability: 15, eta: 600, reasoning: 'Energy grid fluctuations detected. Potential for local node power failure.' }
+    ];
+    this.predictiveEvents.set(events.sort((a, b) => b.probability - a.probability));
+  }
+
   updateIntent(input: string) {
     const val = input.toLowerCase();
     if (val.startsWith('sys') || val.startsWith('purge')) this.predictedIntent.set('SYSTEM');
@@ -1403,6 +1454,13 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       case 'auth_bio':
         this.verifyBiometrics();
         break;
+      case 'probe':
+        if (!parts[1]) {
+           this.log('Usage: probe [TARGET_NODE_ID]');
+        } else {
+           this.deployProbe(parts[1]);
+        }
+        break;
       case 'cooldown':
         if (this.systemHeat() > 0) {
            this.systemHeat.update(h => Math.max(0, h - 30));
@@ -1457,6 +1515,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   executeSystemWipe() {
+    this.isShattered.set(true);
     this.lockoutActive.set(false);
     this.detectionLevel.set(0);
     this.credits.set(0);
@@ -1467,6 +1526,12 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.log('<span style="color: var(--tertiary)">!!! SYSTEM WIPE EXECUTED !!! Node incinerated. Inventory lost. 50% Rep lost. Vault remains intact.</span>');
     this.audioService.playError();
     this.updateRemoteScore();
+
+    // Recover from shatter after 5 seconds
+    setTimeout(() => {
+      this.isShattered.set(false);
+      this.log('REBOOT_COMPLETE: System integrity restored to baseline.');
+    }, 5000);
   }
 
   private gameTick() {
@@ -1633,6 +1698,19 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     } else {
         this.psychStability.update(s => Math.min(100, s + 0.1));
     }
+
+    // Ghost-Probe Progress (Issue #7)
+    this.ghostProbes.update(probes => probes.map(p => {
+      if (p.progress < 100) {
+        return { ...p, progress: p.progress + 1 };
+      }
+      if (p.progress === 100) {
+        this.log(`PROBE_DATA_RECEIVED: ${p.id} from ${p.targetId}. Sector Intel +10.`);
+        this.addExperience(50);
+        return { ...p, progress: 101 };
+      }
+      return p;
+    }));
 
     const cloudPower = this.totalCloudBonus();
     if (cloudPower > 0 && Math.random() > 0.99) {

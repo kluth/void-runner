@@ -21,6 +21,23 @@ export class NetworkService {
     this.temporalEchoes.update(echoes => [{path, status}, ...echoes].slice(0, 10));
   }
 
+  predictivePaths = computed(() => {
+    const current = this.currentPath();
+    const last = current[current.length - 1];
+    if (!last) return [];
+    
+    // Suggest 3 potential next nodes based on distance
+    return this.nodes()
+      .filter(n => !current.find(cn => cn.id === n.id))
+      .sort((a, b) => {
+        const d1 = Math.sqrt(Math.pow(a.lat - last.lat, 2) + Math.pow(a.lng - last.lng, 2));
+        const d2 = Math.sqrt(Math.pow(b.lat - last.lat, 2) + Math.pow(b.lng - last.lng, 2));
+        return d1 - d2;
+      })
+      .slice(0, 3)
+      .map(n => ({ from: last, to: n }));
+  });
+
   currentPath = computed(() => {
     const mode = this.gameService.routingMode();
     const allNodes = this.nodes();

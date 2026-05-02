@@ -2,14 +2,18 @@ import { Component, inject } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
 import { StabilityHudComponent } from './stability-hud.component';
+import { SkillTreeComponent } from './skill-tree.component';
 
 @Component({
   selector: 'app-system-integrity',
   standalone: true,
-  imports: [CommonModule, StabilityHudComponent],
+  imports: [CommonModule, StabilityHudComponent, SkillTreeComponent],
   template: `
     <div class="integrity-terminal">
       <app-stability-hud />
+      <div class="h-divider"></div>
+      <app-skill-tree />
+      <div class="h-divider"></div>
       <div class="ascii-border">
         ┌────────────────────────────────────────────────────────┐
         │ <span class="sec-header">LOCAL_HOST // SYSTEM_INTEGRITY</span>                       │

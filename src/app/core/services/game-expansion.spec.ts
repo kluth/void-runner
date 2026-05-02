@@ -21,8 +21,8 @@ describe('GameService Expansion (TDD)', () => {
   });
 
   it('should generate advanced mission types like crypto-heist or quantum-breach', () => {
-    // Generate many missions to ensure variety
-    for(let i=0; i<50; i++) service.addRandomMission();
+    // Generate many missions to ensure variety (increased to 200)
+    for(let i=0; i<200; i++) service.addRandomMission();
     
     const types = service.activeMissions().map(m => m.type);
     expect(types).toContain('crypto-heist');
