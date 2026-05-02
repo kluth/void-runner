@@ -1013,7 +1013,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.saveLocalState();
   }
 
-  private saveLocalState() {
+  saveLocalState() {
     const state = {
       handle: this.playerHandle(),
       credits: this.credits(),
@@ -1030,14 +1030,44 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       publicExploits: this.publicExploits(),
       settings: this.settings()
     };
-    localStorage.setItem('VOID_RUNNER_STATE', JSON.stringify(state));
+    
+    const strState = JSON.stringify(state);
+    const web3 = this.injector.get(Web3MiningService);
+    
+    if (web3.secureModeActive()) {
+        web3.encryptState(strState).then(enc => {
+            localStorage.setItem('VOID_RUNNER_STATE_SECURE', enc);
+            localStorage.removeItem('VOID_RUNNER_STATE');
+        }).catch(e => {
+            this.log('<span style="color: var(--neon-magenta)">[VAULT] SECURE SAVE FAILED. Node disconnected or key missing.</span>');
+            localStorage.setItem('VOID_RUNNER_STATE', strState);
+        });
+    } else {
+        localStorage.setItem('VOID_RUNNER_STATE', strState);
+        localStorage.removeItem('VOID_RUNNER_STATE_SECURE');
+    }
   }
 
-  private loadLocalState() {
+  private async loadLocalState() {
+    const web3 = this.injector.get(Web3MiningService);
+    const secureSaved = localStorage.getItem('VOID_RUNNER_STATE_SECURE');
+    
+    if (secureSaved) {
+        web3.secureModeActive.set(true);
+        // We cannot immediately decrypt without the key (which needs mining to derive).
+        // The user will need to start mining to unlock the vault.
+        this.log('<span style="color: var(--neon-orange)">[VAULT] ENCRYPTED STATE DETECTED. Engage VOID_MINE to derive decryption key.</span>');
+        return; // Halt loading until decrypted
+    }
+
     const saved = localStorage.getItem('VOID_RUNNER_STATE');
     if (!saved) return;
+    this.applyRawState(saved);
+  }
+
+  applyRawState(savedStr: string) {
     try {
-      const state = JSON.parse(saved);
+      const state = JSON.parse(savedStr);
       if (state.handle) this.playerHandle.set(state.handle);
       this.credits.set(state.credits || 500);
       this.experience.set(state.experience || 0);

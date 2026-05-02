@@ -17,6 +17,10 @@ import { GameService } from '../../core/services/game.service';
           <span [class.active]="mining.isMining()">{{ mining.isMining() ? 'ENGAGED' : 'IDLE' }}</span>
         </div>
         <div class="status-row">
+          <span>WEB3_VAULT:</span>
+          <span [class.active]="mining.secureModeActive()">{{ mining.secureModeActive() ? 'SECURED' : 'INACTIVE' }}</span>
+        </div>
+        <div class="status-row">
           <span>VOID_CREDITS:</span>
           <span class="v-cred">{{ mining.voidCredits() }} VC</span>
         </div>
@@ -36,6 +40,9 @@ import { GameService } from '../../core/services/game.service';
         </button>
         <button *ngIf="mining.isMining()" class="magenta" (click)="mining.stopMining()">
           [ DISENGAGE_ENGINE ]
+        </button>
+        <button class="cyan" style="margin-top: 10px;" (click)="mining.toggleSecureMode()">
+          {{ mining.secureModeActive() ? '[ DISABLE_WEB3_VAULT ]' : '[ ENABLE_WEB3_VAULT ]' }}
         </button>
       </div>
 
