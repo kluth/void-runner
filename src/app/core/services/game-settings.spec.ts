@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NeuralService } from './neural.service';
 import { AudioService } from './audio.service';
+import { signal } from '@angular/core';
 
 const hoisted = vi.hoisted(() => {
     return {
@@ -27,7 +28,15 @@ describe('GameService Settings (TDD)', () => {
       imports: [HttpClientTestingModule],
       providers: [
         GameService,
-        { provide: AudioService, useValue: { log: vi.fn(), playSuccess: vi.fn(), playError: vi.fn(), playClick: vi.fn(), speakCreepy: vi.fn() } },
+        { provide: AudioService, useValue: { 
+          log: vi.fn(), 
+          playSuccess: vi.fn(), 
+          playError: vi.fn(), 
+          playClick: vi.fn(), 
+          speakCreepy: vi.fn(),
+          masterVolume: signal(1),
+          speechEnabled: signal(true)
+        } },
         { provide: NeuralService, useValue: { getHijackResponse: vi.fn(), http: { get: vi.fn() } } }
       ]
     });

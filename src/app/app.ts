@@ -100,6 +100,8 @@ SurveillanceOverlayComponent,
 
       <div class="game-wrapper" 
            [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
+           [class.glitch-hud]="gameService.isGlitchy()"
+           [class.ui-corrupted]="gameService.isCorrupted()"
            [class.trace-high-glitch]="gameService.detectionLevel() > 70">
            
         <!-- MAIN TILING GRID (NVIM STYLE) -->

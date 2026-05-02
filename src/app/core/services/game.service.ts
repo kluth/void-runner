@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject, Injector } from '@angular/core';
+import { Injectable, signal, computed, inject, Injector, effect } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { NeuralService } from './neural.service';
 import { AudioService } from './audio.service';
@@ -314,6 +314,117 @@ export class GameService {
   secretsFound = signal<string[]>([]);
   systemHeat = signal(0);
   
+  // Neural-Adaptive Fidelity Mode (Issue #54)
+  neuralLoad = signal(0);
+  fidelityMode = computed(() => this.neuralLoad() >= 80 ? 'SAFE' : 'AESTHETIC');
+
+  // Glitch-Adaptive HUD (Issue #49)
+  systemStress = computed(() => (100 - this.systemIntegrity()) + this.systemHeat());
+  isGlitchy = computed(() => this.systemStress() > 50 || this.isDistorted() || this.fidelityMode() === 'SAFE');
+
+  // Synaptic-Shatter UI Chaos (Issue #45)
+  isCorrupted = computed(() => this.neuralLoad() > 90);
+
+  // Symbiotic UI Evolution (Issue #44)
+  tabUsage = signal<Record<string, number>>({
+    'TERMINAL': 0, 'MISSIONS': 0, 'HARDWARE': 0, 'GRID': 0, 'SOCIAL': 0
+  });
+  
+  // Chronos-Lag Data Rewind (Issue #43)
+  stateSnapshots = signal<any[]>([]);
+  
+  // Quantum-Encrypted Data Vault (Issue #42)
+  vaultCredits = signal(0);
+  vaultArtifacts = signal<Artifact[]>([]);
+
+  // Neural-Biometric Authentication (Issue #41)
+  biometricVerified = signal(false);
+  async verifyBiometrics() {
+    this.log('BIOMETRIC_SCAN: Initializing neural-retinal scan...');
+    const shards = await (this as any).neuralService.collectEnvironmentShards();
+    if (shards.mediaAccess === 'GRANTED') {
+      this.biometricVerified.set(true);
+      this.log('BIOMETRIC_SCAN: Identity verified. Neural pattern matches Operative.');
+      this.audioService.playSuccess();
+      return true;
+    } else {
+      this.log('ERR: BIOMETRIC_SCAN_FAILED. Hardware access refused.');
+      this.audioService.playError();
+      return false;
+    }
+  }
+
+  depositToVault(amount: number) {
+    if (this.credits() >= amount) {
+      this.credits.update(c => c - amount);
+      this.vaultCredits.update(v => v + amount);
+      this.log(`VAULT_DEPOSIT: ${amount}cr secured in quantum-encrypted sector.`);
+      this.audioService.playSuccess();
+      this.updateRemoteScore();
+      return true;
+    }
+    return false;
+  }
+  withdrawFromVault(amount: number) {
+    if (this.vaultCredits() >= amount) {
+      this.vaultCredits.update(v => v - amount);
+      this.credits.update(c => c + amount);
+      this.log(`VAULT_WITHDRAW: ${amount}cr moved to active neural buffer.`);
+      this.audioService.playSuccess();
+      this.updateRemoteScore();
+      return true;
+    }
+    return false;
+  }
+
+  takeSnapshot() {
+    const state = {
+      credits: this.credits(),
+      experience: this.experience(),
+      reputation: this.reputation(),
+      detectionLevel: this.detectionLevel(),
+      systemIntegrity: this.systemIntegrity(),
+      timestamp: Date.now()
+    };
+    this.stateSnapshots.update(snaps => [state, ...snaps].slice(0, 5));
+  }
+  rewindState() {
+    const snaps = this.stateSnapshots();
+    if (snaps.length > 0) {
+      const last = snaps[0];
+      this.credits.set(last.credits);
+      this.experience.set(last.experience);
+      this.reputation.set(last.reputation);
+      this.detectionLevel.set(last.detectionLevel);
+      this.systemIntegrity.set(last.systemIntegrity);
+      this.stateSnapshots.update(s => s.slice(1));
+      this.log('<span style="color: var(--neon-cyan)">[CHRONOS_LAG] Time-stream corrected. State restored.</span>');
+      this.audioService.playGlitch();
+      return true;
+    }
+    return false;
+  }
+
+  primaryAccent = computed(() => {
+    const usage = this.tabUsage();
+    let maxTab = 'TERMINAL';
+    let maxVal = -1;
+    for (const tab in usage) {
+      if (usage[tab] > maxVal) {
+        maxVal = usage[tab];
+        maxTab = tab;
+      }
+    }
+    const colors: Record<string, string> = {
+      'TERMINAL': '#00FF9F', // Green
+      'GRID': '#00E5FF',     // Cyan
+      'SOCIAL': '#FF0055',   // Magenta
+      'MISSIONS': '#FF6B00', // Orange
+      'HARDWARE': '#FCEE09'  // Yellow
+    };
+    return colors[maxTab] || '#00FF9F';
+  });
+
   purgeActive = signal(false);
   purgeTimer = signal(0);
   purgeCode = signal('');
@@ -421,6 +532,30 @@ export class GameService {
 
     setInterval(() => this.gameTick(), 1000);
     setInterval(() => this.economyTick(), 10000);
+
+    // Neural-Adaptive Fidelity Effect (Issue #54)
+    effect(() => {
+      const mode = this.fidelityMode();
+      const accent = this.primaryAccent();
+      const root = document.documentElement;
+      
+      if (mode === 'SAFE') {
+        root.style.setProperty('--primary', '#FFFFFF');
+        root.style.setProperty('--secondary', '#FFFFFF');
+        root.style.setProperty('--tertiary', '#FF0000');
+        root.style.setProperty('--layer-1', '#000000');
+        root.style.setProperty('--scanline-opacity', '0.01');
+        root.style.setProperty('--glitch-intensity', '0');
+        this.log('NEURAL_OVERLOAD: Switching to SAFE_MODE (High Contrast).');
+      } else {
+        root.style.setProperty('--primary', accent);
+        root.style.setProperty('--secondary', '#00E5FF');
+        root.style.setProperty('--tertiary', '#FF0055');
+        root.style.setProperty('--layer-1', '#0A0F1E');
+        root.style.setProperty('--scanline-opacity', '0.04');
+        root.style.setProperty('--glitch-intensity', '1');
+      }
+    }, { allowSignalWrites: true });
   }
 
   private initSocket() {
@@ -629,6 +764,12 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     current[tab] = 0;
     this.tabNotifications.set(current);
     this.activeTab.set(tab);
+
+    // Track usage (Issue #44)
+    this.tabUsage.update(usage => ({
+      ...usage,
+      [tab]: (usage[tab] || 0) + 1
+    }));
 
     if (this.settings().beta.experimental_pwa && 'setAppBadge' in navigator) {
         const total = Object.values(current).reduce((a, b) => a + b, 0);
@@ -902,6 +1043,28 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     }
   }
 
+  // Omni-Shell Command Synthesizer (Issue #51)
+  commandSuggestions = signal<string[]>([]);
+  isSynthesizing = signal(false);
+
+  synthesizeSuggestions(input: string) {
+    if (!input.trim()) {
+      this.commandSuggestions.set([]);
+      return;
+    }
+
+    this.isSynthesizing.set(true);
+    const missionContext = this.activeMissions().map(m => `Target: ${m.target}, Type: ${m.type}`).join('; ');
+    const prompt = `You are a command synthesizer. Given the input "${input}" and missions [${missionContext}], provide the single most likely full terminal command the user wants to run. Return ONLY the command string, no explanation.`;
+
+    this.neuralService.askGemini(prompt).subscribe(res => {
+      if (res.response) {
+        this.commandSuggestions.set([res.response.trim()]);
+      }
+      this.isSynthesizing.set(false);
+    });
+  }
+
   // Terminal Logic
   commandHistory = signal<string[]>([]);
 
@@ -1086,6 +1249,29 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       case 'clear':
         this.terminalLogs.set([]);
         break;
+      case 'rewind':
+        if (!this.rewindState()) {
+           this.log('ERR: NO_SNAPSHOT_AVAILABLE. The time-stream is immutable.');
+           this.audioService.playError();
+        }
+        break;
+      case 'vault_deposit':
+        if (!parts[1] || isNaN(parseInt(parts[1]))) {
+           this.log('Usage: vault_deposit [AMOUNT]');
+        } else {
+           this.depositToVault(parseInt(parts[1]));
+        }
+        break;
+      case 'vault_withdraw':
+        if (!parts[1] || isNaN(parseInt(parts[1]))) {
+           this.log('Usage: vault_withdraw [AMOUNT]');
+        } else {
+           this.withdrawFromVault(parseInt(parts[1]));
+        }
+        break;
+      case 'auth_bio':
+        this.verifyBiometrics();
+        break;
       case 'cooldown':
         if (this.systemHeat() > 0) {
            this.systemHeat.update(h => Math.max(0, h - 30));
@@ -1147,7 +1333,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.inventory.set([]);
     this.mountedHardware.set(new Array(6).fill(null));
     this.activeMissions.set([]);
-    this.log('<span style="color: var(--tertiary)">!!! SYSTEM WIPE EXECUTED !!! Node incinerated. Inventory lost. 50% Rep lost.</span>');
+    this.log('<span style="color: var(--tertiary)">!!! SYSTEM WIPE EXECUTED !!! Node incinerated. Inventory lost. 50% Rep lost. Vault remains intact.</span>');
     this.audioService.playError();
     this.updateRemoteScore();
   }
@@ -1300,6 +1486,11 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.eventTimer.update(t => Math.max(0, t - 1));
     }
 
+    // Chronos-Lag Snapshot (Issue #43)
+    if (now % 60000 < 1000) {
+        this.takeSnapshot();
+    }
+
     const cloudPower = this.totalCloudBonus();
     if (cloudPower > 0 && Math.random() > 0.99) {
       this.dropArtifact('cloud_dump');
@@ -1307,7 +1498,8 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
 
     if (this.intrusionActive()) {
       const defense = this.totalDefenseBonus();
-      const progressGain = Math.max(0.5, 3 - (defense / 20));
+      let progressGain = Math.max(0.5, 3 - (defense / 20));
+      if (this.isDDoSActive()) progressGain *= 0.5; // DDoS Slowdown (Issue #49/51 related)
       this.intrusionProgress.update(p => p + progressGain);
       if (this.intrusionProgress() >= 100) this.resolveIntrusion(false);
     } else {
@@ -1395,6 +1587,16 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.log('!!! WARNING: UNKNOWN_OVERRIDE DETECTED !!!');
     this.isHijacked.set(true);
     
+    // Local Fallback / Test Support (Issue #39 related)
+    const localPuzzles = [
+      { q: "What is 1+1?", a: "2" },
+      { q: "SYSTEM_ACCESS_CODE: ALPHA", a: "ALPHA" },
+      { q: "NEURAL_KEY: 0000", a: "0000" }
+    ];
+    const p = localPuzzles[Math.floor(Math.random() * localPuzzles.length)];
+    this.hijackMessage.set(p.q);
+    this.hijackUnlockCode.set(p.a);
+
     // Request riddle from Neural Vector Archive (Backend)
     this.socket.emit('trigger_hijack', { token: this.authToken() });
   }
@@ -1868,6 +2070,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     if (!this.isAuthenticated()) {
       this.authRequired.set(true);
       this.log('<span style="color: #ffaa00">VULN_EXCHANGE: Darknet authentication required for 0-day research.</span>');
+      return false;
+    }
+    if (!this.biometricVerified()) {
+      this.log('<span style="color: #ffaa00">BIOMETRIC_LOCK: Retinal verification required for zero-day access. Use auth_bio.</span>');
       return false;
     }
     if (this.experience() >= 250) {

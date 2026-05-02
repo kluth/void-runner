@@ -13,6 +13,7 @@ describe('MissionComponent Brute Force Overhaul', () => {
     vi.useFakeTimers();
     gameService = {
       activeMissions: signal([]),
+      credits: signal(500),
       log: vi.fn(),
       triggerVisualEvent: vi.fn(),
       completeMission: vi.fn(),

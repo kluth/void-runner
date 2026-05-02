@@ -47,12 +47,25 @@ import { FormsModule } from '@angular/forms';
                 <input type="text" 
                        #cmdInputRef
                        [(ngModel)]="cmdInput" 
+                       (input)="onInputChange()"
                        (keyup.enter)="handleCmd()"
+                       (keydown.tab)="handleTab($event)"
                        (keydown.arrowUp)="navigateHistory(1)"
                        (keydown.arrowDown)="navigateHistory(-1)"
                        spellcheck="false"
                        autocomplete="off"
                        autofocus>
+                
+                @if (gameService.commandSuggestions().length > 0) {
+                  <div class="suggestions-overlay">
+                    @for (sug of gameService.commandSuggestions(); track sug) {
+                      <div class="suggestion-item" (click)="applySuggestion(sug)">
+                        <span class="sug-text">{{ sug }}</span>
+                        <span class="tab-hint">[TAB]</span>
+                      </div>
+                    }
+                  </div>
+                }
                 <span class="cursor-block"></span>
               </div>
             </div>
@@ -245,6 +258,37 @@ import { FormsModule } from '@angular/forms';
        margin-left: 2px;
     }
 
+    .suggestions-overlay {
+      position: absolute;
+      left: 0;
+      top: -40px;
+      background: var(--layer-2);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+      z-index: 100;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      min-width: 200px;
+    }
+
+    .suggestion-item {
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: var(--font-size-xs);
+      color: var(--neon-cyan);
+    }
+    .suggestion-item:hover {
+      background: rgba(0, 229, 255, 0.1);
+    }
+    .tab-hint {
+      font-size: 0.8em;
+      opacity: 0.5;
+      margin-left: 10px;
+    }
+
     .tmux-status-bar {
       display: flex;
       background: var(--neon-green);
@@ -392,6 +436,33 @@ export class TerminalComponent implements AfterViewChecked {
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
+  }
+
+  private debounceTimer: any;
+  onInputChange() {
+    clearTimeout(this.debounceTimer);
+    if (!this.cmdInput.trim()) {
+      this.gameService.commandSuggestions.set([]);
+      return;
+    }
+    
+    this.debounceTimer = setTimeout(() => {
+      this.gameService.synthesizeSuggestions(this.cmdInput);
+    }, 400);
+  }
+
+  handleTab(event: Event) {
+    event.preventDefault();
+    const suggestions = this.gameService.commandSuggestions();
+    if (suggestions.length > 0) {
+      this.applySuggestion(suggestions[0]);
+    }
+  }
+
+  applySuggestion(sug: string) {
+    this.cmdInput = sug;
+    this.gameService.commandSuggestions.set([]);
+    this.audioService.playClick();
   }
 
   handleCmd() {

@@ -13,7 +13,8 @@ describe('LiveEventsComponent', () => {
       globalEvent: signal('CTF_ACTIVE'),
       eventTimer: signal(60),
       leaderboard: signal([]),
-      publicExploits: signal([])
+      publicExploits: signal([]),
+      realWorldState: signal({ entropy: 'HIGH' })
     };
 
     TestBed.configureTestingModule({
@@ -24,11 +25,15 @@ describe('LiveEventsComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should return correct event name', () => {
-    expect(component.getEventName()).toBe('GLOBAL CTF QUALIFIER');
+  it('should return correct event description', () => {
+    expect(component.getEventDesc('CTF_ACTIVE')).toContain('DOUBLED');
   });
 
-  it('should return correct event description', () => {
-    expect(component.getEventDesc(CTF_ACTIVE)).toContain('double Experience');
+  it('should display the active event title in the template', () => {
+    gameService.globalEvent.set('CTF_ACTIVE');
+    const fixture = TestBed.createComponent(LiveEventsComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.e-title').textContent).toContain('CTF ACTIVE');
   });
 });

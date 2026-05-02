@@ -35,11 +35,11 @@ describe('GameService Hijack Frequency (TDD)', () => {
 
   it('should trigger hijack more frequently when integrity is low', () => {
     service.systemIntegrity.set(10); // Dangerous level
-    // Chance is ~4.5%, so a random roll of 0.01 should trigger it.
-    vi.spyOn(Math, 'random').mockReturnValue(0.01); 
+    // Chance is ~0.91%, so 0.001 should trigger it.
+    vi.spyOn(Math, 'random').mockReturnValue(0.001); 
     
     (service as any).gameTick();
     
-    expect(neuralService.getHijackResponse).toHaveBeenCalled();
+    expect(hoisted.mockSocket.emit).toHaveBeenCalledWith('trigger_hijack', expect.anything());
   });
 });

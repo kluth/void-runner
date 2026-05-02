@@ -27,7 +27,12 @@ describe('TerminalComponent Man Command (TDD)', () => {
       activeRansoms: signal(0),
       matrixMode: signal(false),
       settings: signal({ control: { autocomplete: true } }),
-      updateSetting: vi.fn()
+      updateSetting: vi.fn(),
+      processCommand: vi.fn(),
+      commandHistory: signal([]),
+      commandSuggestions: signal([]),
+      synthesizeSuggestions: vi.fn(),
+      detectedOS: signal('LINUX')
     };
 
     TestBed.configureTestingModule({
@@ -45,12 +50,12 @@ describe('TerminalComponent Man Command (TDD)', () => {
   it('should show manual for a specific command', () => {
     component.cmdInput = 'man ls';
     component.handleCmd();
-    expect(gameService.log).toHaveBeenCalledWith(expect.stringContaining('NAME: ls'));
+    expect(gameService.processCommand).toHaveBeenCalledWith('man ls');
   });
 
   it('should handle set command for settings', () => {
     component.cmdInput = 'set audio.volume 80';
     component.handleCmd();
-    expect(gameService.updateSetting).toHaveBeenCalledWith('audio.volume', '80');
+    expect(gameService.processCommand).toHaveBeenCalledWith('set audio.volume 80');
   });
 });

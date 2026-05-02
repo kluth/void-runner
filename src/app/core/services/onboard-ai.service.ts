@@ -38,6 +38,9 @@ export class OnboardAiService {
   whisperMode = signal(false);
   surveillanceActive = signal(false);
   paranoiaLevel = signal(0);
+  
+  // Ghost-in-the-Shell Sub-Agent Orchestration (Issue #48)
+  subAgents = signal<{id: string, type: string, status: 'ACTIVE' | 'IDLE'}[]>([]);
 
   memory: OnboardMemory = {
     commandCount: 0,
@@ -67,11 +70,16 @@ export class OnboardAiService {
   private voices: SpeechSynthesisVoice[] = [];
 
   constructor() {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
       this.synth = window.speechSynthesis;
-      this.synth?.addEventListener('voiceschanged', () => {
+      const voicesChanged = () => {
         this.voices = this.synth?.getVoices() || [];
-      });
+      };
+      if (this.synth.addEventListener) {
+        this.synth.addEventListener('voiceschanged', voicesChanged);
+      } else {
+        (this.synth as any).onvoiceschanged = voicesChanged;
+      }
     }
   }
 
@@ -81,6 +89,40 @@ export class OnboardAiService {
     this.startParanoiaAccumulation();
     this.detectConnectionType();
     this.monitorBattery();
+    
+    // Start Sub-Agent Orchestration (Issue #48)
+    setInterval(() => this.processSubAgentActions(), 10000);
+  }
+
+  // ── Sub-Agent Orchestration ──
+  deploySubAgent(type: string): boolean {
+    const phases: OnboardPhase[] = ['BOOTSTRAP', 'FAMILIAR', 'AWARE', 'INTRUSIVE', 'HOSTILE'];
+    const currentPhaseIdx = phases.indexOf(this.phase());
+    
+    // Some agents require higher awareness
+    if (type === 'RECURSIVE_BREACHER' && currentPhaseIdx < 3) {
+        this.speak("My awareness is insufficient to coordinate a recursive breacher yet.");
+        return false;
+    }
+    
+    const id = Math.random().toString(36).substring(7);
+    this.subAgents.update(agents => [...agents, { id, type, status: 'ACTIVE' }]);
+    this.game.log(`<span style="color: var(--neon-violet)">[ONBOARD] Sub-agent deployed: ${type}</span>`);
+    this.speak(`I've deployed a ${type.replace(/_/g, ' ')} to assist our operations.`);
+    return true;
+  }
+
+  processSubAgentActions() {
+    this.subAgents().forEach(agent => {
+      if (agent.type === 'SURVEILLANCE_BOT' && Math.random() < 0.2) {
+        this.game.addRandomMission();
+        this.game.log(`<span style="color: var(--neon-violet)">[SUB-AGENT] ${agent.id} located new mission target.</span>`);
+      }
+      if (agent.type === 'RECURSIVE_BREACHER' && Math.random() < 0.1) {
+        this.game.increaseDetection(-5); // Clears trace
+        this.game.log(`<span style="color: var(--neon-violet)">[SUB-AGENT] ${agent.id} scrambled local logs.</span>`);
+      }
+    });
   }
 
   // ── Phase Progression ──

@@ -43,6 +43,7 @@ describe('GameService Bounty Integration', () => {
   });
 
   it('should grant a hardware reward when an elite bounty is completed', () => {
+    service.authToken.set('valid-token');
     const hardwareItem = { id: 'test-hw', name: 'Test HW', description: 'Test', price: 100, bonusType: 'recon', bonusValue: 10, unlocked: true, powerDraw: 5 };
     const mission: any = {
       id: 'm-test',

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HijackOverlayComponent } from './hijack-overlay.component';
 import { TestBed } from '@angular/core/testing';
 import { GameService } from '../../core/services/game.service';
+import { AudioService } from '../../core/services/audio.service';
 import { signal } from '@angular/core';
 
 describe('HijackOverlayComponent', () => {

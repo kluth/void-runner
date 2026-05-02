@@ -36,7 +36,7 @@ describe('PurgeOverlayComponent', () => {
     (gameService as any).purgeActive.set(true);
     (gameService as any).purgeCode.set('TEST-CODE-123');
     fixture.detectChanges();
-    const code = fixture.nativeElement.querySelector('.code');
+    const code = fixture.nativeElement.querySelector('code');
     expect(code.textContent).toContain('TEST-CODE-123');
   });
 });

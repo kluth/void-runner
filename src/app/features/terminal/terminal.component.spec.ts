@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TerminalComponent } from './terminal.component';
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { NeuralService } from '../../core/services/neural.service';

@@ -18,6 +18,8 @@ describe('HijackOverlayComponent (TDD - Persistence)', () => {
       isHijacked: signal(true),
       hijackMessage: signal('The code is 0x1234'),
       hijackUnlockCode: signal('0x1234'),
+      campaignLevel: signal(1),
+      credits: signal(100),
       log: vi.fn()
     };
 
