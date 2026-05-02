@@ -271,9 +271,27 @@ export class GlobeComponent implements AfterViewInit, OnDestroy {
                 });
                 const arc = new THREE.Line(arcGeo, arcMat);
                 this.pointGroup.add(arc);
-            }
-        }
-    }
+                }
+
+                // Draw Temporal Echoes (Issue #30)
+                this.networkService.temporalEchoes().forEach((echo, idx) => {
+                const eColor = echo.status === 'SUCCESS' ? 0x00ff9f : 0xff0055;
+                const opacity = 0.2 - (idx * 0.02);
+                if (opacity <= 0) return;
+
+                for (let i = 0; i < echo.path.length - 1; i++) {
+                  const start = this.latLngToVector3(echo.path[i].lat, echo.path[i].lng, 100.5);
+                  const end = this.latLngToVector3(echo.path[i+1].lat, echo.path[i+1].lng, 100.5);
+                  const mid = start.clone().lerp(end, 0.5).multiplyScalar(1.1);
+                  const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+                  const curvePoints = curve.getPoints(20);
+                  const arcGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+                  const arcMat = new THREE.LineBasicMaterial({ color: eColor, transparent: true, opacity });
+                  const arc = new THREE.Line(arcGeo, arcMat);
+                  this.pointGroup.add(arc);
+                }
+                });
+                }    }
   }
 
   private syncVisualEvents(events: VisualEvent[]) {

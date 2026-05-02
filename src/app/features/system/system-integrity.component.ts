@@ -1,13 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
+import { StabilityHudComponent } from './stability-hud.component';
 
 @Component({
   selector: 'app-system-integrity',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StabilityHudComponent],
   template: `
     <div class="integrity-terminal">
+      <app-stability-hud />
       <div class="ascii-border">
         ┌────────────────────────────────────────────────────────┐
         │ <span class="sec-header">LOCAL_HOST // SYSTEM_INTEGRITY</span>                       │

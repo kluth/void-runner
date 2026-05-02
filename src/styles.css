@@ -282,6 +282,14 @@ body::before {
   animation: flicker 0.05s infinite;
 }
 
+/* Issue #25: Predictive Intent Styles */
+.intent-focus {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4) !important;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
 @keyframes heat-haze {
   from { transform: skewX(0.5deg) scale(1.001); }
   to { transform: skewX(-0.5deg) scale(0.999); }
@@ -290,6 +298,25 @@ body::before {
 @keyframes flicker {
   0%, 100% { opacity: 0; }
   50% { opacity: 0.1; }
+}
+
+/* Issue #24: Visceral Overload Kinetic HUD */
+.trace-high-glitch {
+  animation: visceral-shake 0.1s infinite;
+}
+
+@keyframes visceral-shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
 /* Issue #46: Physical-Void Convergence Overlays */

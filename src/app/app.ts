@@ -34,6 +34,7 @@ import { HighDensityHudComponent } from './features/system/high-density-hud.comp
 import { WorkspaceComponent } from './features/system/workspace.component';
 import { EchoCollectorComponent } from './features/system/echo-collector.component';
 import { MarginScribeComponent } from './features/system/margin-scribe.component';
+import { AgenticHudComponent } from './features/system/agentic-hud.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { CommonModule } from '@angular/common';
 
@@ -73,6 +74,7 @@ HighDensityHudComponent,
 WorkspaceComponent,
 EchoCollectorComponent,
 MarginScribeComponent,
+AgenticHudComponent,
 ],
 template: `
 <div [style.--singularity-decay]="decayFactor()" 
@@ -86,9 +88,9 @@ template: `
 
   <app-echo-collector />
   <app-margin-scribe />
+  <app-agentic-hud />
 
-  <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>
-      @if (!gameService.isConfigured()) { <app-config-wizard /> }
+  <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>      @if (!gameService.isConfigured()) { <app-config-wizard /> }
       @if (gameService.isBooting()) { <app-boot-screen /> }
       @if (gameService.authRequired()) { <app-auth class="glass-overlay" /> }
       @if (gameService.matrixMode()) { <app-matrix-rain /> }
@@ -120,9 +122,8 @@ template: `
         <main class="nvim-grid">
           
           <!-- LEFT SIDEBAR: MISSION MANIFEST -->
-          <aside class="sidebar-manifest terminal-frame corner-tl corner-bl">
-            <div class="ascii-line">0:OPERATIONS</div>
-            <div class="pane-content">
+          <aside class="sidebar-manifest terminal-frame corner-tl corner-bl" [class.intent-focus]="gameService.predictedIntent() === 'NETWORK'">
+            <div class="ascii-line">0:OPERATIONS</div>            <div class="pane-content">
                <app-missions />
                <div class="h-divider"></div>
                <app-bounty-board />
@@ -168,7 +169,7 @@ template: `
           </section>
 
           <!-- RIGHT SIDEBAR: TELEMETRY -->
-          <aside class="sidebar-telemetry terminal-frame corner-tr corner-br hidden-tablet">
+          <aside class="sidebar-telemetry terminal-frame corner-tr corner-br hidden-tablet" [class.intent-focus]="gameService.predictedIntent() === 'SYSTEM'">
             <div class="ascii-line magenta">2:SYSTEM_DATA</div>
             <div class="pane-content">
                <app-system-integrity />

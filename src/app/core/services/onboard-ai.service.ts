@@ -42,6 +42,9 @@ export class OnboardAiService {
   // Ghost-in-the-Shell Sub-Agent Orchestration (Issue #48)
   subAgents = signal<{id: string, type: string, status: 'ACTIVE' | 'IDLE'}[]>([]);
 
+  // Agentic HUD Overlay (Issue #27)
+  agenticInsights = signal<{id: string, type: 'INFO' | 'WARNING' | 'CRITICAL', text: string}[]>([]);
+
   memory: OnboardMemory = {
     commandCount: 0,
     lastCommands: [],
@@ -92,6 +95,28 @@ export class OnboardAiService {
     
     // Start Sub-Agent Orchestration (Issue #48)
     setInterval(() => this.processSubAgentActions(), 10000);
+
+    // Start Agentic Analysis (Issue #27)
+    setInterval(() => this.processAgenticAnalysis(), 15000);
+  }
+
+  // ── Agentic Analysis ──
+  processAgenticAnalysis() {
+    const insights: any[] = [];
+    const heat = this.game.systemHeat();
+    const integrity = this.game.systemIntegrity();
+    
+    if (heat > 80) {
+      insights.push({ id: 'heat_crit', type: 'WARNING', text: 'THERMAL_OVERLOAD: Cooling subsystem struggling. Throttling recommended.' });
+    }
+    if (integrity < 40) {
+      insights.push({ id: 'int_crit', type: 'CRITICAL', text: 'INTEGRITY_COMPROMISED: Kernel structural failure detected. Patching required.' });
+    }
+    if (this.game.credits() > 10000) {
+      insights.push({ id: 'wealth_info', type: 'INFO', text: 'CREDIT_ACCUMULATION: Sufficient assets for hardware upgrade.' });
+    }
+
+    this.agenticInsights.set(insights);
   }
 
   // ── Sub-Agent Orchestration ──

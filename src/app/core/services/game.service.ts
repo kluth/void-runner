@@ -353,6 +353,46 @@ export class GameService {
 
   // Omni-Link Cross-Domain Contextual Bridge (Issue #36)
   heldEntity = signal<{id: string, type: string, data: any} | null>(null);
+
+  // Psych-Stability Variance (Issue #34)
+  psychStability = signal(100);
+  isHallucinating = computed(() => this.psychStability() < 30);
+
+  // Black-Market Volatility Engine (Issue #33)
+  marketVolatility = signal<Record<string, number>>({});
+
+  // Modular Hardware HUD-Morphing (Issue #31)
+  hudVariant = computed(() => {
+    const mounted = this.mountedHardware().filter(h => !!h);
+    if (mounted.some(h => h!.id.includes('quantum') || h!.id.includes('satellite'))) return 'QUANTUM';
+    if (mounted.length >= 4) return 'ADVANCED';
+    return 'BASIC';
+  });
+
+  // Predictive Intent Contextual Layout (Issue #25)
+  predictedIntent = signal<'SYSTEM' | 'NETWORK' | 'SOCIAL' | 'HARDWARE' | null>(null);
+
+  // Biometric Sync HUD (Issue #23)
+  biometricStats = computed(() => ({
+    neuralLoad: this.neuralLoad(),
+    heartRate: 60 + (this.systemStress() / 2),
+    cortisol: this.psychStability() < 50 ? 'ELEVATED' : 'STABLE'
+  }));
+
+  updateIntent(input: string) {
+    const val = input.toLowerCase();
+    if (val.startsWith('sys') || val.startsWith('purge')) this.predictedIntent.set('SYSTEM');
+    else if (val.startsWith('net') || val.startsWith('ping')) this.predictedIntent.set('NETWORK');
+    else if (val.startsWith('msg') || val.startsWith('team')) this.predictedIntent.set('SOCIAL');
+    else if (val.startsWith('buy') || val.startsWith('mount')) this.predictedIntent.set('HARDWARE');
+    else this.predictedIntent.set(null);
+  }
+
+  getAdjustedPrice(item: HardwareItem) {
+    const vol = this.marketVolatility()[item.id] || 1;
+    return Math.floor(item.price * vol);
+  }
+
   dragEntity(entity: {id: string, type: string, data: any}) {
     this.heldEntity.set(entity);
     this.audioService.playClick();
@@ -1587,6 +1627,13 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         this.spawnEcho('FRAGMENT_' + Math.random().toString(36).substring(7), 'ECHO: The Void remembers everything.');
     }
 
+    // Psych-Stability (Issue #34)
+    if (this.neuralLoad() > 80) {
+        this.psychStability.update(s => Math.max(0, s - 0.5));
+    } else {
+        this.psychStability.update(s => Math.min(100, s + 0.1));
+    }
+
     const cloudPower = this.totalCloudBonus();
     if (cloudPower > 0 && Math.random() > 0.99) {
       this.dropArtifact('cloud_dump');
@@ -1698,6 +1745,15 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
   }
 
   private economyTick() {
+    // Market Volatility (Issue #33)
+    const vol: Record<string, number> = { ...this.marketVolatility() };
+    this.availableHardware().forEach(item => {
+      const current = vol[item.id] || 1;
+      const shift = (Math.random() - 0.5) * 0.15; // +/- 7.5%
+      vol[item.id] = Math.max(0.5, Math.min(2.0, current + shift));
+    });
+    this.marketVolatility.set(vol);
+
     if (this.botnetSize() > 0) {
       const cryptoMined = Math.floor(this.botnetSize() * 1.5);
       this.credits.update(c => c + cryptoMined);
@@ -2022,12 +2078,16 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       this.log('<span style="color: #ffaa00">HARDWARE_LINK: Identity verification required for physical module installation.</span>');
       return;
     }
-    if (this.credits() >= item.price) {
-      this.credits.update(c => c - item.price);
+    const adjustedPrice = this.getAdjustedPrice(item);
+    if (this.credits() >= adjustedPrice) {
+      this.credits.update(c => c - adjustedPrice);
       this.inventory.update(inv => [...inv, item]);
-      this.log(`PURCHASED: ${item.name}. Module stored in inventory.`);
+      this.log(`PURCHASED: ${item.name} for ${adjustedPrice}cr. Module stored in inventory.`);
       this.audioService.playSuccess();
       this.updateRemoteScore();
+    } else {
+      this.log('ERR: INSUFFICIENT_CREDITS. Market negotiation failed.');
+      this.audioService.playError();
     }
   }
 

@@ -26,12 +26,13 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <!-- RIG CONFIGURATION -->
-      <div class="terminal-frame rig-box">
+      <div class="terminal-frame rig-box" [class.quantum-layout]="gameService.hudVariant() === 'QUANTUM'">
         <div class="ascii-line">CURRENT_RIG_CONFIGURATION</div>
         <div class="rig-grid">
           @for (slot of gameService.mountedHardware(); track $index) {
              <button class="rig-slot-terminal" 
                      [class.occupied]="!!slot" 
+                     [style.--slot-index]="$index"
                      (click)="selectSlot($index)">
                 <div class="slot-header">SLOT_0{{ $index }}</div>
                 @if (slot) {
@@ -76,7 +77,11 @@ import { FormsModule } from '@angular/forms';
                         (click)="buyItem(item)">
                    <div class="h-row">
                       <span class="h-name">{{ item.name }}</span>
-                      <span class="h-price">{{ item.price }} CR</span>
+                      <span class="h-price" [class.discount]="(gameService.marketVolatility()[item.id] || 1) < 0.9">
+                         {{ gameService.getAdjustedPrice(item) }} CR
+                         @if ((gameService.marketVolatility()[item.id] || 1) < 0.9) { <span>▼</span> }
+                         @if ((gameService.marketVolatility()[item.id] || 1) > 1.1) { <span>▲</span> }
+                      </span>
                    </div>
                    <div class="h-desc">> {{ item.description }}</div>
                    <div class="h-stats">
@@ -166,6 +171,19 @@ import { FormsModule } from '@angular/forms';
     .rig-slot-terminal.occupied {
       border: 1px solid var(--neon-green);
       background: rgba(0, 255, 159, 0.05);
+    }
+
+    .quantum-layout .rig-grid {
+      height: 300px;
+      position: relative;
+      display: block;
+    }
+    .quantum-layout .rig-slot-terminal {
+      position: absolute;
+      width: 120px;
+      left: 50%; top: 50%;
+      --angle: calc(var(--slot-index) * 60deg);
+      transform: translate(-50%, -50%) rotate(var(--angle)) translate(100px) rotate(calc(-1 * var(--angle)));
     }
 
     .slot-header { font-size: 0.65rem; color: rgba(0, 255, 159, 0.5); margin-bottom: 4px; }

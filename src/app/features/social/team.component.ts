@@ -4,17 +4,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocialHeatmapComponent } from './social-heatmap.component';
 import { InfluenceMatrixComponent } from './influence-matrix.component';
+import { SocialExploitComponent } from './social-exploit.component';
+import { PresenceMeshComponent } from './presence-mesh.component';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, FormsModule, SocialHeatmapComponent, InfluenceMatrixComponent],
+  imports: [CommonModule, FormsModule, SocialHeatmapComponent, InfluenceMatrixComponent, SocialExploitComponent, PresenceMeshComponent],
   template: `
     <div class="terminal-container" role="region" aria-label="Syndicate Faction Interface">
       <div class="terminal-frame mb-4">
         <div class="ascii-line">SYNDICATE_NODE // FACTION_ALIGNMENT</div>
       </div>
 
+      <app-presence-mesh />
+      <div class="h-divider"></div>
+      <app-social-exploit />
+      <div class="h-divider"></div>
       <app-influence-matrix />
       <div class="h-divider"></div>
       <app-social-heatmap />

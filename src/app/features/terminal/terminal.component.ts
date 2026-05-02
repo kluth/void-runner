@@ -441,6 +441,8 @@ export class TerminalComponent implements AfterViewChecked {
   private debounceTimer: any;
   onInputChange() {
     clearTimeout(this.debounceTimer);
+    this.gameService.updateIntent(this.cmdInput);
+
     if (!this.cmdInput.trim()) {
       this.gameService.commandSuggestions.set([]);
       return;

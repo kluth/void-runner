@@ -15,6 +15,12 @@ export class NetworkService {
     { id: '5', name: 'CRYPTO_BUNKER', lat: 59.32, lng: 18.06, country: 'Sweden' }
   ]);
 
+  // Temporal Echo-Mapping (Issue #30)
+  temporalEchoes = signal<{path: any[], status: 'SUCCESS' | 'FAILURE'}[]>([]);
+  addEchoPath(path: any[], status: 'SUCCESS' | 'FAILURE') {
+    this.temporalEchoes.update(echoes => [{path, status}, ...echoes].slice(0, 10));
+  }
+
   currentPath = computed(() => {
     const mode = this.gameService.routingMode();
     const allNodes = this.nodes();
