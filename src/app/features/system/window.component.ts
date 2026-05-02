@@ -82,6 +82,19 @@ import { GameService } from '../../core/services/game.service';
       cursor: nwse-resize;
       background: linear-gradient(135deg, transparent 50%, var(--primary) 50%);
     }
+
+    @media (max-width: 850px) {
+      .window-frame {
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: calc(100% - 60px) !important;
+        border: none;
+      }
+      .win-resize-handle {
+        display: none;
+      }
+    }
   `
 })
 export class WindowComponent {

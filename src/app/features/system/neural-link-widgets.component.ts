@@ -38,6 +38,16 @@ import { GameService } from '../../core/services/game.service';
       from { transform: translateX(50px); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+    @media (max-width: 1300px) {
+      .widgets-container { right: 20px; }
+    }
+    @media (max-width: 850px) {
+      .widgets-container { top: 70px; right: 10px; transform: none; flex-direction: row; flex-wrap: wrap; }
+      @keyframes float-in {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    }
   `
 })
 export class NeuralLinkWidgetsComponent {

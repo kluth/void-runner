@@ -220,6 +220,16 @@ import { TopologyMapComponent } from './topology-map.component';
       background: var(--primary);
       border: 2px solid #000;
     }
+
+    .ascii-header, .ascii-footer {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: clip;
+    }
+
+    @media (max-width: 600px) {
+      .botnet-actions { flex-direction: column; }
+    }
   `
 })
 export class NetworkComponent {

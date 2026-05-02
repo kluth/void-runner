@@ -117,12 +117,25 @@ export interface Threat {
     }
     .threat-card:hover { border-color: var(--primary); background: rgba(0,255,159,0.05); }
     .threat-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); }
-
     .card-content {
       padding: var(--spacing-sm);
       flex: 1;
       display: flex;
       flex-direction: column;
+    }
+
+    @media (max-width: 800px) {
+      .threat-layout {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+      .threat-map {
+        height: 250px;
+        flex-shrink: 0;
+      }
+      .threat-grid {
+        overflow-y: visible;
+      }
     }
 
     .t-top { 

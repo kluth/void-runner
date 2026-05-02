@@ -32,14 +32,17 @@ import { CommonModule } from '@angular/common';
       padding: 10px;
     }
     .ascii-header, .ascii-footer {
-      white-space: pre;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: clip;
       line-height: 1.2;
       font-size: 14px;
       color: var(--primary);
     }
     .globe-container {
       width: 100%;
-      height: 400px;
+      height: 100%;
+      min-height: 300px;
       background: #000;
       position: relative;
       cursor: grab;

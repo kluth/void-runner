@@ -44,14 +44,14 @@ import { CommonModule } from '@angular/common';
   `,
   styles: `
     .calib-container {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh;
       background: rgba(14, 14, 14, 0.98); z-index: 11000;
       display: flex; align-items: center; justify-content: center;
       color: var(--secondary); font-family: 'Space Grotesk', sans-serif;
     }
     .calib-content {
-      width: 500px; padding: 3rem; border: var(--ghost-border);
-      background: var(--layer-1); box-shadow: var(--neon-shadow);
+      width: 500px; max-width: 95vw; padding: 3rem; border: var(--ghost-border);
+      background: var(--layer-1); box-shadow: var(--neon-shadow); box-sizing: border-box;
     }
     .header { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 2px; text-transform: uppercase; }
     .sub-header { font-size: 0.6rem; color: var(--primary); opacity: 0.4; margin-bottom: 3rem; font-weight: 900; }

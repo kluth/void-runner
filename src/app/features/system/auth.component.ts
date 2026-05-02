@@ -43,7 +43,7 @@ import { ActivatedRoute } from '@angular/router';
   `,
   styles: `
     .auth-overlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh;
       background: rgba(14, 14, 14, 0.95); z-index: 12000;
       display: flex; align-items: center; justify-content: center;
       font-family: 'JetBrains Mono', monospace;
@@ -54,6 +54,10 @@ import { ActivatedRoute } from '@angular/router';
       width: 100%;
       max-width: 400px; padding: 2.5rem; border: var(--ghost-border);
       box-shadow: var(--neon-shadow); background: var(--layer-1);
+    }
+    
+    @media (max-width: 480px) {
+      .auth-box { padding: 1.5rem; }
     }
     .header { font-family: 'Space Grotesk', sans-serif; color: var(--primary); font-size: 1rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: 2px; text-align: center; }
     .auth-desc { font-size: 0.6rem; color: var(--primary); opacity: 0.4; text-align: center; margin-bottom: 2rem; line-height: 1.6; }

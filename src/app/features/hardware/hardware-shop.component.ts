@@ -264,6 +264,7 @@ import { FormsModule } from '@angular/forms';
 
     .modal-box {
       width: 320px;
+      max-width: 90vw;
     }
 
     .modal-content {

@@ -302,7 +302,7 @@ PulseDiagnosticsComponent,
     .mobile-telemetry-toggle { display: none; margin-left: 15px; height: 18px; line-height: 1; padding: 0 8px; font-size: 0.6rem; }
 
     .globe-modal, .mobile-telemetry-overlay {
-       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+       position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh;
        z-index: 10000; display: flex; align-items: center; justify-content: center;
        padding: 2rem;
     }

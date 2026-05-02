@@ -35,7 +35,7 @@ import { GameService } from '../../core/services/game.service';
     }
     .influence-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
       gap: 5px;
       margin: 10px 0;
     }

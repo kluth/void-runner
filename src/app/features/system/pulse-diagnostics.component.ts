@@ -22,7 +22,7 @@ import { GameService } from '../../core/services/game.service';
   styles: `
     .pulse-overlay {
       position: fixed; bottom: 80px; right: 20px;
-      width: 250px; z-index: 4000; pointer-events: none;
+      width: 250px; max-width: calc(100vw - 40px); z-index: 4000; pointer-events: none;
       animation: pulse-entry 0.3s ease-out;
     }
     .diagnostic-box {

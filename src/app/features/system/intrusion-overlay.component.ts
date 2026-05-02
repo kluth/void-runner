@@ -36,6 +36,7 @@ import { CommonModule } from '@angular/common';
       left: 50%;
       transform: translate(-50%, -50%);
       width: 400px;
+      max-width: 90vw;
       background: var(--layer-1);
       border: 2px solid var(--tertiary);
       box-shadow: 0 0 50px var(--tertiary);

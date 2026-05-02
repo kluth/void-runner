@@ -41,6 +41,9 @@ import { ScribeService } from '../../core/services/scribe.service';
       from { width: 0; }
       to { width: 100%; }
     }
+    @media (max-width: 850px) {
+      .scribe-margin { display: none; }
+    }
   `
 })
 export class MarginScribeComponent {

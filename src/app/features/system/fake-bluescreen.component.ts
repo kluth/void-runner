@@ -33,8 +33,8 @@ import { GameService } from '../../core/services/game.service';
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100dvw;
+      height: 100dvh;
       background: #0078D7;
       color: #fff;
       font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -66,6 +66,7 @@ import { GameService } from '../../core/services/game.service';
 
     .progress-container {
       width: 300px;
+      max-width: 90vw;
       height: 5px;
       background: rgba(255, 255, 255, 0.3);
       margin-bottom: 40px;

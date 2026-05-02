@@ -36,8 +36,8 @@ import { FactionService } from '../../core/services/faction.service';
     .matrix-container { padding: 10px; background: rgba(0, 0, 0, 0.8); }
     .matrix-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
       margin: 15px 0;
     }
     .faction-node {

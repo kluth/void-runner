@@ -26,7 +26,7 @@ import { GameService } from '../../core/services/game.service';
   styles: `
     .agentic-overlay {
       position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
-      width: 500px; z-index: 5000; pointer-events: none;
+      width: 500px; max-width: 95vw; z-index: 5000; pointer-events: none;
     }
     .glass-container {
       background: rgba(10, 15, 30, 0.6);

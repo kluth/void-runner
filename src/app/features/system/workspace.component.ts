@@ -66,6 +66,22 @@ import { Web3MiningComponent } from './web3-mining.component';
       border: 1px solid var(--primary);
       z-index: 10000;
     }
+    @media (max-width: 600px) {
+      .app-launcher {
+        bottom: 0;
+        width: 100%;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        justify-content: space-around;
+        padding: 5px;
+        gap: 5px;
+      }
+      .app-launcher button {
+        padding: 8px 5px;
+        font-size: 0.8rem;
+      }
+    }
   `
 })
 export class WorkspaceComponent {
