@@ -321,6 +321,7 @@ export class GameService {
   // Glitch-Adaptive HUD (Issue #49)
   systemStress = computed(() => (100 - this.systemIntegrity()) + this.systemHeat());
   isGlitchy = computed(() => this.systemStress() > 50 || this.isDistorted() || this.fidelityMode() === 'SAFE');
+  isOverheating = computed(() => this.systemHeat() > 80);
 
   // Synaptic-Shatter UI Chaos (Issue #45)
   isCorrupted = computed(() => this.neuralLoad() > 90);
@@ -339,6 +340,75 @@ export class GameService {
 
   // Neural-Biometric Authentication (Issue #41)
   biometricVerified = signal(false);
+
+  // Synergistic Void-Link (Issue #53)
+  teamProgress = signal<Record<string, {progress: number, action: string, lastSeen: number}>>({});
+
+  // Void-OS Hyper-Workspace (Issue #52)
+  windows = signal<{id: string, title: string, x: number, y: number, w: number, h: number, z: number}[]>([]);
+  activeWindowId = signal<string | null>(null);
+
+  // Void-Echo Fragment Collector (Issue #40)
+  voidEchoes = signal<{id: string, text: string, x: number, y: number, captured: boolean}[]>([]);
+
+  // Omni-Link Cross-Domain Contextual Bridge (Issue #36)
+  heldEntity = signal<{id: string, type: string, data: any} | null>(null);
+  dragEntity(entity: {id: string, type: string, data: any}) {
+    this.heldEntity.set(entity);
+    this.audioService.playClick();
+  }
+  dropEntity(targetType: string, targetId: string): boolean {
+    const entity = this.heldEntity();
+    if (!entity) return false;
+
+    this.log(`<span style="color: var(--neon-cyan)">[BRIDGE] Linking ${entity.type}:${entity.id} to ${targetType}:${targetId}.</span>`);
+    this.heldEntity.set(null);
+    this.audioService.playSuccess();
+
+    // Custom logic for social engineering
+    if (entity.type === 'CONTACT' && targetType === 'NETWORK_NODE') {
+        this.log(`SOCIAL_ENGINEERING: Targeting ${targetId} using ${entity.data.name}'s credentials.`);
+    }
+    return true;
+  }
+
+  captureEcho(id: string) {
+    this.voidEchoes.update(echoes => echoes.map(e => e.id === id ? { ...e, captured: true } : e));
+    this.log('<span style="color: var(--neon-cyan)">[ECHO] Fragment synchronized. Lore decrypted.</span>');
+    this.audioService.playSuccess();
+  }
+  private spawnEcho(id: string, text: string) {
+    this.voidEchoes.update(echoes => [...echoes, { id, text, x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, captured: false }]);
+  }
+
+  openWindow(id: string, title?: string) {
+    this.windows.update(wins => {
+      if (wins.find(w => w.id === id)) return wins;
+      const nextZ = Math.max(0, ...wins.map(w => w.z)) + 1;
+      return [...wins, { 
+        id, title: title || id, 
+        x: 50 + (wins.length * 20), y: 50 + (wins.length * 20), 
+        w: 600, h: 400, z: nextZ 
+      }];
+    });
+    this.focusWindow(id);
+    this.audioService.playClick();
+  }
+
+  focusWindow(id: string) {
+    this.activeWindowId.set(id);
+    this.windows.update(wins => {
+      const maxZ = Math.max(0, ...wins.map(w => w.z));
+      return wins.map(w => w.id === id ? { ...w, z: maxZ + 1 } : w);
+    });
+  }
+
+  closeWindow(id: string) {
+    this.windows.update(wins => wins.filter(w => w.id !== id));
+    if (this.activeWindowId() === id) this.activeWindowId.set(null);
+    this.audioService.playClick();
+  }
+
   async verifyBiometrics() {
     this.log('BIOMETRIC_SCAN: Initializing neural-retinal scan...');
     const shards = await (this as any).neuralService.collectEnvironmentShards();
@@ -558,6 +628,23 @@ export class GameService {
     }, { allowSignalWrites: true });
   }
 
+  private handleTeamSync(data: any) {
+    if (!data.operative || data.operative === this.playerHandle()) return;
+
+    this.teamProgress.update(team => ({
+      ...team,
+      [data.operative]: {
+        progress: data.progress,
+        action: data.action,
+        lastSeen: Date.now()
+      }
+    }));
+
+    if (data.lat && data.lng) {
+      this.triggerVisualEvent(data.lat, data.lng, 'echo', data.operative);
+    }
+  }
+
   private initSocket() {
     const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
     const socketUrl = isProd ? window.location.origin : 'http://localhost:3000';
@@ -690,6 +777,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         // We reuse restoreFullState as it handles mapping from DB-style objects
         // and we ensure local storage is updated too.
         this.restoreFullState(data);
+    });
+
+    this.socket.on('team_sync', (data: any) => {
+        this.handleTeamSync(data);
     });
 
     this.socket.on('media_gallery', (media: any[]) => {
@@ -1489,6 +1580,11 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     // Chronos-Lag Snapshot (Issue #43)
     if (now % 60000 < 1000) {
         this.takeSnapshot();
+    }
+
+    // Void-Echo Spawning (Issue #40)
+    if (Math.random() > 0.995) {
+        this.spawnEcho('FRAGMENT_' + Math.random().toString(36).substring(7), 'ECHO: The Void remembers everything.');
     }
 
     const cloudPower = this.totalCloudBonus();

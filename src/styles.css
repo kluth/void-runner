@@ -80,6 +80,7 @@ body {
   background: var(--layer-1);
   clip-path: var(--clip-notch);
   container-type: inline-size;
+  box-shadow: var(--neon-shadow-pulse, 0 0 10px rgba(0, 255, 159, 0.3));
 }
 
 /* Corner Bracket Accents */
@@ -265,4 +266,50 @@ body::before {
   60% { clip-path: inset(0 0 50% 0); transform: translateX(-10px); }
   61% { clip-path: inset(50% 0 0 0); transform: translateX(10px); }
   100% { transform: translateX(0); }
+}
+
+/* Issue #39: Neural-Load Thermal Throttle */
+.thermal-throttle {
+  filter: blur(1px) contrast(1.1);
+  animation: heat-haze 0.5s infinite alternate;
+}
+
+.thermal-throttle::after {
+  content: "";
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 107, 0, 0.05);
+  z-index: 100003; pointer-events: none;
+  animation: flicker 0.05s infinite;
+}
+
+@keyframes heat-haze {
+  from { transform: skewX(0.5deg) scale(1.001); }
+  to { transform: skewX(-0.5deg) scale(0.999); }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.1; }
+}
+
+/* Issue #46: Physical-Void Convergence Overlays */
+body::before {
+  content: "";
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 100001;
+  background: url('https://www.transparenttextures.com/patterns/frozen-wall.png');
+  opacity: var(--void-frost-intensity, 0);
+  filter: contrast(150%) brightness(1.5);
+}
+
+.game-wrapper {
+  filter: brightness(calc(1 - var(--global-dimming, 0)));
+}
+
+.game-wrapper::after {
+  content: "";
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 100002;
+  backdrop-filter: blur(calc(var(--void-heat-intensity, 0) * 5px));
+  opacity: var(--void-heat-intensity, 0);
 }

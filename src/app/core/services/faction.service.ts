@@ -69,6 +69,9 @@ export class FactionService {
   bounties = signal<Bounty[]>([]);
   playerFactionId = signal<string | null>(null);
   playerReputation = signal<{ [factionId: string]: number }>({});
+  
+  // Factional Influence Matrix (Issue #35)
+  influenceMatrix = signal<{factionId: string, influence: number, targets: string[]}[]>([]);
 
   private npcFactionNames = [
     { name: 'NETWATCH', tag: 'NW', color: '#00E5FF', ideology: 'Corporate order. Network control. Compliance.' },
@@ -88,9 +91,19 @@ export class FactionService {
 
   initialize() {
     this.initFactions();
+    this.initInfluenceMatrix();
     this.generateBounties();
     this.startBountyRotation();
     this.startFactionWarSimulation();
+  }
+
+  private initInfluenceMatrix() {
+    const matrix = this.factions().map(f => ({
+      factionId: f.id,
+      influence: 40 + Math.random() * 40,
+      targets: this.factions().filter(other => other.id !== f.id).slice(0, 2).map(o => o.id)
+    }));
+    this.influenceMatrix.set(matrix);
   }
 
   private initFactions() {

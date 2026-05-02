@@ -2,16 +2,22 @@ import { Component, inject, signal } from '@angular/core';
 import { GameService, Team } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SocialHeatmapComponent } from './social-heatmap.component';
+import { InfluenceMatrixComponent } from './influence-matrix.component';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SocialHeatmapComponent, InfluenceMatrixComponent],
   template: `
     <div class="terminal-container" role="region" aria-label="Syndicate Faction Interface">
       <div class="terminal-frame mb-4">
         <div class="ascii-line">SYNDICATE_NODE // FACTION_ALIGNMENT</div>
       </div>
+
+      <app-influence-matrix />
+      <div class="h-divider"></div>
+      <app-social-heatmap />
       
       @if (!gameService.activeTeam()) {
         <div class="faction-browser">

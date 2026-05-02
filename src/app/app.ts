@@ -31,6 +31,9 @@ import { FakeBluescreenComponent } from './features/system/fake-bluescreen.compo
 import { LockoutOverlayComponent } from './features/system/lockout-overlay.component';
 import { SurveillanceOverlayComponent } from './features/system/surveillance-overlay.component';
 import { HighDensityHudComponent } from './features/system/high-density-hud.component';
+import { WorkspaceComponent } from './features/system/workspace.component';
+import { EchoCollectorComponent } from './features/system/echo-collector.component';
+import { MarginScribeComponent } from './features/system/margin-scribe.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { CommonModule } from '@angular/common';
 
@@ -66,20 +69,25 @@ import { CommonModule } from '@angular/common';
     FakeBluescreenComponent,
     LockoutOverlayComponent,
 SurveillanceOverlayComponent,
-    HighDensityHudComponent,
-  ],
-  template: `
-    <div [style.--singularity-decay]="decayFactor()" 
-         [class.stability-mode]="gameService.settings().general.stability_mode"
-         class="h-full"
-         [class.phase-bootstrap]="onboardAi.phase() === 'BOOTSTRAP'"
-         [class.phase-familiar]="onboardAi.phase() === 'FAMILIAR'"
-         [class.phase-aware]="onboardAi.phase() === 'AWARE'"
-         [class.phase-intrusive]="onboardAi.phase() === 'INTRUSIVE'"
-         [class.phase-hostile]="onboardAi.phase() === 'HOSTILE'">
-         
-      <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>
+HighDensityHudComponent,
+WorkspaceComponent,
+EchoCollectorComponent,
+MarginScribeComponent,
+],
+template: `
+<div [style.--singularity-decay]="decayFactor()" 
+     [class.stability-mode]="gameService.settings().general.stability_mode"
+     class="h-full"
+     [class.phase-bootstrap]="onboardAi.phase() === 'BOOTSTRAP'"
+     [class.phase-familiar]="onboardAi.phase() === 'FAMILIAR'"
+     [class.phase-aware]="onboardAi.phase() === 'AWARE'"
+     [class.phase-intrusive]="onboardAi.phase() === 'INTRUSIVE'"
+     [class.phase-hostile]="onboardAi.phase() === 'HOSTILE'">
 
+  <app-echo-collector />
+  <app-margin-scribe />
+
+  <h1 class="sr-only">VOID_RUN Protocol - Cyber-Terminal Session</h1>
       @if (!gameService.isConfigured()) { <app-config-wizard /> }
       @if (gameService.isBooting()) { <app-boot-screen /> }
       @if (gameService.authRequired()) { <app-auth class="glass-overlay" /> }
@@ -98,9 +106,13 @@ SurveillanceOverlayComponent,
             <!-- High Density HUD -->
       <app-high-density-hud />
 
-      <div class="game-wrapper" 
+      @if (gameService.settings().video.view_mode === 'HYPER') {
+         <app-workspace />
+      } @else {
+         <div class="game-wrapper" 
            [class.distorted]="gameService.settings().video.glitch && gameService.isDistorted()"
            [class.glitch-hud]="gameService.isGlitchy()"
+           [class.thermal-throttle]="gameService.isOverheating()"
            [class.ui-corrupted]="gameService.isCorrupted()"
            [class.trace-high-glitch]="gameService.detectionLevel() > 70">
            
@@ -224,7 +236,8 @@ SurveillanceOverlayComponent,
            </div>
         }
       </div>
-    </div>
+    }
+  </div>
   `,
   styles: `
     .game-wrapper {
