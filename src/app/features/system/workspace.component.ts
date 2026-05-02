@@ -6,11 +6,12 @@ import { TerminalComponent } from '../terminal/terminal.component';
 import { NetworkComponent } from '../network/network.component';
 import { HardwareShopComponent } from '../hardware/hardware-shop.component';
 import { DarknetNodeComponent } from '../social/darknet-node.component';
+import { Web3MiningComponent } from './web3-mining.component';
 
 @Component({
   selector: 'app-workspace',
   standalone: true,
-  imports: [CommonModule, WindowComponent, TerminalComponent, NetworkComponent, HardwareShopComponent, DarknetNodeComponent],
+  imports: [CommonModule, WindowComponent, TerminalComponent, NetworkComponent, HardwareShopComponent, DarknetNodeComponent, Web3MiningComponent],
   template: `
     <div class="workspace-container">
       @for (win of gameService.windows(); track win.id) {
@@ -28,6 +29,9 @@ import { DarknetNodeComponent } from '../social/darknet-node.component';
             @case ('SOCIAL') {
               @defer (on viewport) { <app-darknet-node /> } @placeholder { <div class="loading-app">ACCESSING_DARKNET...</div> }
             }
+            @case ('MINING') {
+              @defer (on viewport) { <app-web3-mining /> } @placeholder { <div class="loading-app">BOOTING_CONSENSUS...</div> }
+            }
           }
         </app-window>
       }
@@ -37,6 +41,7 @@ import { DarknetNodeComponent } from '../social/darknet-node.component';
         <button (click)="gameService.openWindow('GRID', 'GRID_UPLINK')">[G]</button>
         <button (click)="gameService.openWindow('HARDWARE', 'HARDWARE_MGR')">[H]</button>
         <button (click)="gameService.openWindow('SOCIAL', 'DARKNET_NODE')">[S]</button>
+        <button (click)="gameService.openWindow('MINING', 'VOID_MINE')">[M]</button>
       </div>
     </div>
   `,

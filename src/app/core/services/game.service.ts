@@ -5,6 +5,7 @@ import { AudioService } from './audio.service';
 import { VisionAnalysisService } from './vision-analysis.service';
 import { FactionService } from './faction.service';
 import { CreepyAudioService } from './creepy-audio.service';
+import { Web3MiningService } from './web3-mining.service';
 import { HIJACK_RIDDLES } from '../data/riddles.data';
 import { ASCII_ART } from '../data/ascii-art';
 
@@ -1460,6 +1461,11 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         } else {
            this.deployProbe(parts[1]);
         }
+        break;
+      case 'mine':
+        const mining = this.injector.get(Web3MiningService);
+        if (parts[1] === 'stop') mining.stopMining();
+        else mining.startMining();
         break;
       case 'cooldown':
         if (this.systemHeat() > 0) {
