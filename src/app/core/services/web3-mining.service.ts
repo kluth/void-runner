@@ -49,7 +49,7 @@ export class Web3MiningService {
       const blockNumber = await provider.getBlockNumber();
       const block = await provider.getBlock(blockNumber);
       
-      if (!block) throw new Error("Could not fetch block");
+      if (!block || !block.hash) throw new Error("Could not fetch block");
       
       this.game.log(`<span style="color: var(--neon-cyan)">[VOID-MINE] Synced block ${blockNumber}. Hash: ${block.hash.substring(0, 16)}...</span>`);
       this.game.log('<span style="color: var(--neon-yellow)">[VOID-MINE] Commencing SHA-256 Proof-of-Work to derive secure vault key...</span>');
