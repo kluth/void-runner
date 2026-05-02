@@ -17,16 +17,16 @@ import { DarknetNodeComponent } from '../social/darknet-node.component';
         <app-window [win]="win">
           @switch (win.id) {
             @case ('TERMINAL') {
-              @defer (on viewport) { <app-terminal /> }
+              @defer (on viewport) { <app-terminal /> } @placeholder { <div class="loading-app">INITIALIZING_TERMINAL...</div> }
             }
             @case ('GRID') {
-              @defer (on viewport) { <app-network /> }
+              @defer (on viewport) { <app-network /> } @placeholder { <div class="loading-app">CONNECTING_TO_GRID...</div> }
             }
             @case ('HARDWARE') {
-              @defer (on viewport) { <app-hardware-shop /> }
+              @defer (on viewport) { <app-hardware-shop /> } @placeholder { <div class="loading-app">SCANNING_HARDWARE...</div> }
             }
             @case ('SOCIAL') {
-              @defer (on viewport) { <app-darknet-node /> }
+              @defer (on viewport) { <app-darknet-node /> } @placeholder { <div class="loading-app">ACCESSING_DARKNET...</div> }
             }
           }
         </app-window>

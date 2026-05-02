@@ -71,7 +71,7 @@ export interface VisualEvent {
   id: string;
   lat: number;
   lng: number;
-  type: 'pulse' | 'burst' | 'attack' | 'uplink';
+  type: 'pulse' | 'burst' | 'attack' | 'uplink' | 'echo';
   color: string;
   duration: number;
 }
@@ -83,16 +83,16 @@ export interface GameSettings {
     ambient: boolean;
     music_complexity: number;
   };
-  video: {
-    matrix: boolean;
-    glitch: boolean;
-    scanlines: boolean;
-    brightness: number;
-    font_size: number;
-    opacity: number;
-    crt_curvature: boolean;
-    view_mode: 'SINGLE' | 'TABBED';
-  };
+  video: { 
+    matrix: boolean, 
+    glitch: boolean, 
+    scanlines: boolean, 
+    brightness: number, 
+    font_size: number, 
+    opacity: number, 
+    crt_curvature: boolean, 
+    view_mode: 'TABBED' | 'SINGLE' | 'HYPER' 
+  },
   social: {
     notifications: boolean;
     public_profile: boolean;
