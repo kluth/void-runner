@@ -12,6 +12,7 @@ import { MatrixRainComponent } from './features/system/matrix-rain.component';
 import { LiveEventsComponent } from './features/social/live-events.component';
 import { MalwareSandboxComponent } from './features/missions/malware-sandbox.component';
 import { InternalNetworkComponent } from './features/missions/internal-network.component';
+import { IntrusionOverlayComponent } from './features/system/intrusion-overlay.component';
 import { NodeMapperComponent } from './features/network/node-mapper.component';
 import { TopologyMapComponent } from './features/network/topology-map.component';
 import { GhostProbeComponent } from './features/network/ghost-probe.component';
