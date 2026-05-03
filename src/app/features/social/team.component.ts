@@ -2,35 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { GameService, Team } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SocialHeatmapComponent } from './social-heatmap.component';
-import { InfluenceMatrixComponent } from './influence-matrix.component';
-import { SocialExploitComponent } from './social-exploit.component';
-import { PresenceMeshComponent } from './presence-mesh.component';
-import { DarknetPredictorComponent } from './darknet-predictor.component';
-import { GlobalFeedComponent } from './global-feed.component';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, FormsModule, SocialHeatmapComponent, InfluenceMatrixComponent, SocialExploitComponent, PresenceMeshComponent, DarknetPredictorComponent, GlobalFeedComponent],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="terminal-container" role="region" aria-label="Syndicate Faction Interface">
-      <div class="terminal-frame mb-4">
-        <div class="ascii-line">SYNDICATE_NODE // FACTION_ALIGNMENT</div>
-      </div>
-
-      <app-global-feed />
-      <div class="h-divider"></div>
-      <app-darknet-predictor />
-      <div class="h-divider"></div>
-      <app-presence-mesh />
-      <div class="h-divider"></div>
-      <app-social-exploit />
-      <div class="h-divider"></div>
-      <app-influence-matrix />
-      <div class="h-divider"></div>
-      <app-social-heatmap />
-      
       @if (!gameService.activeTeam()) {
         <div class="faction-browser">
           <div class="status-line text-xs opacity-70 mb-4">SCANNING_ACTIVE_CELLS... [OK]</div>
@@ -67,7 +45,6 @@ import { GlobalFeedComponent } from './global-feed.component';
                <button class="text-xs border-tertiary text-tertiary" (click)="leave()">[ DISCONNECT ]</button>
              </div>
           </div>
-
           <div class="terminal-frame flex-grow flex flex-col overflow-hidden min-h-[300px]">
              <div class="ascii-line mb-2">CELL_COMMUNICATIONS</div>
              <div class="comms-log flex-grow overflow-y-auto p-2 flex flex-col gap-2 border-b border-dashed border-primary mb-2" aria-live="polite">
@@ -81,7 +58,7 @@ import { GlobalFeedComponent } from './global-feed.component';
                 <span class="prompt font-bold text-secondary">></span>
                 <input type="text" [(ngModel)]="chatText" 
                        (keyup.enter)="send()" 
-                       placeholder="SIGNAL_BROADCAST..."
+                       placeholder="SIGNAL_BROADCAST"
                        class="flex-grow bg-transparent border-none outline-none text-primary text-sm font-mono">
                 <button (click)="send()" class="text-xs">[ SEND ]</button>
              </div>
@@ -100,7 +77,7 @@ import { GlobalFeedComponent } from './global-feed.component';
     }
 
     .terminal-container {
-      padding: var(--spacing-md);
+      padding: 1rem;
       height: 100%;
       overflow-y: auto;
     }
@@ -109,6 +86,9 @@ import { GlobalFeedComponent } from './global-feed.component';
       opacity: 0.4;
       filter: grayscale(1);
     }
+
+    .comms-log::-webkit-scrollbar { width: 4px; }
+    .comms-log::-webkit-scrollbar-thumb { background: var(--primary); }
   `
 })
 export class TeamComponent {
