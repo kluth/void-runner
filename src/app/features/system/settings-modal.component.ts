@@ -60,6 +60,17 @@ import { FactionService } from '../../core/services/faction.service';
               }
             </div>
           </section>
+
+          <!-- BETA FEATURES -->
+          <section class="settings-sec">
+            <div class="sec-header">BETA_NEURAL_UPLINK</div>
+            <div class="sec-body">
+              <button class="w-full" [class.active]="gameService.settings().beta.ai_insights"
+                      (click)="toggleAiInsights()">
+                 [ AMBIENT_AI_INSIGHTS: {{ gameService.settings().beta.ai_insights ? 'ENABLED' : 'DISABLED' }} ]
+              </button>
+            </div>
+          </section>
         </div>
 
         <button class="magenta w-full mt-4" (click)="close()">[ DISCONNECT_INTERFACE ]</button>
@@ -128,5 +139,10 @@ export class SettingsModalComponent {
 
   setDensity(d: string) {
     this.gameService.updateSetting('video.hud_density', d);
+  }
+
+  toggleAiInsights() {
+    const current = this.gameService.settings().beta.ai_insights;
+    this.gameService.updateSetting('beta.ai_insights', (!current).toString());
   }
 }

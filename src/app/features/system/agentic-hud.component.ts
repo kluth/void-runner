@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OnboardAiService } from '../../core/services/onboard-ai.service';
 import { GameService } from '../../core/services/game.service';
@@ -8,9 +8,12 @@ import { GameService } from '../../core/services/game.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="agentic-overlay" *ngIf="ai.agenticInsights().length > 0">
+    <div class="agentic-overlay" *ngIf="visible() && ai.agenticInsights().length > 0 && game.settings().beta.ai_insights">
       <div class="glass-container" [style.backdrop-filter]="getBlur()">
-        <div class="ascii-line cyan">AMBIENT_AI_INSIGHTS</div>
+        <div class="hud-header">
+          <div class="ascii-line cyan">AMBIENT_AI_INSIGHTS</div>
+          <button class="close-btn" (click)="close()">[X]</button>
+        </div>
         
         <div class="insights-list">
           @for (insight of ai.agenticInsights(); track insight.id) {
@@ -33,8 +36,17 @@ import { GameService } from '../../core/services/game.service';
       border: 1px solid rgba(0, 229, 255, 0.2);
       padding: 12px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+      pointer-events: auto;
     }
-    .insights-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .hud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .close-btn { 
+      background: transparent; border: none; color: var(--primary); 
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; cursor: pointer;
+      padding: 0 4px;
+    }
+    .close-btn:hover { color: var(--neon-magenta); }
+
+    .insights-list { display: flex; flex-direction: column; gap: 8px; }
     .insight-item {
       display: flex; gap: 8px; align-items: baseline;
       font-size: 0.65rem; border-left: 2px solid; padding-left: 6px;
@@ -60,10 +72,15 @@ import { GameService } from '../../core/services/game.service';
 export class AgenticHudComponent {
   ai = inject(OnboardAiService);
   game = inject(GameService);
+  visible = signal(true);
 
   getBlur() {
     const stress = this.game.systemStress();
     const blur = Math.floor(stress / 10);
     return `blur(${blur}px)`;
+  }
+
+  close() {
+    this.visible.set(false);
   }
 }

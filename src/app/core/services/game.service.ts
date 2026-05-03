@@ -91,6 +91,7 @@ export interface GameSettings {
     high_res_globe: boolean;
     experimental_shaders: boolean;
     experimental_pwa: boolean;
+    ai_insights: boolean;
   };
   general: {
     auto_wipe: boolean;
@@ -210,7 +211,7 @@ export class GameService {
     audio: { volume: 50, speech: true, ambient: true, music_complexity: 50 },
     video: { matrix: true, glitch: true, scanlines: true, brightness: 100, font_size: 14, opacity: 90, crt_curvature: true, view_mode: 'TABBED', hud_density: 'AUTO', event_horizon: false },
     social: { notifications: true, public_profile: true, incognito: false, broadcast_location: false, status: 'ONLINE' },
-    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false },
+    beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false, ai_insights: true },
     general: { auto_wipe: false, auto_analysis: false, theme: 'OMEGA', language: 'EN', tutorial_completed: false, wake_lock: false, stability_mode: false },
     control: { autocomplete: true, scroll_speed: 100, vibe_intensity: 100 },
     streamer: { enabled: false, platform: 'TWITCH' }
@@ -1106,6 +1107,7 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         if (key === 'high_res_globe') s.beta.high_res_globe = boolVal;
         if (key === 'experimental_shaders') s.beta.experimental_shaders = boolVal;
         if (key === 'experimental_pwa') s.beta.experimental_pwa = boolVal;
+        if (key === 'ai_insights') s.beta.ai_insights = boolVal;
     } else if (category === 'general') {
         if (key === 'auto_wipe') s.general.auto_wipe = boolVal;
         if (key === 'auto_analysis') s.general.auto_analysis = boolVal;
