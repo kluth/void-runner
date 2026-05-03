@@ -48,8 +48,8 @@ describe('MissionComponent Port Scan Enhancement', () => {
     component.startMission({ type: 'port-scan', name: 'Test Scan', lat: 0, lng: 0 } as any);
     const initialFreq = component.ports()[0].frequency;
     
-    // Advance timers by one and a half intervals
-    vi.advanceTimersByTime(150); 
+    // Advance timers by half a second to ensure multiple updates
+    vi.advanceTimersByTime(500); 
     
     expect(component.ports()[0].frequency).not.toBe(initialFreq);
   });

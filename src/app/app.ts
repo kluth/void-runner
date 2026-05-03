@@ -12,9 +12,20 @@ import { MatrixRainComponent } from './features/system/matrix-rain.component';
 import { LiveEventsComponent } from './features/social/live-events.component';
 import { MalwareSandboxComponent } from './features/missions/malware-sandbox.component';
 import { InternalNetworkComponent } from './features/missions/internal-network.component';
-import { IntrusionOverlayComponent } from './features/system/intrusion-overlay.component';
+import { NodeMapperComponent } from './features/network/node-mapper.component';
+import { TopologyMapComponent } from './features/network/topology-map.component';
+import { GhostProbeComponent } from './features/network/ghost-probe.component';
+import { DataStreamComponent } from './features/network/data-stream.component';
+import { GlobalFeedComponent } from './features/social/global-feed.component';
+import { DarknetPredictorComponent } from './features/social/darknet-predictor.component';
+import { PresenceMeshComponent } from './features/social/presence-mesh.component';
+import { SocialExploitComponent } from './features/social/social-exploit.component';
+import { InfluenceMatrixComponent } from './features/social/influence-matrix.component';
+import { SocialHeatmapComponent } from './features/social/social-heatmap.component';
 import { TeamComponent } from './features/social/team.component';
 import { DarknetNodeComponent } from './features/social/darknet-node.component';
+import { SkillTreeComponent } from './features/system/skill-tree.component';
+import { Web3MiningComponent } from './features/system/web3-mining.component';
 import { SystemIntegrityComponent } from './features/system/system-integrity.component';
 import { HijackOverlayComponent } from './features/terminal/hijack-overlay.component';
 import { CalibrationOverlayComponent } from './features/system/calibration-overlay.component';
@@ -58,6 +69,18 @@ import { CommonModule } from '@angular/common';
     IntrusionOverlayComponent,
     TeamComponent,
     DarknetNodeComponent,
+    NodeMapperComponent,
+    TopologyMapComponent,
+    GhostProbeComponent,
+    DataStreamComponent,
+    GlobalFeedComponent,
+    DarknetPredictorComponent,
+    PresenceMeshComponent,
+    SocialExploitComponent,
+    InfluenceMatrixComponent,
+    SocialHeatmapComponent,
+    SkillTreeComponent,
+    Web3MiningComponent,
     SystemIntegrityComponent,
     HijackOverlayComponent,
     CalibrationOverlayComponent,
@@ -116,8 +139,8 @@ PulseDiagnosticsComponent,
       <app-lockout-overlay />
       <app-surveillance-overlay />
 
-      <!-- High Density HUD -->
-      <app-high-density-hud />
+      <!-- High Density HUD (Positioned below header) -->
+      <app-high-density-hud style="top: 44px;" />
 
       <div class="main-layout" [class.hyper-mode]="gameService.settings().video.view_mode === 'HYPER'">
         <!-- GLOBAL TOP HEADER (Stats & Status) -->
@@ -182,36 +205,107 @@ PulseDiagnosticsComponent,
                     <div class="buffer-content">
                        @switch (gameService.activeTab()) {
                           @case ('TERMINAL') { <app-terminal /> }
-                          @case ('HARDWARE') { 
-                             <div class="hub-layout">
-                                <app-hardware-shop />
-                                <div class="h-divider"></div>
-                                <app-overclock-station />
-                             </div>
-                          }
+                          
                           @case ('GRID') {
                              <div class="hub-layout">
-                                <div class="holographic-preview terminal-frame" (click)="toggleGlobeModal()">
-                                   <div class="ascii-line cyan">HOLOGRAPHIC_GRID_UPLINK</div>
-                                   <app-globe />
+                                <div class="hub-nav">
+                                   <button (click)="subTab = 'uplink'" [class.active]="subTab === 'uplink'">[ UPLINK ]</button>
+                                   <button (click)="subTab = 'nodes'" [class.active]="subTab === 'nodes'">[ NODES ]</button>
+                                   <button (click)="subTab = 'botnet'" [class.active]="subTab === 'botnet'">[ BOTNET ]</button>
+                                   <button (click)="subTab = 'probes'" [class.active]="subTab === 'probes'">[ PROBES ]</button>
                                 </div>
-                                <app-network />
+                                
+                                <div class="hub-view">
+                                   @if (subTab === 'uplink') {
+                                      <div class="holographic-preview terminal-frame" (click)="toggleGlobeModal()">
+                                         <div class="ascii-line cyan">HOLOGRAPHIC_GRID_UPLINK</div>
+                                         <app-globe />
+                                      </div>
+                                   }
+                                   @if (subTab === 'nodes') {
+                                      <app-node-mapper />
+                                      <div class="h-divider"></div>
+                                      <app-topology-map />
+                                   }
+                                   @if (subTab === 'botnet') { <app-network /> }
+                                   @if (subTab === 'probes') {
+                                      <app-ghost-probe />
+                                      <div class="h-divider"></div>
+                                      <app-data-stream />
+                                   }
+                                </div>
                              </div>
                           }
-                          @case ('SOCIAL') {
-                             <div class="hub-layout">
-                                <app-darknet-node />
-                                <div class="h-divider"></div>
-                                <app-teams />
-                             </div>
-                          }
+
                           @case ('MISSIONS') { 
                              <div class="hub-layout">
-                                <app-missions />
-                                <div class="h-divider"></div>
-                                <app-bounty-board />
-                                <div class="h-divider"></div>
-                                <app-threat-database />
+                                <div class="hub-nav">
+                                   <button (click)="subTab = 'active'" [class.active]="subTab === 'active'">[ ACTIVE ]</button>
+                                   <button (click)="subTab = 'bounties'" [class.active]="subTab === 'bounties'">[ BOUNTIES ]</button>
+                                   <button (click)="subTab = 'threats'" [class.active]="subTab === 'threats'">[ THREATS ]</button>
+                                   <button (click)="subTab = 'sandbox'" [class.active]="subTab === 'sandbox'">[ SANDBOX ]</button>
+                                   <button (click)="subTab = 'pivot'" [class.active]="subTab === 'pivot'">[ PIVOT ]</button>
+                                </div>
+                                
+                                <div class="hub-view">
+                                   @if (subTab === 'active') { <app-missions /> }
+                                   @if (subTab === 'bounties') { <app-bounty-board /> }
+                                   @if (subTab === 'threats') { <app-threat-database /> }
+                                   @if (subTab === 'sandbox') { <app-malware-sandbox /> }
+                                   @if (subTab === 'pivot') { <app-internal-network /> }
+                                </div>
+                             </div>
+                          }
+
+                          @case ('SOCIAL') {
+                             <div class="hub-layout">
+                                <div class="hub-nav">
+                                   <button (click)="subTab = 'teams'" [class.active]="subTab === 'teams'">[ TEAMS ]</button>
+                                   <button (click)="subTab = 'darknet'" [class.active]="subTab === 'darknet'">[ DARKNET ]</button>
+                                   <button (click)="subTab = 'exploit'" [class.active]="subTab === 'exploit'">[ EXPLOIT ]</button>
+                                   <button (click)="subTab = 'matrix'" [class.active]="subTab === 'matrix'">[ MATRIX ]</button>
+                                   <button (click)="subTab = 'mesh'" [class.active]="subTab === 'mesh'">[ MESH ]</button>
+                                </div>
+                                
+                                <div class="hub-view">
+                                   @if (subTab === 'teams') { <app-teams /> }
+                                   @if (subTab === 'darknet') { <app-darknet-node /> }
+                                   @if (subTab === 'exploit') { <app-social-exploit /> }
+                                   @if (subTab === 'matrix') { <app-influence-matrix /> }
+                                   @if (subTab === 'mesh') { <app-presence-mesh /> }
+                                </div>
+                             </div>
+                          }
+
+                          @case ('HARDWARE') { 
+                             <div class="hub-layout">
+                                <div class="hub-nav">
+                                   <button (click)="subTab = 'market'" [class.active]="subTab === 'market'">[ MARKET ]</button>
+                                   <button (click)="subTab = 'overclock'" [class.active]="subTab === 'overclock'">[ OVERCLOCK ]</button>
+                                   <button (click)="subTab = 'vault'" [class.active]="subTab === 'vault'">[ VAULT ]</button>
+                                </div>
+                                
+                                <div class="hub-view">
+                                   @if (subTab === 'market') { <app-hardware-shop /> }
+                                   @if (subTab === 'overclock') { <app-overclock-station /> }
+                                   @if (subTab === 'vault') { <app-asset-vault /> }
+                                </div>
+                             </div>
+                          }
+
+                          @case ('SYSTEM') {
+                             <div class="hub-layout">
+                                <div class="hub-nav">
+                                   <button (click)="subTab = 'integrity'" [class.active]="subTab === 'integrity'">[ INTEGRITY ]</button>
+                                   <button (click)="subTab = 'skills'" [class.active]="subTab === 'skills'">[ SKILLS ]</button>
+                                   <button (click)="subTab = 'mining'" [class.active]="subTab === 'mining'">[ VOID_MINE ]</button>
+                                </div>
+                                
+                                <div class="hub-view">
+                                   @if (subTab === 'integrity') { <app-system-integrity /> }
+                                   @if (subTab === 'skills') { <app-skill-tree /> }
+                                   @if (subTab === 'mining') { <app-web3-mining /> }
+                                </div>
                              </div>
                           }
                        }
@@ -238,9 +332,9 @@ PulseDiagnosticsComponent,
         <!-- GLOBAL BOTTOM DOCK (Navigation) -->
         <nav class="global-dock" *ngIf="gameService.settings().video.view_mode !== 'HYPER'">
           <div class="dock-inner">
-            @for (tab of ['TERMINAL', 'GRID', 'MISSIONS', 'SOCIAL', 'HARDWARE']; track tab; let i = $index) {
+            @for (tab of ['TERMINAL', 'GRID', 'MISSIONS', 'SOCIAL', 'HARDWARE', 'SYSTEM']; track tab; let i = $index) {
               <button class="dock-btn" 
-                      [class.active]="gameService.activeTab() === (tab === 'MISSIONS' ? 'MISSIONS' : tab)"
+                      [class.active]="gameService.activeTab() === tab"
                       (click)="gameService.clearTabNotification(tab)">
                 <span class="d-idx">{{ i }}</span>
                 <span class="d-label">{{ tab === 'MISSIONS' ? 'OPERATIONS' : tab }}</span>
@@ -352,8 +446,31 @@ PulseDiagnosticsComponent,
     .hub-layout {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
-      padding: 2rem;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      height: 100%;
+    }
+
+    .hub-nav {
+      display: flex;
+      gap: 8px;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0, 255, 159, 0.1);
+      flex-wrap: wrap;
+    }
+    .hub-nav button {
+      padding: 6px 12px;
+      font-size: 0.65rem;
+      border-color: rgba(0, 255, 159, 0.2);
+      color: rgba(0, 255, 159, 0.6);
+    }
+    .hub-nav button:hover { border-color: var(--primary); color: var(--primary); }
+    .hub-nav button.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 0 10px var(--primary); }
+
+    .hub-view {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
     }
 
     .module-manifest { padding: 1rem; }
@@ -434,9 +551,10 @@ export class AppComponent implements OnInit {
   gameService = inject(GameService);
   audioService = inject(AudioService);
   streamerService = inject(StreamerIntegrationService);
-onboardAi = inject(OnboardAiService);
+  onboardAi = inject(OnboardAiService);
   private route = inject(ActivatedRoute);
 
+  subTab: string = 'active';
   globeModalOpen = signal(false);
   mobileTelemetryOpen = signal(false);
 

@@ -23,9 +23,9 @@ import { GlobalFeedComponent } from './global-feed.component';
       <div class="h-divider"></div>
       <app-darknet-predictor />
       <div class="h-divider"></div>
-...
+      <app-presence-mesh />
       <div class="h-divider"></div>
-...
+      <app-social-exploit />
       <div class="h-divider"></div>
       <app-influence-matrix />
       <div class="h-divider"></div>

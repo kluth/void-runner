@@ -21,8 +21,8 @@ import { GameService } from '../../core/services/game.service';
   `,
   styles: `
     .pulse-overlay {
-      position: fixed; bottom: 80px; right: 20px;
-      width: 250px; max-width: calc(100vw - 40px); z-index: 4000; pointer-events: none;
+      position: fixed; top: 100px; right: 20px;
+      width: 250px; max-width: calc(100vw - 40px); z-index: 1500; pointer-events: none;
       animation: pulse-entry 0.3s ease-out;
     }
     .diagnostic-box {

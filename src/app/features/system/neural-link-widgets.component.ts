@@ -20,13 +20,26 @@ import { GameService } from '../../core/services/game.service';
   `,
   styles: `
     .widgets-container {
-      position: fixed; top: 50%; right: 180px; transform: translateY(-50%);
-      display: flex; flex-direction: column; gap: 15px; z-index: 500; pointer-events: none;
+      position: fixed; top: 50%; right: 340px; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 15px; z-index: 1500; pointer-events: none;
+      transition: right 0.3s ease;
     }
+    @media (max-width: 1300px) {
+      .widgets-container { right: 20px; }
+    }
+    @media (max-width: 850px) {
+      .widgets-container { top: 90px; right: 10px; transform: none; flex-direction: row; flex-wrap: wrap; }
+      @keyframes float-in {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    }
+
     .floating-widget {
       width: 150px; padding: 8px; background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(5px); pointer-events: auto; cursor: pointer;
       animation: float-in 0.5s ease-out;
+      border: 1px solid var(--primary);
     }
     .widget-action {
       font-size: 0.7rem; color: var(--neon-cyan); text-align: center; margin-top: 5px;
@@ -37,16 +50,6 @@ import { GameService } from '../../core/services/game.service';
     @keyframes float-in {
       from { transform: translateX(50px); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
-    }
-    @media (max-width: 1300px) {
-      .widgets-container { right: 20px; }
-    }
-    @media (max-width: 850px) {
-      .widgets-container { top: 70px; right: 10px; transform: none; flex-direction: row; flex-wrap: wrap; }
-      @keyframes float-in {
-        from { transform: translateY(-20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
     }
   `
 })
