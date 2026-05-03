@@ -235,6 +235,7 @@ export class GameService {
   });
 
   activeTab = signal('TERMINAL');
+  settingsModalOpen = signal(false);
 
   visualEvents = signal<VisualEvent[]>([]);
 

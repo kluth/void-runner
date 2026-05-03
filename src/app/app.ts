@@ -110,7 +110,7 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="header-right">
-           <button class="sys-btn" (click)="toggleMobileTelemetry()">[ SYSTEM ]</button>
+           <button class="sys-btn" (click)="gameService.settingsModalOpen.set(true)">[ SYSTEM ]</button>
         </div>
       </header>
 
@@ -153,7 +153,7 @@ import { CommonModule } from '@angular/common';
       </nav>
 
       <!-- SYSTEM SETTINGS OVERLAY -->
-      @if (mobileTelemetryOpen()) {
+      @if (gameService.settingsModalOpen()) {
          <app-settings-modal />
       }
     </div>
@@ -270,7 +270,6 @@ export class AppComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   globeModalOpen = signal(false);
-  mobileTelemetryOpen = signal(false);
 
   decayFactor = computed(() => {
      const rep = this.gameService.reputation();
@@ -289,11 +288,6 @@ export class AppComponent implements OnInit {
 
   toggleGlobeModal() {
      this.globeModalOpen.update(v => !v);
-     this.audioService.playClick();
-  }
-
-  toggleMobileTelemetry() {
-     this.mobileTelemetryOpen.update(v => !v);
      this.audioService.playClick();
   }
 }

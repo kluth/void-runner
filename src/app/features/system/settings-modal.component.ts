@@ -102,7 +102,7 @@ export class SettingsModalComponent {
   factionService = inject(FactionService);
 
   close() {
-    this.gameService.mobileTelemetryOpen.set(false);
+    this.gameService.settingsModalOpen.set(false);
   }
 
   linkSocial(platform: string) {
