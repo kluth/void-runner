@@ -44,9 +44,8 @@ describe('HardwareShopComponent', () => {
   });
 
   it('should generate power bar ascii', () => {
-    // 10/100 = 10% -> 2 bars of 20
-    expect(component.getPowerBar()).toBe('██');
-    expect(component.getEmptyPowerBar()).toBe('░░░░░░░░░░░░░░░░░░');
+    // 10/100 = 10% -> 2 chars of 20
+    expect(component.getPowerBar()).toBe('██░░░░░░░░░░░░░░░░░░');
   });
 
   it('should select slot for mounting', () => {

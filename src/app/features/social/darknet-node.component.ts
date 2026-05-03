@@ -8,20 +8,18 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    @if (gameService.hasDarknetAccess()) {
-      <div class="terminal-frame h-full flex flex-col overflow-hidden">
-        <div class="ascii-line mb-2">SECURE_NODE // GLOBAL_DARKNET</div>
-        
+    <div class="darknet-container h-full flex flex-col overflow-hidden">
+      @if (gameService.hasDarknetAccess()) {
         <div class="t-mid">
           <div class="t-sidebar">
             <div class="t-tab" [class.active]="activeTab === 'global'" (click)="activeTab = 'global'">
-              [01] GLOBAL
+              [01] GLOBAL_FEED
             </div>
             <div class="t-tab" [class.active]="activeTab === 'teams'" (click)="activeTab = 'teams'">
-              [02] SYNDIC
+              [02] SYNDICATE_MGR
             </div>
             <div class="t-tab" [class.active]="activeTab === 'dms'" (click)="activeTab = 'dms'">
-              [03] SECURE
+              [03] SECURE_DMS
             </div>
           </div>
 
@@ -29,7 +27,7 @@ import { FormsModule } from '@angular/forms';
             @if (activeTab === 'global') {
               <div class="t-view">
                 <div class="ascii-line mb-2 text-xs">CHANNEL: #GLOBAL_RECON</div>
-                <div class="t-log" #globalScroll>
+                <div class="t-log">
                   @for (msg of gameService.teamMessages(); track $index) {
                     <div class="t-msg">
                       <span class="t-sender">[{{ msg.sender }}]</span>: {{ msg.text }}
@@ -38,10 +36,7 @@ import { FormsModule } from '@angular/forms';
                 </div>
                 <div class="t-input-area">
                   <span class="t-prompt">PROMPT></span>
-                  <input type="text" [(ngModel)]="globalText" 
-                         (keyup.enter)="sendGlobal()" 
-                         placeholder="broadcast_msg..."
-                         class="t-input">
+                  <input type="text" [(ngModel)]="globalText" (keyup.enter)="sendGlobal()" placeholder="broadcast_msg..." class="t-input">
                   <button (click)="sendGlobal()" class="t-btn">[ SEND ]</button>
                 </div>
               </div>
@@ -65,9 +60,7 @@ import { FormsModule } from '@angular/forms';
                       <div class="t-node">
                         <span class="t-node-name">[{{ team.name }}]</span>
                         <span class="t-node-count">{{ team._count?.members || 0 }} OPS</span>
-                        <button class="t-btn-small" 
-                                [disabled]="gameService.activeTeam()?.id === team.id" 
-                                (click)="joinTeam(team.id)">
+                        <button class="t-btn-small" [disabled]="gameService.activeTeam()?.id === team.id" (click)="joinTeam(team.id)">
                           {{ gameService.activeTeam()?.id === team.id ? '[CONNECTED]' : '[ JOIN ]' }}
                         </button>
                       </div>
@@ -91,8 +84,8 @@ import { FormsModule } from '@angular/forms';
                 </div>
 
                 @if (selectedOp) {
-                  <div class="ascii-line my-2">SECURE_TUNNEL // {{ selectedOp.name }}</div>
                   <div class="t-dm-session">
+                    <div class="ascii-line my-2">SECURE_TUNNEL // {{ selectedOp.name }}</div>
                     <div class="t-log">
                       @for (msg of getDmsWithOp(); track $index) {
                         <div class="t-msg" [class.sent]="msg.senderId === 'ME'">
@@ -102,10 +95,7 @@ import { FormsModule } from '@angular/forms';
                     </div>
                     <div class="t-input-area">
                       <span class="t-prompt">SEND></span>
-                      <input type="text" [(ngModel)]="dmText" 
-                             (keyup.enter)="sendDm()" 
-                             placeholder="encrypted_payload..."
-                             class="t-input">
+                      <input type="text" [(ngModel)]="dmText" (keyup.enter)="sendDm()" placeholder="encrypted_payload..." class="t-input">
                       <button (click)="sendDm()" class="t-btn">[ SEND ]</button>
                     </div>
                   </div>
@@ -114,210 +104,43 @@ import { FormsModule } from '@angular/forms';
             }
           </div>
         </div>
-      </div>
-    } @else {
-      <div class="t-locked flex items-center justify-center h-full">
-         <div class="terminal-frame max-w-md w-full text-center p-8">
-           <div class="ascii-line mb-4">ACCESS_DENIED</div>
-           <div class="my-4 text-tertiary font-bold tracking-widest">ENCRYPTED_COMMS_MODULE: OFFLINE</div>
-           <div class="text-sm opacity-60">REQUIREMENT: 1000 REPUTATION</div>
-           <div class="ascii-line mt-6"></div>
-         </div>
-      </div>
-    }
+      } @else {
+        <div class="t-locked flex items-center justify-center h-full">
+           <div class="terminal-frame max-w-md w-full text-center p-8">
+             <div class="ascii-line mb-4">ACCESS_DENIED</div>
+             <div class="my-4 text-tertiary font-bold tracking-widest">ENCRYPTED_COMMS_MODULE: OFFLINE</div>
+             <div class="text-sm opacity-60">REQUIREMENT: 1000 REPUTATION</div>
+             <div class="ascii-line mt-6"></div>
+           </div>
+        </div>
+      }
+    </div>
   `,
   styles: `
-    :host {
-      display: block;
-      height: 100%;
-      background: #000;
-      color: var(--primary);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .t-mid {
-      display: flex;
-      flex-grow: 1;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .t-sidebar {
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      border-right: 1px solid var(--primary);
-      padding-right: 10px;
-    }
-
-    .t-tab {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-bottom: 4px;
-      border: 1px transparent solid;
-    }
-
-    .t-tab.active {
-      background: var(--primary);
-      color: #000;
-      font-weight: bold;
-    }
-
-    .t-main {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding-left: 15px;
-    }
-
-    .t-view {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .t-log {
-      flex-grow: 1;
-      padding: 10px 0;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column-reverse;
-      gap: 4px;
-    }
-
-    .t-msg {
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .t-msg.sent {
-      color: var(--primary-bright);
-    }
-
-    .t-sender {
-      font-weight: bold;
-      color: var(--secondary);
-    }
-
-    .t-input-area {
-      display: flex;
-      align-items: center;
-      padding: 8px 0;
-      border-top: 1px dashed var(--primary);
-    }
-
-    .t-prompt {
-      margin-right: 10px;
-      font-weight: bold;
-      color: var(--secondary);
-    }
-
-    .t-input {
-      flex-grow: 1;
-      background: transparent !important;
-      border: none !important;
-      color: var(--primary) !important;
-      font-family: 'JetBrains Mono', monospace !important;
-      outline: none !important;
-      padding: 0 !important;
-    }
-
-    .t-btn {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      cursor: pointer;
-      font-weight: bold;
-      padding: 4px 12px;
-      margin-left: 10px;
-    }
-
-    .t-btn:hover {
-      background: var(--primary);
-      color: #000;
-    }
-
-    .t-scroll {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding-right: 10px;
-    }
-
-    .t-section {
-      margin-bottom: 20px;
-    }
-
-    .t-label {
-      font-weight: bold;
-      margin-bottom: 10px;
-      display: block;
-      color: var(--secondary);
-    }
-
-    .t-grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .t-node {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px dashed var(--primary);
-      padding: 10px;
-    }
-
-    .t-btn-small {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      font-size: 11px;
-      cursor: pointer;
-      padding: 2px 8px;
-    }
-
-    .t-btn-small:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .t-ops-bar {
-      padding: 10px 0;
-      border-bottom: 1px dashed var(--primary);
-      margin-bottom: 10px;
-    }
-
-    .t-ops-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 5px;
-    }
-
-    .t-op-btn {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      padding: 2px 8px;
-    }
-
-    .t-op-btn:hover {
-      background: var(--primary);
-      color: #000;
-    }
-
-    .t-dm-session {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      overflow: hidden;
-    }
+    :host { display: block; height: 100%; background: #000; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+    .darknet-container { padding: 10px; height: 100%; }
+    .t-mid { display: flex; flex-grow: 1; overflow: hidden; height: 100%; }
+    .t-sidebar { display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--primary); padding-right: 10px; width: 140px; }
+    .t-tab { padding: 8px; cursor: pointer; font-size: 10px; border: 1px transparent solid; margin-bottom: 5px; opacity: 0.6; }
+    .t-tab.active { background: var(--primary); color: #000; opacity: 1; font-weight: bold; }
+    .t-main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; padding-left: 15px; }
+    .t-view { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    .t-log { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 4px; padding: 10px 0; }
+    .t-msg { font-size: 0.7rem; line-height: 1.4; }
+    .t-sender { font-weight: bold; color: var(--secondary); }
+    .t-input-area { display: flex; align-items: center; padding: 10px 0; border-top: 1px dashed var(--primary); }
+    .t-input { flex-grow: 1; background: transparent; border: none; color: var(--primary); outline: none; font-size: 0.75rem; }
+    .t-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 4px 10px; font-size: 0.7rem; cursor: pointer; }
+    .t-scroll { flex-grow: 1; overflow-y: auto; }
+    .t-grid { display: grid; gap: 10px; margin-top: 10px; }
+    .t-node { display: flex; justify-content: space-between; align-items: center; border: 1px dashed var(--primary); padding: 8px; font-size: 0.7rem; }
+    .t-ops-bar { padding: 10px 0; border-bottom: 1px dashed var(--primary); margin-bottom: 10px; }
+    .t-ops-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .t-op-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 0.65rem; padding: 2px 6px; cursor: pointer; }
+    .t-dm-session { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
+    
+    .t-log::-webkit-scrollbar { width: 4px; }
+    .t-log::-webkit-scrollbar-thumb { background: var(--primary); }
   `
 })
 export class DarknetNodeComponent {
@@ -334,34 +157,22 @@ export class DarknetNodeComponent {
       this.globalText = '';
     }
   }
-
   createTeam() {
     if (this.newTeamName.trim()) {
       this.gameService.createTeam(this.newTeamName, 'Operative cell.');
       this.newTeamName = '';
     }
   }
-
-  joinTeam(id: string) {
-    this.gameService.joinTeam(id);
-  }
-
-  selectOp(op: any) {
-    this.selectedOp = op;
-    this.activeTab = 'dms';
-  }
-
+  joinTeam(id: string) { this.gameService.joinTeam(id); }
+  selectOp(op: any) { this.selectedOp = op; this.activeTab = 'dms'; }
   sendDm() {
     if (this.selectedOp && this.dmText.trim()) {
       this.gameService.sendPrivateMessage(this.selectedOp.id, this.dmText);
       this.dmText = '';
     }
   }
-
   getDmsWithOp() {
     if (!this.selectedOp) return [];
-    return this.gameService.privateMessages().filter(m => 
-      m.senderId === this.selectedOp.id || m.senderId === 'ME'
-    );
+    return this.gameService.privateMessages().filter(m => m.senderId === this.selectedOp.id || m.senderId === 'ME');
   }
 }

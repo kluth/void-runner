@@ -15,6 +15,7 @@ describe('MissionComponent Port Scan Enhancement', () => {
       log: vi.fn(),
       triggerVisualEvent: vi.fn(),
       completeMission: vi.fn(),
+      failMission: vi.fn(),
       increaseDetection: vi.fn(),
       detectionLevel: signal(0),
       blueTeamActive: signal(false)

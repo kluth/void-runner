@@ -187,13 +187,11 @@ import { FormsModule } from '@angular/forms';
     }
 
     .terminal-body { 
-      flex-grow: 1; 
+      flex: 1;
       padding: 10px 15px; 
       overflow-y: auto;
-      max-height: 60vh;
-      min-height: 200px;
+      min-height: 0;
       position: relative;
-      flex: 1; 
       display: flex; 
       flex-direction: column; 
     }

@@ -7,151 +7,57 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="terminal-window">
-      <div class="ascii-line header">DARKNET_EXCHANGE // BOUNTY_BOARD</div>
+    <div class="bounty-container">
+      <div class="ascii-line header">BOUNTY_EXCHANGE // HIGH_VALUE_TARGETS</div>
       
       <div class="bounty-list">
-        @for (bounty of bounties(); track bounty.id) {
-          <div class="terminal-frame bounty-card">
-            <div class="bounty-content">
-              <div class="b-main">
-                <div class="b-target">> TARGET: {{ bounty.target }}</div>
-                <div class="b-meta">
-                  <span>TYPE: {{ bounty.type }}</span>
-                  <span>ISSUER: {{ bounty.issuer }}</span>
-                </div>
-              </div>
-              <div class="b-stats">
-                <div class="b-reward">REWARD: {{ bounty.reward }}cr</div>
-                <div class="b-diff" [class]="bounty.difficulty.toLowerCase()">DIFF: [{{ bounty.difficulty }}]</div>
-                <div class="b-timer">TTL: {{ bounty.expiresIn }}</div>
-              </div>
-              <button class="accept-btn" (click)="acceptBounty(bounty)">[ ACCEPT_CONTRACT ]</button>
+        @for (bounty of gameService.availableBounties(); track bounty.id) {
+          <div class="terminal-frame bounty-card" [class.claimed]="bounty.status === 'CLAIMED'">
+            <div class="b-top">
+              <span class="b-target">{{ bounty.target }}</span>
+              <span class="b-reward">{{ bounty.reward }} CR</span>
+            </div>
+            <div class="b-mid">
+              <span class="b-diff" [class]="bounty.difficulty.toLowerCase()">LEVEL: {{ bounty.difficulty }}</span>
+              <span class="b-type">{{ bounty.type }}</span>
+            </div>
+            <div class="b-footer">
+              <span class="b-issuer">ISSUER: {{ bounty.issuer }}</span>
+              <button [disabled]="bounty.status === 'CLAIMED'" (click)="acceptBounty(bounty)">
+                {{ bounty.status === 'CLAIMED' ? '[ CLAIMED ]' : '[ ACCEPT_CONTRACT ]' }}
+              </button>
             </div>
           </div>
         }
+        @if (gameService.availableBounties().length === 0) {
+          <div class="empty-msg">SCANNING_ENCRYPTED_NETWORKS... [NO_CONTRACTS_FOUND]</div>
+        }
       </div>
-      <div class="ascii-line footer" dir="rtl">PROTOCOL_v5.0.2</div>
     </div>
   `,
   styles: `
-    :host {
-      display: block;
-      height: 100%;
-      background: #000;
-      color: var(--primary);
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      padding: var(--spacing-md);
-    }
-
-    .terminal-window {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-md);
-    }
-
-    .header {
-      font-weight: bold;
-      margin-bottom: var(--spacing-sm);
-    }
-
-    .bounty-list {
-      flex: 1;
-      overflow-y: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-      gap: var(--spacing-md);
-      padding: 0 var(--spacing-xs);
-      scrollbar-width: none;
-    }
-
-    .bounty-list::-webkit-scrollbar { display: none; }
-
-    .bounty-card {
-      background: var(--layer-1);
-      transition: transform 0.2s ease;
-    }
+    .bounty-container { display: flex; flex-direction: column; gap: 1rem; }
+    .bounty-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .bounty-card { padding: 12px; border-color: rgba(0, 255, 159, 0.2); }
+    .bounty-card.claimed { opacity: 0.4; filter: grayscale(1); }
     
-    .bounty-card:hover {
-      transform: translateY(-2px);
-      background: var(--layer-2);
-    }
-
-    .bounty-content {
-      padding: var(--spacing-sm);
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      flex-wrap: wrap;
-    }
-
-    .b-main { flex: 1; min-width: 200px; }
-    .b-target { 
-      font-size: var(--font-size-base); 
-      color: var(--primary); 
-      font-weight: bold;
-      text-transform: uppercase;
-      margin-bottom: 0.25rem;
-    }
-    .b-meta { 
-      font-size: var(--font-size-xs); 
-      display: flex; 
-      gap: 1.5rem; 
-      opacity: 0.7;
-    }
-
-    .b-stats { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: flex-start; 
-      gap: 2px; 
-      min-width: 120px;
-      font-size: var(--font-size-sm);
-    }
+    .b-top { display: flex; justify-content: space-between; font-weight: 900; font-size: 0.8rem; color: var(--primary); }
+    .b-reward { color: var(--neon-yellow); }
     
-    .b-reward { color: var(--secondary); font-weight: bold; }
-    .b-diff.hard { color: #ff5555; }
-    .b-diff.elite { color: #ff55ff; }
-    .b-timer { opacity: 0.5; }
+    .b-mid { display: flex; gap: 15px; font-size: 0.6rem; margin: 8px 0; }
+    .easy { color: var(--neon-green); }
+    .medium { color: var(--neon-yellow); }
+    .hard { color: var(--neon-orange); }
+    .elite { color: var(--neon-magenta); animation: pulse 1s infinite; }
+    
+    .b-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.55rem; opacity: 0.7; }
+    .empty-msg { text-align: center; padding: 2rem; opacity: 0.2; font-size: 0.65rem; }
 
-    .accept-btn {
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
-
-    .footer {
-      margin-top: auto;
-      opacity: 0.5;
-    }
-
-    @media (max-width: 600px) {
-      .bounty-content {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .b-stats {
-        width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        border-top: 1px dashed var(--primary);
-        padding-top: var(--spacing-xs);
-      }
-      .accept-btn {
-        width: 100%;
-      }
-    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   `
 })
 export class BountyBoardComponent {
   gameService = inject(GameService);
-
-  bounties = signal<Bounty[]>([
-    { id: 'b1', target: 'CORP_EXECUTIVE_88', reward: 5000, difficulty: 'HARD', type: 'INTEL_THEFT', issuer: 'THE_FIXER', expiresIn: '12:44' },
-    { id: 'b2', target: 'VAULT_771_NODE', reward: 12000, difficulty: 'ELITE', type: 'DATA_DESTRUCTION', issuer: 'ANON_ENTITY', expiresIn: '04:12' },
-    { id: 'b3', target: 'NEURAL_BRIDGE_ALPHA', reward: 25000, difficulty: 'IMPOSSIBLE', type: 'SYSTEM_TAKEDOWN', issuer: 'VOID_RUNNER_GHOST', expiresIn: '01:55' },
-    { id: 'b4', target: 'SECURE_MAIL_RELAY', reward: 1500, difficulty: 'MEDIUM', type: 'SPOOFING', issuer: 'THE_FIXER', expiresIn: '48:00' }
-  ]);
 
   acceptBounty(bounty: Bounty) {
     this.gameService.acceptBounty(bounty);
