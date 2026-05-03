@@ -128,24 +128,26 @@ interface AlertItem {
     </div>
   `,
   styles: `
+    :host {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 5000;
+      pointer-events: none; opacity: 0.8;
+    }
     .hud-container {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, auto);
-      gap: 8px;
-      padding: 8px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(0, 255, 159, 0.1);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 4px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.55rem;
     }
 
     .hud-panel {
-      background: var(--layer-1);
-      border: 1px solid rgba(뚜255, 159, 0.15);
-      clip-path: var(--clip-notch);
+      background: rgba(10, 15, 30, 0.4);
+      border: 1px solid rgba(0, 255, 159, 0.1);
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(2px);
     }
 
     .hud-panel::before {

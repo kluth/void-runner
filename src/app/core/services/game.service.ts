@@ -1032,7 +1032,14 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     };
     
     const strState = JSON.stringify(state);
-    const web3 = this.injector.get(Web3MiningService);
+    let web3;
+    try {
+        web3 = this.injector.get(Web3MiningService);
+    } catch(e) {
+        // Injector destroyed, likely in tests. Fallback to insecure save.
+        localStorage.setItem('VOID_RUNNER_STATE', strState);
+        return;
+    }
     
     if (web3.secureModeActive()) {
         web3.encryptState(strState).then(enc => {

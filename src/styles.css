@@ -133,11 +133,24 @@ button {
   padding: 6px 14px; border: 1px solid var(--neon-green);
   background: transparent; color: var(--neon-green);
   clip-path: var(--clip-notch); cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
 }
-button:hover { background: rgba(0, 255, 159, 0.1); text-shadow: 0 0 8px var(--neon-green); }
+button:hover { background: rgba(0, 255, 159, 0.1); text-shadow: 0 0 8px var(--neon-green); transform: translateY(-1px); }
+button:active { transform: translateY(1px); }
+button:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+
 button.primary { background: var(--neon-green); color: var(--layer-0); }
 button.cyan { border-color: var(--neon-cyan); color: var(--neon-cyan); }
 button.magenta { border-color: var(--neon-magenta); color: var(--neon-magenta); }
+
+/* LIQUID GLASS - Holographic UI Pattern */
+.glass-overlay {
+  background: rgba(10, 15, 30, 0.6);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
 
 /* CRT EFFECTS: Multi-color scanlines & RGB separation */
 body::after {
