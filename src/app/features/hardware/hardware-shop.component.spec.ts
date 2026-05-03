@@ -65,7 +65,7 @@ describe('HardwareShopComponent', () => {
     const item = { id: 'i1', name: 'Item 1' } as any;
     component.selectedInventoryItem = item;
     component.selectedSlot = 1;
-    component.confirmMount();
+    component.confirmMount(1);
     expect(gameService.mountHardware).toHaveBeenCalledWith(item, 1);
     expect(component.selectedSlot).toBeNull();
     expect(component.selectedInventoryItem).toBeNull();

@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { GameService, Bounty } from '../../core/services/game.service';
+import { FactionService } from '../../core/services/faction.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,14 +12,14 @@ import { CommonModule } from '@angular/common';
       <div class="ascii-line header">BOUNTY_EXCHANGE // HIGH_VALUE_TARGETS</div>
       
       <div class="bounty-list">
-        @for (bounty of gameService.availableBounties(); track bounty.id) {
+        @for (bounty of factionService.bounties(); track bounty.id) {
           <div class="terminal-frame bounty-card" [class.claimed]="bounty.status === 'CLAIMED'">
             <div class="b-top">
               <span class="b-target">{{ bounty.target }}</span>
               <span class="b-reward">{{ bounty.reward }} CR</span>
             </div>
             <div class="b-mid">
-              <span class="b-diff" [class]="bounty.difficulty.toLowerCase()">LEVEL: {{ bounty.difficulty }}</span>
+              <span class="b-diff" [class]="bounty.difficultyLabel?.toLowerCase() || 'medium'">LEVEL: {{ bounty.difficultyLabel }}</span>
               <span class="b-type">{{ bounty.type }}</span>
             </div>
             <div class="b-footer">
@@ -29,7 +30,7 @@ import { CommonModule } from '@angular/common';
             </div>
           </div>
         }
-        @if (gameService.availableBounties().length === 0) {
+        @if (factionService.bounties().length === 0) {
           <div class="empty-msg">SCANNING_ENCRYPTED_NETWORKS... [NO_CONTRACTS_FOUND]</div>
         }
       </div>
@@ -58,6 +59,7 @@ import { CommonModule } from '@angular/common';
 })
 export class BountyBoardComponent {
   gameService = inject(GameService);
+  factionService = inject(FactionService);
 
   acceptBounty(bounty: Bounty) {
     this.gameService.acceptBounty(bounty);

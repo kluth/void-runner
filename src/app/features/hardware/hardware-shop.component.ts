@@ -181,9 +181,9 @@ export class HardwareShopComponent {
      }
   }
 
-  confirmMount() {
-     if (this.selectedInventoryItem && this.selectedSlot !== null) {
-        this.gameService.mountHardware(this.selectedInventoryItem, this.selectedSlot);
+  confirmMount(index: number) {
+     if (this.selectedInventoryItem) {
+        this.gameService.mountHardware(this.selectedInventoryItem, index);
         this.selectedSlot = null;
         this.selectedInventoryItem = null;
      }
