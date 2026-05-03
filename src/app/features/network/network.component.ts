@@ -148,8 +148,8 @@ export class NetworkComponent {
       this.attackProgress.update(v => Math.min(100, v + 25));
       this.audioService.playClick();
       if (this.attackProgress() === 100) {
-         if (this.activeAttack() === 'DDOS') this.networkService.launchDDoS();
-         else this.networkService.deployRansomware();
+         if (this.activeAttack() === 'DDOS') this.gameService.launchDDoS();
+         else this.gameService.deployRansomware();
          this.activeAttack.set(null);
       } else {
          this.generateCells();
