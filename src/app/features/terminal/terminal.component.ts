@@ -3,11 +3,12 @@ import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LogVortexComponent } from './log-vortex.component';
 
 @Component({
   selector: 'app-terminal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LogVortexComponent],
   template: `
     <div class="terminal-container" 
          [class.overclocked]="typingSpeed() > 100"
@@ -37,11 +38,15 @@ import { FormsModule } from '@angular/forms';
           </div>
 
           <div class="terminal-body" #scrollContainer (scroll)="handleScroll()">
-            @for (log of gameService.terminalLogs(); track $index) {
-              <div class="log-line" [class.glitch-error]="log.message.includes('ERR:') || log.message.includes('!!!')">
-                <span class="timestamp">[{{ log.timestamp }}]</span>
-                <span class="message" [innerHTML]="log.message"></span>
-              </div>
+            @if (gameService.settings().video.event_horizon) {
+               <app-log-vortex />
+            } @else {
+               @for (log of gameService.terminalLogs(); track $index) {
+                 <div class="log-line" [class.glitch-error]="log.message.includes('ERR:') || log.message.includes('!!!')">
+                   <span class="timestamp">[{{ log.timestamp }}]</span>
+                   <span class="message" [innerHTML]="log.message"></span>
+                 </div>
+               }
             }
             
             <div class="input-line">

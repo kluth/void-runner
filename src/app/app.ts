@@ -24,6 +24,7 @@ import { NetworkHubComponent } from './features/network/network-hub.component';
 import { SocialHubComponent } from './features/social/social-hub.component';
 import { HardwareHubComponent } from './features/hardware/hardware-hub.component';
 import { SystemHubComponent } from './features/system/system-hub.component';
+import { SettingsModalComponent } from './features/system/settings-modal.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { CommonModule } from '@angular/common';
 
@@ -53,6 +54,7 @@ import { CommonModule } from '@angular/common';
     SocialHubComponent,
     HardwareHubComponent,
     SystemHubComponent,
+    SettingsModalComponent,
   ],
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
@@ -108,7 +110,7 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="header-right">
-           <button class="sys-btn" (click)="toggleMobileTelemetry()">[ SYSTEM_LOG ]</button>
+           <button class="sys-btn" (click)="toggleMobileTelemetry()">[ SYSTEM ]</button>
         </div>
       </header>
 
@@ -150,17 +152,9 @@ import { CommonModule } from '@angular/common';
         </div>
       </nav>
 
-      <!-- SYSTEM LOG OVERLAY -->
+      <!-- SYSTEM SETTINGS OVERLAY -->
       @if (mobileTelemetryOpen()) {
-         <div class="telemetry-modal glass-overlay" (click)="toggleMobileTelemetry()">
-            <div class="modal-box terminal-frame" (click)="$event.stopPropagation()">
-               <div class="ascii-line magenta">SYSTEM_DIAGNOSTICS</div>
-               <div class="log-content">
-                  <app-system-hub />
-               </div>
-               <button class="magenta w-full" (click)="toggleMobileTelemetry()">[ DISMISS ]</button>
-            </div>
-         </div>
+         <app-settings-modal />
       }
     </div>
   `,

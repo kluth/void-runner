@@ -1,14 +1,15 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../core/services/game.service';
 import { OnboardAiService } from '../../core/services/onboard-ai.service';
+import { InteractionSpeedService } from '../../core/services/interaction-speed.service';
 
 @Component({
   selector: 'app-high-density-hud',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="hud-container">
+    <div class="hud-container" [class]="density()">
       <div class="hud-panel pulse-subtle" title="CPU_LOAD">
         <span class="p-label">CPU:</span>
         <span class="p-val">{{ 42 + (gameService.systemStress() / 10) | number:'1.1-1' }}%</span>
@@ -19,15 +20,28 @@ import { OnboardAiService } from '../../core/services/onboard-ai.service';
         <span class="p-val">{{ 15 + gameService.detectionLevel() }}ms</span>
       </div>
 
-      <div class="hud-panel" [class.alert]="gameService.systemHeat() > 80" title="CORE_TEMP">
-        <span class="p-label">TMP:</span>
-        <span class="p-val">{{ gameService.systemHeat() }}°C</span>
-      </div>
+      @if (density() !== 'low') {
+        <div class="hud-panel" [class.alert]="gameService.systemHeat() > 80" title="CORE_TEMP">
+          <span class="p-label">TMP:</span>
+          <span class="p-val">{{ gameService.systemHeat() }}°C</span>
+        </div>
 
-      <div class="hud-panel" [class.alert]="gameService.systemIntegrity() < 40" title="KERNEL_STABILITY">
-        <span class="p-label">KER:</span>
-        <span class="p-val">{{ gameService.systemIntegrity() }}%</span>
-      </div>
+        <div class="hud-panel" [class.alert]="gameService.systemIntegrity() < 40" title="KERNEL_STABILITY">
+          <span class="p-label">KER:</span>
+          <span class="p-val">{{ gameService.systemIntegrity() }}%</span>
+        </div>
+      }
+
+      @if (density() === 'high') {
+        <div class="hud-panel" title="BITRATE">
+          <span class="p-label">BR:</span>
+          <span class="p-val">1.2GB/s</span>
+        </div>
+        <div class="hud-panel" title="ENTROPY">
+          <span class="p-label">ENT:</span>
+          <span class="p-val">0.88</span>
+        </div>
+      }
     </div>
   `,
   styles: `
@@ -43,6 +57,7 @@ import { OnboardAiService } from '../../core/services/onboard-ai.service';
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(4px);
       border-bottom: 1px solid rgba(0, 255, 159, 0.05);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hud-panel {
@@ -52,7 +67,12 @@ import { OnboardAiService } from '../../core/services/onboard-ai.service';
       border: 1px solid rgba(0, 255, 159, 0.1);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.6rem;
+      transition: all 0.3s ease;
     }
+
+    .low .hud-panel { padding: 4px 12px; font-size: 0.7rem; }
+    .high .hud-panel { padding: 1px 4px; font-size: 0.5rem; }
+
     .p-label { opacity: 0.4; font-size: 0.5rem; }
     .p-val { font-weight: bold; color: var(--primary); }
     .alert .p-val { color: var(--neon-magenta); }
@@ -64,4 +84,17 @@ import { OnboardAiService } from '../../core/services/onboard-ai.service';
 export class HighDensityHudComponent {
   gameService = inject(GameService);
   onboard = inject(OnboardAiService);
+  speedService = inject(InteractionSpeedService);
+
+  density = computed(() => {
+    const setting = this.gameService.settings().video.hud_density;
+    if (setting !== 'AUTO') return setting.toLowerCase();
+
+    const rate = this.speedService.interactionRate();
+    const width = window.innerWidth;
+    
+    if (width < 600 || rate < 0.5) return 'low';
+    if (rate > 2) return 'high';
+    return 'medium';
+  });
 }

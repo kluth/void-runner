@@ -74,7 +74,9 @@ export interface GameSettings {
     font_size: number, 
     opacity: number, 
     crt_curvature: boolean, 
-    view_mode: 'TABBED' | 'SINGLE' | 'HYPER' 
+    view_mode: 'TABBED' | 'SINGLE' | 'HYPER',
+    hud_density: 'LOW' | 'MED' | 'HIGH' | 'AUTO',
+    event_horizon: boolean
   },
   social: {
     notifications: boolean;
@@ -206,7 +208,7 @@ export class GameService {
   // Settings State
   settings = signal<GameSettings>({
     audio: { volume: 50, speech: true, ambient: true, music_complexity: 50 },
-    video: { matrix: false, glitch: true, scanlines: true, brightness: 100, font_size: 11, opacity: 100, crt_curvature: true, view_mode: 'TABBED' },
+    video: { matrix: true, glitch: true, scanlines: true, brightness: 100, font_size: 14, opacity: 90, crt_curvature: true, view_mode: 'TABBED', hud_density: 'AUTO', event_horizon: false },
     social: { notifications: true, public_profile: true, incognito: false, broadcast_location: false, status: 'ONLINE' },
     beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false },
     general: { auto_wipe: false, auto_analysis: false, theme: 'OMEGA', language: 'EN', tutorial_completed: false, wake_lock: false, stability_mode: false },
@@ -1089,6 +1091,8 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         if (key === 'opacity') s.video.opacity = parseInt(value);
         if (key === 'crt_curvature') s.video.crt_curvature = boolVal;
         if (key === 'view_mode') s.video.view_mode = value.toUpperCase() as any;
+        if (key === 'hud_density') s.video.hud_density = value.toUpperCase() as any;
+        if (key === 'event_horizon') s.video.event_horizon = boolVal;
     } else if (category === 'social') {
         if (key === 'notifications') s.social.notifications = boolVal;
         if (key === 'public_profile') s.social.public_profile = boolVal;
