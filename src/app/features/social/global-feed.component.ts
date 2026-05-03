@@ -30,7 +30,7 @@ import { GameService } from '../../core/services/game.service';
     </div>
   `,
   styles: `
-    .feed-container { padding: 10px; background: rgba(13, 21, 32, 0.8); height: 300px; display: flex; flex-direction: column; }
+    .feed-container { padding: 10px; background: rgba(13, 21, 32, 0.8); min-height: 200px; max-height: 50dvh; display: flex; flex-direction: column; }
     .feed-list { flex: 1; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column-reverse; gap: 10px; }
     .feed-post { border-left: 1px solid var(--neon-cyan); padding-left: 8px; }
     .p-header { display: flex; justify-content: space-between; font-size: 0.6rem; opacity: 0.6; }

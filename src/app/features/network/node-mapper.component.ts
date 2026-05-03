@@ -50,6 +50,8 @@ import { GameService } from '../../core/services/game.service';
     }
     .tactical-grid {
       height: 300px;
+      max-height: 30dvh;
+      min-height: 200px;
       position: relative;
       background: radial-gradient(circle, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
       background-size: 20px 20px;

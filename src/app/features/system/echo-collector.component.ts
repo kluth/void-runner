@@ -49,6 +49,7 @@ import { GameService } from '../../core/services/game.service';
       position: absolute;
       pointer-events: auto;
       width: 200px;
+      max-width: 80vw;
       padding: 8px;
       z-index: 1001;
       font-size: 0.7rem;

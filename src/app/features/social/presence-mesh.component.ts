@@ -40,7 +40,7 @@ import { GameService } from '../../core/services/game.service';
     </div>
   `,
   styles: `
-    .mesh-canvas { height: 400px; background: rgba(5, 8, 16, 0.4); backdrop-filter: blur(10px); }
+    .mesh-canvas { height: 400px; max-height: 50dvh; background: rgba(5, 8, 16, 0.4); backdrop-filter: blur(10px); }
     .spatial-grid { position: relative; height: 100%; width: 100%; overflow: hidden; }
     
     .mesh-node {

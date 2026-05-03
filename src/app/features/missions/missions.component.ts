@@ -274,9 +274,9 @@ import { PhishingCampaignComponent } from './phishing-campaign.component';
     .active-ops-view {
       display: flex;
       flex-direction: column;
-      max-width: 100%;
+      max-width: 95dvw;
       width: 800px;
-      max-height: 90vh;
+      max-height: 90dvh;
       overflow: hidden;
     }
 

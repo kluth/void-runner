@@ -24,7 +24,7 @@ import { NetworkService } from '../../core/services/network.service';
     </div>
   `,
   styles: `
-    .topology-container { height: 200px; padding: 10px; background: rgba(0, 0, 0, 0.4); margin-bottom: 20px; }
+    .topology-container { height: 200px; max-height: 25dvh; min-height: 150px; padding: 10px; background: rgba(0, 0, 0, 0.4); margin-bottom: 20px; }
     .topology-grid { position: relative; height: 100%; width: 100%; }
     .topology-node { position: absolute; display: flex; flex-direction: column; align-items: center; }
     .node-circle { width: 10px; height: 10px; border: 1px solid var(--primary); border-radius: 50%; background: #000; }
