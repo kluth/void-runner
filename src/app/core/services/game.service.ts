@@ -65,10 +65,13 @@ export interface GameSettings {
     speech: boolean;
     ambient: boolean;
     music_complexity: number;
+    glitch_tts: boolean;
+    music_enabled: boolean;
   };
   video: { 
     matrix: boolean, 
     glitch: boolean, 
+    glitch_intensity: number,
     scanlines: boolean, 
     brightness: number, 
     font_size: number, 
@@ -84,6 +87,11 @@ export interface GameSettings {
     incognito: boolean;
     broadcast_location: boolean;
     status: 'ONLINE' | 'AWAY' | 'DND';
+  };
+  network: {
+    proxy_level: number;
+    encryption_type: 'AES' | 'RSA' | 'QUANTUM';
+    auto_reconnect: boolean;
   };
   beta: {
     neural_vibration: boolean;
@@ -208,9 +216,10 @@ export class GameService {
 
   // Settings State
   settings = signal<GameSettings>({
-    audio: { volume: 50, speech: true, ambient: true, music_complexity: 50 },
-    video: { matrix: true, glitch: true, scanlines: true, brightness: 100, font_size: 14, opacity: 90, crt_curvature: true, view_mode: 'TABBED', hud_density: 'AUTO', event_horizon: false },
+    audio: { volume: 50, speech: true, ambient: true, music_complexity: 50, glitch_tts: true, music_enabled: true },
+    video: { matrix: true, glitch: true, glitch_intensity: 50, scanlines: true, brightness: 100, font_size: 14, opacity: 90, crt_curvature: true, view_mode: 'TABBED', hud_density: 'AUTO', event_horizon: false },
     social: { notifications: true, public_profile: true, incognito: false, broadcast_location: false, status: 'ONLINE' },
+    network: { proxy_level: 1, encryption_type: 'AES', auto_reconnect: true },
     beta: { neural_vibration: true, ai_emotions: false, high_res_globe: false, experimental_shaders: false, experimental_pwa: false, ai_insights: true },
     general: { auto_wipe: false, auto_analysis: false, theme: 'OMEGA', language: 'EN', tutorial_completed: false, wake_lock: false, stability_mode: false },
     control: { autocomplete: true, scroll_speed: 100, vibe_intensity: 100 },
@@ -422,12 +431,30 @@ export class GameService {
     }
     return true;
   }
+captureEcho(id: string) {
+  const echo = this.voidEchoes().find(e => e.id === id);
+  if (!echo) return;
 
-  captureEcho(id: string) {
-    this.voidEchoes.update(echoes => echoes.map(e => e.id === id ? { ...e, captured: true } : e));
-    this.log('<span style="color: var(--neon-cyan)">[ECHO] Fragment synchronized. Lore decrypted.</span>');
-    this.audioService.playSuccess();
-  }
+  this.voidEchoes.update(echoes => echoes.map(e => e.id === id ? { ...e, captured: true } : e));
+  this.log('<span style="color: var(--neon-cyan)">[ECHO] Fragment synchronized. Neural buffer optimized.</span>');
+  this.audioService.playSuccess();
+
+  // Give random buff
+  const buffs = [
+    { name: 'TRACER_DAMPENED', log: 'TRACE_STABILIZER: Detection growth reduced for 60s.', action: () => this.applyBuff('stealth', 60) },
+    { name: 'MINING_BOOST', log: 'CONSENSUS_ACCELERATOR: Mining efficiency +50% for 30s.', action: () => this.applyBuff('mining', 30) },
+    { name: 'CREDIT_LEAK', log: 'FINANCIAL_ANOMALY: +250 CR exfiltrated from fragment.', action: () => this.credits.update(c => c + 250) },
+    { name: 'SYSTEM_REPAIR', log: 'KERNEL_PATCH: +10% System Integrity restored.', action: () => this.systemIntegrity.update(i => Math.min(100, i + 10)) }
+  ];
+
+  const buff = buffs[Math.floor(Math.random() * buffs.length)];
+  this.log(`<span style="color: var(--neon-green)">[ECHO_REWARD] ${buff.log}</span>`);
+  buff.action();
+}
+
+private applyBuff(type: string, duration: number) {
+   this.activeDebuffs.update(d => [...d, { id: `buff_${Date.now()}`, name: type.toUpperCase(), type: 'BUFF', expiresAt: Date.now() + duration * 1000 }]);
+}
   private spawnEcho(id: string, text: string) {
     this.voidEchoes.update(echoes => [...echoes, { id, text, x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, captured: false }]);
   }
@@ -603,7 +630,7 @@ export class GameService {
 
   // System Integrity & Retaliation State
   systemIntegrity = signal(100); // 0-100%
-  activeDebuffs = signal<{id: string, name: string, type: 'RANSOM' | 'GLITCH' | 'LOCK', expiresAt: number}[]>([]);
+  activeDebuffs = signal<{ id: string, name: string, type: 'RANSOM' | 'GLITCH' | 'LOCK' | 'BUFF', expiresAt: number }[]>([]);
   
   // Immersive Stress Mechanics
   difficultyMultiplier = signal(1.0);
@@ -630,7 +657,11 @@ export class GameService {
   constructor() {
     this.detectOS();
     this.initSocket();
-    this.loadLocalState();
+    this.loadLocalState().then(() => {
+        if (this.settings().audio.music_enabled) {
+            this.audioService.toggleMusic(true);
+        }
+    });
     this.checkConfigStatus();
 
     // Boot Sector Optimization: Only show boot screen on fresh session
@@ -1084,9 +1115,15 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         if (key === 'speech') s.audio.speech = boolVal;
         if (key === 'ambient') s.audio.ambient = boolVal;
         if (key === 'music_complexity') s.audio.music_complexity = parseInt(value);
+        if (key === 'glitch_tts') s.audio.glitch_tts = boolVal;
+        if (key === 'music_enabled') {
+            s.audio.music_enabled = boolVal;
+            this.audioService.toggleMusic(boolVal);
+        }
     } else if (category === 'video') {
         if (key === 'matrix') s.video.matrix = boolVal;
         if (key === 'glitch') s.video.glitch = boolVal;
+        if (key === 'glitch_intensity') s.video.glitch_intensity = parseInt(value);
         if (key === 'scanlines') s.video.scanlines = boolVal;
         if (key === 'brightness') s.video.brightness = parseInt(value);
         if (key === 'font_size') s.video.font_size = parseInt(value);
@@ -1101,6 +1138,10 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
         if (key === 'incognito') s.social.incognito = boolVal;
         if (key === 'broadcast_location') s.social.broadcast_location = boolVal;
         if (key === 'status') s.social.status = value.toUpperCase() as any;
+    } else if (category === 'network') {
+        if (key === 'proxy_level') s.network.proxy_level = parseInt(value);
+        if (key === 'encryption_type') s.network.encryption_type = value.toUpperCase() as any;
+        if (key === 'auto_reconnect') s.network.auto_reconnect = boolVal;
     } else if (category === 'beta') {
         if (key === 'neural_vibration') s.beta.neural_vibration = boolVal;
         if (key === 'ai_emotions') s.beta.ai_emotions = boolVal;

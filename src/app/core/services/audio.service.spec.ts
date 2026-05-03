@@ -36,6 +36,7 @@ describe('AudioService Intensive', () => {
   });
 
   it('should speak creepy via TTS', () => {
+    vi.useFakeTimers();
     const mockSpeak = vi.fn();
     (window as any).speechSynthesis = {
       cancel: vi.fn(),
@@ -43,6 +44,8 @@ describe('AudioService Intensive', () => {
       getVoices: vi.fn().mockReturnValue([{ name: 'Microsoft David' }])
     };
     service.speakCreepy('Fear me');
+    vi.advanceTimersByTime(100);
     expect(mockSpeak).toHaveBeenCalled();
+    vi.useRealTimers();
   });
 });

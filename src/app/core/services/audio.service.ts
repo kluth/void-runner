@@ -21,7 +21,7 @@ export class AudioService {
   playlist: TrackProfile[] = [];
   currentIndex = 0;
 
-  // Internal Audio State (Pushed from GameService to avoid circular dependency)
+  // Internal Audio State
   masterVolume = signal(0.5);
   speechEnabled = signal(true);
 
@@ -67,7 +67,6 @@ export class AudioService {
     osc.type = type;
     osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
     
-    // Scale local volume by master volume
     const finalVolume = volume * this.masterVolume();
     
     gain.gain.setValueAtTime(finalVolume, this.ctx.currentTime);
@@ -82,18 +81,23 @@ export class AudioService {
   playError() { this.playBeep(110, 0.3, 'sawtooth', 0.1); }
   playClick() { this.playBeep(1200, 0.05, 'sine', 0.02); }
   playGlitch() {
-    for(let i=0; i<5; i++) {
-      setTimeout(() => this.playBeep(Math.random() * 1000 + 100, 0.05, 'sawtooth', 0.02), i * 30);
+    const count = 5 + Math.floor(Math.random() * 10);
+    for(let i=0; i<count; i++) {
+      setTimeout(() => this.playBeep(Math.random() * 2000 + 50, 0.03, 'sawtooth', 0.03), i * 20);
     }
   }
 
-  toggleMusic() {
-    if (this.isMusicPlaying) {
+  toggleMusic(enabled?: boolean) {
+    const newState = enabled !== undefined ? enabled : !this.isMusicPlaying;
+    
+    if (!newState) {
       if (this.musicInterval) clearInterval(this.musicInterval);
       this.isMusicPlaying = false;
       this.currentTrack.set('SYSTEM_IDLE');
       return;
     }
+
+    if (this.isMusicPlaying) return; 
 
     this.isMusicPlaying = true;
     this.playNextTrack();
@@ -222,19 +226,36 @@ export class AudioService {
     source.start();
   }
 
-  speakCreepy(text: string) {
+  speakCreepy(text: string, glitchy = true) {
     if (!this.speechEnabled()) return;
     if (!('speechSynthesis' in window)) return;
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
-    utterance.voice = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Microsoft David')) || voices[0];
     
-    utterance.pitch = 0.1; 
-    utterance.rate = 0.7;  
-    utterance.volume = 0.6 * this.masterVolume();
+    const parts = glitchy ? text.split(' ') : [text];
+    let delay = 0;
 
-    window.speechSynthesis.speak(utterance);
+    parts.forEach((part, i) => {
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(part);
+        const voices = window.speechSynthesis.getVoices();
+        utterance.voice = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Microsoft David')) || voices[0];
+        
+        const pitchBase = glitchy ? (Math.random() > 0.8 ? 0.1 : 0.4) : 0.1;
+        const rateBase = glitchy ? (Math.random() > 0.8 ? 0.5 : 0.8) : 0.7;
+
+        utterance.pitch = pitchBase; 
+        utterance.rate = rateBase;  
+        utterance.volume = 0.6 * this.masterVolume();
+
+        if (glitchy && Math.random() > 0.95) {
+            this.playGlitch();
+        }
+
+        window.speechSynthesis.speak(utterance);
+      }, delay);
+      
+      delay += (part.length * 60) + (glitchy && Math.random() > 0.9 ? 300 : 30);
+    });
   }
 }

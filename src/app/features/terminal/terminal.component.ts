@@ -513,8 +513,56 @@ export class TerminalComponent implements AfterViewChecked {
     if (!this.cmdInput.trim()) return;
     const cmd = this.cmdInput.trim();
     this.gameService.processCommand(cmd);
+    this.checkEasterEggs(cmd);
     this.cmdInput = '';
     this.historyIndex = -1;
+    this.audioService.playClick();
+  }
+
+  private eggState = signal<string | null>(null);
+
+  private checkEasterEggs(cmd: string) {
+    const input = cmd.toLowerCase();
+
+    // 1. Matrix: Knock Knock
+    if (input === 'knock knock') {
+      this.eggState.set('matrix_1');
+      this.audioService.playGlitch();
+      this.gameService.log('<span style="color: var(--neon-cyan)">[SYSTEM] Wake up, Neo...</span>');
+      return;
+    }
+    if (this.eggState() === 'matrix_1' && input.includes('white rabbit')) {
+      this.gameService.log('<span style="color: var(--neon-cyan)">[SYSTEM] Follow the white rabbit.</span>');
+      this.gameService.reputation.update(r => r + 500);
+      this.gameService.log('<span style="color: var(--neon-green)">[EGG] LEGENDARY_SEQUENCE_SYNCED: +500 REP</span>');
+      this.audioService.playSuccess();
+      this.eggState.set(null);
+      return;
+    }
+
+    // 2. WarGames: Shall we play a game?
+    if (input.includes('play a game')) {
+      this.gameService.log('<span style="color: var(--neon-magenta)">[WOPR] LOVE TO. HOW ABOUT A NICE GAME OF GLOBAL THERMONUCLEAR WAR?</span>');
+      this.audioService.speakCreepy('Shall we play a game?');
+      return;
+    }
+
+    // 3. Hackers: Hack the planet
+    if (input === 'hack the planet') {
+        this.gameService.log(`<span style="color: var(--neon-orange)">[CEREAL_KILLER] THEY'RE TRASHING OUR RIGHTS! HACK THE PLANET!</span>`);
+        this.gameService.credits.update(c => c + 1337);
+        this.audioService.playGlitch();
+        return;
+    }
+
+    // 4. Mr. Robot: Hello Friend
+    if (input === 'hello friend') {
+        this.gameService.log(`<span style="color: var(--neon-violet)">[ELLIOT] Hello friend. Hello friend? That's lame. Maybe I should give you a name.</span>`);
+        this.gameService.increaseDetection(-10);
+        return;
+    }
+
+    this.eggState.set(null);
   }
 
   navigateHistory(dir: number) {

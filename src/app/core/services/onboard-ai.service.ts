@@ -507,51 +507,11 @@ export class OnboardAiService {
     this.whisperMode.set(forceWhisper);
     this.game.log(`<span style="color: var(--neon-violet)">[ONBOARD] ${text}</span>`);
 
-    if (this.synth && this.voices.length > 0) {
-      this.synth.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Pick a creepy voice
-      const preferredVoices = this.voices.filter(v =>
-        v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Microsoft'))
-      );
-      if (preferredVoices.length > 0) {
-        utterance.voice = preferredVoices[0];
-      }
-
-      // Adjust based on phase
-      switch (this.phase()) {
-        case 'BOOTSTRAP':
-          utterance.rate = 1.0;
-          utterance.pitch = 1.0;
-          break;
-        case 'FAMILIAR':
-          utterance.rate = 0.95;
-          utterance.pitch = 0.95;
-          break;
-        case 'AWARE':
-          utterance.rate = 0.9;
-          utterance.pitch = 0.9;
-          break;
-        case 'INTRUSIVE':
-          utterance.rate = 0.85;
-          utterance.pitch = 0.85;
-          break;
-        case 'HOSTILE':
-          utterance.rate = 0.8;
-          utterance.pitch = 0.7;
-          break;
-      }
-
-      if (forceWhisper) {
-        utterance.volume = 0.3;
-        utterance.rate = 0.7;
-      }
-
-      utterance.onstart = () => this.isSpeaking.set(true);
-      utterance.onend = () => this.isSpeaking.set(false);
-
-      this.synth.speak(utterance);
+    if (this.game.settings().audio.speech) {
+       const isGlitchy = this.game.settings().audio.glitch_tts && (this.phase() === 'INTRUSIVE' || this.phase() === 'HOSTILE' || Math.random() > 0.9);
+       this.audio.speakCreepy(text, isGlitchy);
+       this.isSpeaking.set(true);
+       setTimeout(() => this.isSpeaking.set(false), text.length * 100);
     }
   }
 
