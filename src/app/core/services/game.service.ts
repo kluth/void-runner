@@ -2144,6 +2144,12 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     this.updateRemoteScore();
   }
 
+  boostAnalysis(artId: string, gain: number) {
+    this.artifacts.update(arts => arts.map(a => 
+      a.id === artId ? { ...a, analysisProgress: Math.min(100, a.analysisProgress + gain) } : a
+    ));
+  }
+
   private finishAnalysis(art: Artifact) {
     this.artifacts.update(arts => arts.map(a => a.id === art.id ? { ...a, analyzed: true } : a));
     this.log(`ANALYSIS COMPLETE: ${art.name}`);

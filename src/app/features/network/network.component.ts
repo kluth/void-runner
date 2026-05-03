@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NetworkService } from '../../core/services/network.service';
 import { GameService } from '../../core/services/game.service';
 import { AudioService } from '../../core/services/audio.service';
@@ -26,16 +26,36 @@ import { TopologyMapComponent } from './topology-map.component';
              <span class="b-unit">NODES_UNDER_CONTROL</span>
           </div>
           <div class="botnet-actions">
-             <button class="terminal-btn ddos" (click)="launchDDoS()">
+             <button class="terminal-btn ddos" (click)="initAttack('DDOS')">
                <span class="btn-bracket">[</span> LAUNCH_DDOS <span class="btn-bracket">]</span>
              </button>
-             <button class="terminal-btn" (click)="deployRansomware()">
+             <button class="terminal-btn" (click)="initAttack('RANSOM')">
                <span class="btn-bracket">[</span> DEPLOY_RANSOM <span class="btn-bracket">]</span>
              </button>
           </div>
         </div>
         <div class="ascii-footer">└─────────────────────────────────────────────────────────────┘</div>
       </div>
+
+      <!-- ATTACK OVERLAY -->
+      @if (activeAttack()) {
+        <div class="attack-modal glass-overlay">
+           <div class="terminal-frame attack-box">
+              <div class="ascii-line magenta">{{ activeAttack() }}_SEQUENCE_ACTIVE</div>
+              <div class="a-grid">
+                 @for (cell of attackCells(); track $index) {
+                   <div class="a-cell" [class.target]="cell.isTarget" (click)="clickCell(cell)">
+                      {{ cell.isTarget ? 'X' : '·' }}
+                   </div>
+                 }
+              </div>
+              <div class="a-footer">
+                 <span>ALIGNMENT: {{ attackProgress() }}%</span>
+                 <button (click)="activeAttack.set(null)">[ ABORT ]</button>
+              </div>
+           </div>
+        </div>
+      }
 
       <!-- ROUTING SECTION -->
       <div class="ascii-window">
@@ -74,162 +94,29 @@ import { TopologyMapComponent } from './topology-map.component';
     </div>
   `,
   styles: `
-    :host {
-      display: block;
-      height: 100%;
-      background: #000;
-    }
+    .terminal-network { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
+    .ascii-window { background: rgba(0, 20, 10, 0.4); border: 1px solid rgba(0, 255, 159, 0.1); }
+    .ascii-header, .ascii-footer { font-family: monospace; font-size: 0.7rem; color: var(--primary); padding: 5px 10px; opacity: 0.5; }
+    .ascii-body { padding: 15px; }
 
-    .terminal-network {
-      background: #000;
-      color: var(--primary);
-      padding: 1.5rem;
-      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      height: 100%;
-      overflow-y: auto;
-    }
+    .botnet-stats { margin-bottom: 10px; }
+    .b-val { font-size: 2rem; font-weight: bold; color: var(--primary); margin-right: 10px; }
+    .b-unit { font-size: 0.7rem; opacity: 0.6; }
+    .botnet-actions { display: flex; gap: 10px; }
 
-    .ascii-window {
-      display: flex;
-      flex-direction: column;
-    }
+    .attack-modal { position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+    .attack-box { background: var(--layer-1); padding: 1.5rem; width: 350px; text-align: center; }
+    .a-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 1.5rem 0; }
+    .a-cell { height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0, 255, 159, 0.2); cursor: pointer; font-family: monospace; }
+    .a-cell.target { color: var(--neon-magenta); border-color: var(--neon-magenta); font-weight: bold; }
+    .a-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; }
 
-    .ascii-header, .ascii-footer {
-      white-space: pre;
-      font-size: 0.85rem;
-      line-height: 1.2;
-      color: var(--primary);
-      opacity: 0.9;
-    }
+    .routing-grid { display: flex; flex-direction: column; gap: 8px; }
+    .terminal-btn.item { text-align: left; padding: 8px; font-size: 0.7rem; }
+    .terminal-btn.active { border-color: var(--primary); background: rgba(0, 255, 159, 0.1); }
 
-    .ascii-body {
-      border-left: 1px solid var(--primary);
-      border-right: 1px solid var(--primary);
-      padding: 1.5rem;
-      background: rgba(0, 255, 65, 0.01);
-    }
-
-    .botnet-stats { 
-      display: flex; 
-      align-items: baseline; 
-      gap: 15px; 
-      margin-bottom: 1.5rem; 
-    }
-    
-    .b-val { 
-      font-size: 3rem; 
-      font-weight: bold; 
-      color: var(--primary);
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-    }
-    
-    .b-unit { 
-      font-size: 0.75rem; 
-      letter-spacing: 2px;
-      opacity: 0.7; 
-    }
-
-    .botnet-actions { 
-      display: flex;
-      gap: 1.5rem; 
-    }
-
-    .terminal-btn {
-      background: transparent;
-      border: none;
-      color: var(--primary);
-      font-family: inherit;
-      font-size: 0.9rem;
-      cursor: pointer;
-      padding: 0.4rem 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.15s ease;
-    }
-
-    .terminal-btn:hover {
-      background: var(--primary);
-      color: #000;
-    }
-    
-    .terminal-btn:hover .btn-bracket {
-      color: #000;
-    }
-
-    .btn-bracket {
-      color: var(--primary);
-      opacity: 0.5;
-    }
-
-    .ddos:hover {
-      background: var(--error, #ff4444);
-      color: #fff;
-    }
-
-    .routing-grid { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 10px; 
-    }
-
-    .terminal-btn.item {
-      width: 100%;
-      justify-content: flex-start;
-      border: 1px solid transparent;
-    }
-
-    .terminal-btn.item.active {
-      background: var(--primary);
-      color: #000;
-    }
-
-    .path-readout {
-      font-family: inherit;
-    }
-
-    .path-nodes { 
-      font-size: 0.85rem; 
-      display: flex; 
-      flex-wrap: wrap; 
-      align-items: center;
-      gap: 10px; 
-    }
-
-    .p-node {
-      padding: 2px 6px;
-      border: 1px solid rgba(0, 255, 65, 0.3);
-    }
-
-    .arrow { 
-      opacity: 0.5;
-      font-weight: bold;
-    }
-
-    /* Scrollbar Styling */
-    .terminal-network::-webkit-scrollbar {
-      width: 8px;
-    }
-    .terminal-network::-webkit-scrollbar-track {
-      background: #000;
-    }
-    .terminal-network::-webkit-scrollbar-thumb {
-      background: var(--primary);
-      border: 2px solid #000;
-    }
-
-    .ascii-header, .ascii-footer {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: clip;
-    }
-
-    @media (max-width: 600px) {
-      .botnet-actions { flex-direction: column; }
-    }
+    .path-nodes { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.65rem; color: var(--neon-cyan); }
+    .arrow { opacity: 0.3; }
   `
 })
 export class NetworkComponent {
@@ -237,18 +124,38 @@ export class NetworkComponent {
   gameService = inject(GameService);
   audioService = inject(AudioService);
 
-  launchDDoS() {
-    if (this.gameService.launchDDoS()) {
-      this.audioService.playSuccess();
-    } else {
-      this.audioService.playError();
-    }
+  activeAttack = signal<'DDOS' | 'RANSOM' | null>(null);
+  attackCells = signal<{isTarget: boolean, clicked: boolean}[]>([]);
+  attackProgress = signal(0);
+
+  initAttack(type: 'DDOS' | 'RANSOM') {
+    this.activeAttack.set(type);
+    this.attackProgress.set(0);
+    this.generateCells();
   }
 
-  deployRansomware() {
-    if (this.gameService.deployRansomware()) {
-      this.audioService.playSuccess();
+  generateCells() {
+    const cells = [];
+    for (let i = 0; i < 25; i++) {
+      cells.push({ isTarget: Math.random() > 0.8, clicked: false });
+    }
+    if (!cells.some(c => c.isTarget)) cells[0].isTarget = true;
+    this.attackCells.set(cells);
+  }
+
+  clickCell(cell: any) {
+    if (cell.isTarget) {
+      this.attackProgress.update(v => Math.min(100, v + 25));
+      this.audioService.playClick();
+      if (this.attackProgress() === 100) {
+         if (this.activeAttack() === 'DDOS') this.networkService.launchDDoS();
+         else this.networkService.deployRansomware();
+         this.activeAttack.set(null);
+      } else {
+         this.generateCells();
+      }
     } else {
+      this.gameService.increaseDetection(5);
       this.audioService.playError();
     }
   }

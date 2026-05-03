@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { GameService } from '../../core/services/game.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 export interface Threat {
   id: string;
@@ -15,7 +16,7 @@ export interface Threat {
 @Component({
   selector: 'app-threat-database',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="terminal-window">
       <div class="ascii-line header">0x_THREAT_DATABASE // CLASSIFIED</div>
@@ -53,13 +54,34 @@ export interface Threat {
                 <span class="label-tactical">VULN_VEC:</span>
                 <span class="vuln-text">{{ threat.vulnerability }}</span>
               </div>
-              <button class="track-btn" (click)="trackThreat(threat)">[ INIT_TRACKING ]</button>
+              <div class="threat-actions">
+                <button class="track-btn" (click)="trackThreat(threat)">[ TRACK ]</button>
+                <button class="intercept-btn magenta" (click)="interceptThreat(threat)">[ INTERCEPT ]</button>
+              </div>
             </div>
           </div>
         }
       </div>
       </div>
       <div class="ascii-line footer" dir="rtl">SECURE_ACCESS_ONLY</div>
+
+      <!-- INTERCEPT MISSION OVERLAY -->
+      @if (activeIntercept()) {
+        <div class="intercept-modal glass-overlay">
+           <div class="terminal-frame intercept-box">
+              <div class="ascii-line magenta">INTERCEPT_MISSION // {{ activeIntercept()?.name }}</div>
+              <div class="i-task">BYPASS_LOCAL_SENTINEL</div>
+              <div class="puzzle-area">
+                 <div class="puzzle-string">{{ currentPuzzle() }}</div>
+                 <input type="text" [(ngModel)]="puzzleInput" (keyup.enter)="checkPuzzle()" placeholder="SYNC_PATTERN..." autofocus>
+              </div>
+              <div class="i-footer">
+                <span>REWARD: 500 CR | -10% DETECTION</span>
+                <button (click)="activeIntercept.set(null)">[ ABORT ]</button>
+              </div>
+           </div>
+        </div>
+      }
     </div>
   `,
   styles: `
@@ -93,30 +115,20 @@ export interface Threat {
     
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0.4; } }
 
-    .header {
-      font-weight: bold;
-    }
-
     .threat-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: var(--spacing-md);
       overflow-y: auto;
       padding: 0 var(--spacing-xs);
-      scrollbar-width: none;
     }
-
-    .threat-grid::-webkit-scrollbar { display: none; }
 
     .threat-card {
       background: var(--layer-1);
       display: flex;
       flex-direction: column;
       transition: all 0.2s ease;
-      cursor: pointer;
     }
-    .threat-card:hover { border-color: var(--primary); background: rgba(0,255,159,0.05); }
-    .threat-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); }
     .card-content {
       padding: var(--spacing-sm);
       flex: 1;
@@ -124,78 +136,36 @@ export interface Threat {
       flex-direction: column;
     }
 
-    @media (max-width: 800px) {
-      .threat-layout {
-        grid-template-columns: 1fr;
-        overflow-y: auto;
-      }
-      .threat-map {
-        height: 250px;
-        flex-shrink: 0;
-      }
-      .threat-grid {
-        overflow-y: visible;
-      }
-    }
+    .threat-actions { display: flex; gap: 8px; margin-top: auto; }
+    .track-btn, .intercept-btn { flex: 1; font-size: 0.6rem; }
 
-    .t-top { 
-      display: flex; 
-      justify-content: space-between; 
-      font-size: var(--font-size-xs); 
-      margin-bottom: 0.5rem; 
-      opacity: 0.8;
-    }
-    
-    .t-risk { color: var(--primary); font-weight: bold; }
-    .threat-card.high .t-risk { color: #ff5555; }
-    .threat-card.extreme .t-risk { color: #ff0000; animation: blink 1s steps(2) infinite; }
+    .intercept-modal { position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+    .intercept-box { background: var(--layer-1); padding: 1.5rem; width: 400px; text-align: center; }
+    .i-task { font-size: 0.6rem; color: var(--neon-magenta); margin: 1rem 0; }
+    .puzzle-area { margin: 2rem 0; }
+    .puzzle-string { font-size: 2rem; letter-spacing: 5px; color: var(--primary); margin-bottom: 1rem; text-shadow: 0 0 10px var(--primary); }
+    .puzzle-area input { background: #000; border: 1px solid var(--primary); color: var(--primary); padding: 10px; width: 100%; text-align: center; }
+    .i-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; margin-top: 1rem; }
 
-    @keyframes blink { 50% { opacity: 0; } }
+    .t-top { display: flex; justify-content: space-between; font-size: 0.6rem; margin-bottom: 0.5rem; }
+    .t-risk { font-weight: bold; color: var(--neon-orange); }
+    .t-name { font-size: 0.8rem; font-weight: bold; color: var(--primary); margin-bottom: 0.5rem; }
+    .t-status { font-size: 0.6rem; opacity: 0.6; }
+    .t-desc { font-size: 0.65rem; opacity: 0.8; margin-bottom: 1rem; }
+    .t-vuln { background: rgba(0, 255, 65, 0.05); padding: 0.5rem; border: 1px dashed var(--primary); margin-bottom: 1rem; }
+    .label-tactical { font-size: 0.5rem; opacity: 0.5; }
+    .vuln-text { font-size: 0.6rem; color: var(--secondary); font-weight: bold; }
 
-    .t-name { 
-      font-size: var(--font-size-base); 
-      font-weight: bold; 
-      color: var(--primary); 
-      margin-bottom: 0.25rem; 
-      text-transform: uppercase;
-    }
-
-    .t-status { font-size: var(--font-size-xs); margin-bottom: 0.75rem; opacity: 0.6; }
-    .t-status .active { color: #ff5555; opacity: 1; }
-    
-    .t-desc { 
-      font-size: var(--font-size-sm); 
-      line-height: 1.4; 
-      margin-bottom: 1rem; 
-      opacity: 0.9;
-      min-height: 3rem;
-    }
-    
-    .t-vuln {
-      background: rgba(0, 255, 65, 0.05);
-      padding: 0.5rem;
-      border: 1px dashed var(--primary);
-      margin-top: auto;
-      margin-bottom: 1rem;
-    }
-    
-    .label-tactical { font-size: var(--font-size-xs); opacity: 0.5; display: block; }
-    .vuln-text { font-size: var(--font-size-sm); color: var(--secondary); font-weight: bold; }
-
-    .track-btn {
-      width: 100%;
-    }
-
-    .footer {
-      margin-top: auto;
-      opacity: 0.5;
-    }
+    .footer { opacity: 0.5; font-size: 0.6rem; }
   `
 })
 export class ThreatDatabaseComponent {
   gameService = inject(GameService);
 
   selectedThreat = signal<Threat | null>(null);
+  activeIntercept = signal<Threat | null>(null);
+  currentPuzzle = signal('');
+  puzzleInput = '';
 
   getX(id: string) { return (id.charCodeAt(0) * 13) % 80 + 10; }
   getY(id: string) { return (id.charCodeAt(1) * 17) % 80 + 10; }
@@ -246,5 +216,28 @@ export class ThreatDatabaseComponent {
 
   trackThreat(threat: Threat) {
     this.gameService.log(`INITIATING_TRACKING: ${threat.name}. Analyzers active.`);
+  }
+
+  interceptThreat(threat: Threat) {
+    this.activeIntercept.set(threat);
+    this.generatePuzzle();
+  }
+
+  generatePuzzle() {
+    this.currentPuzzle.set(Math.random().toString(36).substring(7).toUpperCase());
+    this.puzzleInput = '';
+  }
+
+  checkPuzzle() {
+    if (this.puzzleInput.toUpperCase() === this.currentPuzzle()) {
+      this.gameService.log(`INTERCEPT_SUCCESS: Threat ${this.activeIntercept()?.name} diverted. 500 CR acquired.`);
+      this.gameService.credits.update(c => c + 500);
+      this.gameService.detectionLevel.update(d => Math.max(0, d - 10));
+      this.activeIntercept.set(null);
+    } else {
+      this.gameService.log(`INTERCEPT_FAILURE: Alert triggered!`);
+      this.gameService.detectionLevel.update(d => d + 15);
+      this.generatePuzzle();
+    }
   }
 }

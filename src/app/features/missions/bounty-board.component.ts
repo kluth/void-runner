@@ -25,9 +25,12 @@ import { CommonModule } from '@angular/common';
             </div>
             <div class="b-footer">
               <span class="b-issuer">ISSUER: {{ bounty.issuer }}</span>
-              <button [disabled]="bounty.status === 'CLAIMED'" (click)="acceptBounty(bounty)">
-                {{ bounty.status === 'CLAIMED' ? '[ CLAIMED ]' : '[ ACCEPT_CONTRACT ]' }}
-              </button>
+              <div class="b-actions">
+                 <button class="verify-btn cyan" [disabled]="bounty.status === 'CLAIMED'" (click)="verifySource(bounty)">[ VERIFY_SOURCE ]</button>
+                 <button [disabled]="bounty.status === 'CLAIMED'" (click)="acceptBounty(bounty)">
+                   {{ bounty.status === 'CLAIMED' ? '[ CLAIMED ]' : '[ ACCEPT ]' }}
+                 </button>
+              </div>
             </div>
           </div>
         }
@@ -35,6 +38,22 @@ import { CommonModule } from '@angular/common';
           <div class="empty-msg">SCANNING_ENCRYPTED_NETWORKS... [NO_CONTRACTS_FOUND]</div>
         }
       </div>
+
+      <!-- VERIFY MODAL -->
+      @if (activeVerify()) {
+        <div class="verify-modal glass-overlay">
+           <div class="terminal-frame verify-box">
+              <div class="ascii-line cyan">VERIFYING_SOURCE // {{ activeVerify()?.issuer }}</div>
+              <div class="v-pattern">{{ verificationPattern() }}</div>
+              <div class="v-controls">
+                 <button (click)="shiftPattern(-1)"><</button>
+                 <button (click)="checkVerification()" class="primary">[ SYNC_UPLINK ]</button>
+                 <button (click)="shiftPattern(1)">></button>
+              </div>
+              <p class="text-xs opacity-50 mt-4">ALIGMENT_OFFSET: {{ patternOffset() }}</p>
+           </div>
+        </div>
+      }
     </div>
   `,
   styles: `
@@ -53,6 +72,14 @@ import { CommonModule } from '@angular/common';
     .elite { color: var(--neon-magenta); animation: pulse 1s infinite; }
     
     .b-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.55rem; opacity: 0.7; }
+    .b-actions { display: flex; gap: 8px; }
+    .verify-btn { font-size: 0.5rem; }
+
+    .verify-modal { position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+    .verify-box { background: var(--layer-1); padding: 1.5rem; width: 300px; text-align: center; }
+    .v-pattern { font-size: 1.5rem; letter-spacing: 4px; color: var(--neon-cyan); margin: 1.5rem 0; font-family: monospace; }
+    .v-controls { display: flex; justify-content: space-around; gap: 10px; }
+
     .empty-msg { text-align: center; padding: 2rem; opacity: 0.2; font-size: 0.65rem; }
 
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -62,7 +89,43 @@ export class BountyBoardComponent {
   gameService = inject(GameService);
   factionService = inject(FactionService);
 
+  activeVerify = signal<Bounty | null>(null);
+  verificationPattern = signal('');
+  patternOffset = signal(0);
+
   acceptBounty(bounty: Bounty) {
     this.gameService.acceptBounty(bounty);
+  }
+
+  verifySource(bounty: Bounty) {
+    this.activeVerify.set(bounty);
+    this.patternOffset.set(Math.floor(Math.random() * 10) - 5);
+    this.updatePattern();
+  }
+
+  shiftPattern(dir: number) {
+    this.patternOffset.update(v => v + dir);
+    this.updatePattern();
+  }
+
+  updatePattern() {
+    const chars = '░▒▓█'.split('');
+    let p = '';
+    for (let i = 0; i < 8; i++) {
+      p += chars[Math.abs(this.patternOffset() + i) % chars.length];
+    }
+    this.verificationPattern.set(p);
+  }
+
+  checkVerification() {
+    if (this.patternOffset() === 0) {
+      this.gameService.log(`SOURCE_VERIFIED: Bounty ${this.activeVerify()?.id} payload optimized. Reward +100 CR.`);
+      this.gameService.credits.update(c => c + 100);
+      this.activeVerify.set(null);
+    } else {
+      this.gameService.log(`VERIFICATION_FAILED: Signal noise detected.`);
+      this.gameService.increaseDetection(5);
+      this.activeVerify.set(null);
+    }
   }
 }

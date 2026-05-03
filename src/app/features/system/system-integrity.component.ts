@@ -20,6 +20,11 @@ import { StabilityHudComponent } from './stability-hud.component';
         └────────────────────────────────────────────────────────┘
       </div>
 
+      <div class="integrity-actions">
+        <button class="purge-btn primary" (click)="purgeCache()">[ PURGE_SYSTEM_CACHE ]</button>
+        <p class="purge-hint">MANUAL_FLUSH: -20°C | +5% STABILITY</p>
+      </div>
+
       <div class="active-debuffs" *ngIf="gameService.activeDebuffs().length > 0">
          <div class="sec-label">! DETECTED_ANOMALIES !</div>
          @for (debuff of gameService.activeDebuffs(); track debuff.id) {
@@ -42,6 +47,10 @@ import { StabilityHudComponent } from './stability-hud.component';
     .sec-label { font-size: 0.6rem; color: var(--tertiary); font-weight: 900; margin-bottom: 5px; }
     .debuff-item { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--tertiary); }
 
+    .integrity-actions { margin-top: 20px; text-align: center; }
+    .purge-btn { width: 100%; margin-bottom: 5px; }
+    .purge-hint { font-size: 0.55rem; opacity: 0.5; }
+
     @keyframes blink { 50% { opacity: 0.3; } }
   `
 })
@@ -60,5 +69,11 @@ export class SystemIntegrityComponent {
     const chars = 10;
     const filled = Math.floor((val / 100) * chars);
     return '█'.repeat(filled) + '░'.repeat(chars - filled);
+  }
+
+  purgeCache() {
+    this.gameService.log('PURGING_SYSTEM_CACHE: Flashing neural buffers...');
+    this.gameService.systemHeat.update(h => Math.max(0, h - 20));
+    this.gameService.systemIntegrity.update(i => Math.min(100, i + 5));
   }
 }
