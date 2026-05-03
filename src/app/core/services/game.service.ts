@@ -9,29 +9,11 @@ import { Web3MiningService } from './web3-mining.service';
 import { HIJACK_RIDDLES } from '../data/riddles.data';
 import { ASCII_ART } from '../data/ascii-art';
 
-export interface HardwareItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  bonusType: 'recon' | 'exploit' | 'stealth' | 'social' | 'defense' | 'cloud';
-  bonusValue: number;
-  unlocked: boolean;
-  powerDraw: number;
-}
+import { Bounty, Mission, Artifact, HardwareItem } from '../models/game.models';
 
 export interface LogEntry {
   timestamp: string;
   message: string;
-}
-
-export interface Artifact {
-  id: string;
-  name: string;
-  type: 'binary' | 'encrypted_log' | 'firmware' | 'cloud_dump';
-  analysisProgress: number;
-  analyzed: boolean;
-  rewardType: 'zero-day' | 'data' | 'target_intel' | 'credits';
 }
 
 export interface InternalTarget {
@@ -148,33 +130,6 @@ export interface PlayerData {
   settings: string; // JSON
   teamId?: string | null;
   team?: Team | null;
-}
-
-export interface Bounty {
-  id: string;
-  target: string;
-  reward: number;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'ELITE' | 'IMPOSSIBLE';
-  type: string;
-  issuer: string;
-  expiresIn: string;
-}
-
-export interface Mission {
-  id: string;
-  name: string;
-  target: string;
-  difficulty: number;
-  difficultyLabel?: string;
-  reward: number;
-  hardwareReward?: HardwareItem;
-  lat: number;
-  lng: number;
-  type: 'brute-force' | 'port-scan' | 'sql-injection' | 'rfid-clone' | 'buffer-overflow' | 'xss-injection' | 'osint-research' | 'phishing-campaign' | 'mitm-attack' | 'crypto-heist' | 'quantum-breach' | 'iot-takeover' | 'social-engineering' | 'physical-infiltration' | 'drone-hijacking' | 'stock-manipulation' | 'dark-web-hit' | 'corporate-espionage' | 'undersea-tap' | 'satellite-hacking' | 'bgp-hijacking' | 'election-interference' | 'hacker-takedown';
-  subType?: string;
-  config?: string; // JSON
-  isHoneypot: boolean;
-  isEntryPoint?: boolean;
 }
 
 export type RoutingMode = 'DIRECT' | 'VPN' | 'ONION';
@@ -2149,14 +2104,15 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
       ? lockedHardware[Math.floor(Math.random() * lockedHardware.length)]
       : this.availableHardware()[Math.floor(Math.random() * this.availableHardware().length)];
 
+    const diffLabel = bounty.difficultyLabel || (typeof bounty.difficulty === 'string' ? bounty.difficulty : null);
     const bountyMission: Mission = {
       id: `bounty-${bounty.id}-${Math.random().toString(36).substring(7)}`,
       name: `BOUNTY: ${bounty.target}`,
       target: bounty.target,
-      difficulty: difficultyMap[bounty.difficulty] || 3,
-      difficultyLabel: bounty.difficulty,
+      difficulty: diffLabel ? (difficultyMap[diffLabel] || 3) : (bounty.difficulty as number),
+      difficultyLabel: diffLabel || 'MEDIUM',
       reward: bounty.reward,
-      hardwareReward: bounty.difficulty === 'ELITE' ? hardwareReward : undefined,
+      hardwareReward: diffLabel === 'ELITE' ? hardwareReward : undefined,
       type: 'dark-web-hit', // Appropriate type for bounties
       lat: (Math.random() * 140) - 70,
       lng: (Math.random() * 360) - 180,
@@ -2515,8 +2471,8 @@ this.socket.on('auth_2fa_qr', (qr: string) => {
     if (!action || action === 'list' || action === 'ls') {
       this.log('<span style="color: var(--neon-orange)">=== OPEN BOUNTIES ===</span>');
       openBounties.slice(0, 10).forEach((b, i) => {
-        const typeColor = b.bountyType === 'ELIMINATE' ? 'var(--neon-magenta)' : 'var(--neon-cyan)';
-        this.log(`<span style="color: ${typeColor}">[${i}] ${b.bountyType}</span> | Target: ${b.targetHandle} | Reward: ${b.reward} CR | Diff: ${'★'.repeat(Math.min(10, b.difficulty))}`);
+        const typeColor = b.type === 'ELIMINATE' ? 'var(--neon-magenta)' : 'var(--neon-cyan)';
+        this.log(`<span style="color: ${typeColor}">[${i}] ${b.type}</span> | Target: ${b.target} | Reward: ${b.reward} CR | Diff: ${'★'.repeat(Math.min(10, b.difficulty))}`);
       });
       if (openBounties.length === 0) this.log('No open bounties. The market is quiet... too quiet.');
       this.log('Usage: bounty claim [ID] | bounty place [TARGET] [TYPE] [REWARD]');

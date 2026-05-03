@@ -25,19 +25,20 @@ import { GameService } from '../../core/services/game.service';
   `,
   styles: `
     .agentic-overlay {
-      position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
-      width: 500px; max-width: 95vw; z-index: 5000; pointer-events: none;
+      position: fixed; top: 180px; right: 170px;
+      width: 300px; max-width: 90vw; z-index: 5000; pointer-events: none;
     }
     .glass-container {
-      background: rgba(10, 15, 30, 0.6);
-      border: 1px solid rgba(0, 229, 255, 0.3);
-      padding: 15px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      background: rgba(10, 15, 30, 0.7);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      padding: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
     }
-    .insights-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .insights-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
     .insight-item {
-      display: flex; gap: 10px; align-items: center;
-      font-size: 0.7rem; border-left: 2px solid; padding-left: 8px;
+      display: flex; gap: 8px; align-items: baseline;
+      font-size: 0.65rem; border-left: 2px solid; padding-left: 6px;
+      background: rgba(0, 229, 255, 0.05);
     }
     .info { border-color: var(--neon-cyan); color: var(--neon-cyan); }
     .warning { border-color: var(--neon-orange); color: var(--neon-orange); }
@@ -47,6 +48,13 @@ import { GameService } from '../../core/services/game.service';
     .insight-text { font-family: 'JetBrains Mono', monospace; }
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    @media (max-width: 1200px) {
+      .agentic-overlay { right: 20px; top: 120px; }
+    }
+    @media (max-width: 850px) {
+      .agentic-overlay { display: none; }
+    }
   `
 })
 export class AgenticHudComponent {

@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, Injector } from '@angular/core';
 import { GameService } from './game.service';
+import { Bounty } from '../models/game.models';
 
 export interface Faction {
   id: string;
@@ -39,24 +40,6 @@ export interface WarBattle {
   difficulty: number;
   completed: boolean;
   winner: string | null;
-}
-
-export interface Bounty {
-  id: string;
-  targetHandle: string;
-  targetType: 'PLAYER' | 'NPC' | 'SYSTEM';
-  issuerHandle: string;
-  issuerType: 'NPC' | 'PLAYER' | 'FACTION' | 'SYSTEM';
-  bountyType: 'CAPTURE' | 'HACK' | 'SABOTAGE' | 'TRACE' | 'BREACH' | 'STEAL' | 'ELIMINATE';
-  reward: number;
-  description: string;
-  difficulty: number;
-  status: 'OPEN' | 'CLAIMED' | 'COMPLETED' | 'EXPIRED' | 'FAILED';
-  createdAt: number;
-  expiresAt: number;
-  factionId?: string;
-  requirements?: string[];
-  bonusReward?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -340,7 +323,7 @@ export class FactionService {
 
   // ── Bounty System ──
   private generateBounties() {
-    const types: Bounty['bountyType'][] = ['HACK', 'SABOTAGE', 'TRACE', 'BREACH', 'STEAL', 'CAPTURE', 'ELIMINATE'];
+    const types: Bounty['type'][] = ['HACK', 'SABOTAGE', 'TRACE', 'BREACH', 'STEAL', 'CAPTURE', 'ELIMINATE'];
     const npcTargets = this.npcHandles.slice(0, 10);
 
     const bounties: Bounty[] = [];
@@ -354,14 +337,15 @@ export class FactionService {
 
       bounties.push({
         id: `bounty_${Date.now()}_${i}`,
-        targetHandle: target,
+        target: target,
         targetType: 'NPC',
-        issuerHandle: issuer,
+        issuer: issuer,
         issuerType: Math.random() > 0.5 ? 'NPC' : 'FACTION',
-        bountyType: type,
+        type: type,
         reward: 500 + Math.floor(Math.random() * 10000),
         description: this.getBountyDescription(type, target, issuer),
         difficulty: 1 + Math.floor(Math.random() * 10),
+        difficultyLabel: 'MEDIUM',
         status: 'OPEN',
         createdAt: Date.now() - Math.floor(Math.random() * 86400000),
         expiresAt: Date.now() + (1 + Math.floor(Math.random() * 7)) * 86400000,
@@ -375,14 +359,15 @@ export class FactionService {
       const type = types[Math.floor(Math.random() * types.length)];
       bounties.push({
         id: `sys_bounty_${Date.now()}_${i}`,
-        targetHandle: 'ENCRYPTED',
+        target: 'ENCRYPTED',
         targetType: 'SYSTEM',
-        issuerHandle: 'VOID_OS',
+        issuer: 'VOID_OS',
         issuerType: 'SYSTEM',
-        bountyType: type,
+        type: type,
         reward: 2000 + Math.floor(Math.random() * 20000),
         description: this.getSystemBountyDescription(type),
         difficulty: 5 + Math.floor(Math.random() * 6),
+        difficultyLabel: 'HARD',
         status: 'OPEN',
         createdAt: Date.now(),
         expiresAt: Date.now() + 3 * 86400000,
@@ -393,7 +378,7 @@ export class FactionService {
     this.bounties.set(bounties);
   }
 
-  private getBountyDescription(type: Bounty['bountyType'], target: string, issuer: string): string {
+  private getBountyDescription(type: Bounty['type'], target: string, issuer: string): string {
     const descriptions: { [key: string]: string[] } = {
       HACK: [
         `Breach ${target}'s personal firewall. ${issuer} needs their data.`,
@@ -436,7 +421,7 @@ export class FactionService {
     return descs[Math.floor(Math.random() * descs.length)];
   }
 
-  private getSystemBountyDescription(type: Bounty['bountyType']): string {
+  private getSystemBountyDescription(type: Bounty['type']): string {
     const descriptions: { [key: string]: string[] } = {
       HACK: ['SYSTEM ANOMALY: Unknown entity detected in sector 7. Investigate and report.', 'CORP LEAK: Corporate secrets are being sold on the darknet. Trace the source.'],
       SABOTAGE: ['INFRASTRUCTURE ALERT: Rogue AI controlling traffic systems. Shut it down.', 'DATA CENTER: Unidentified process consuming resources. Terminate with extreme prejudice.'],
@@ -453,8 +438,8 @@ export class FactionService {
 
   // ── Player Bounties ──
   placeBounty(
-    targetHandle: string,
-    bountyType: Bounty['bountyType'],
+    target: string,
+    type: Bounty['type'],
     reward: number,
     description?: string
   ): Bounty | null {
@@ -467,21 +452,22 @@ export class FactionService {
 
     const bounty: Bounty = {
       id: `player_bounty_${Date.now()}`,
-      targetHandle,
+      target,
       targetType: 'PLAYER',
-      issuerHandle: this.game.playerHandle(),
+      issuer: this.game.playerHandle(),
       issuerType: 'PLAYER',
-      bountyType,
+      type,
       reward,
-      description: description || `Player bounty on ${targetHandle}. ${bountyType} operation.`,
+      description: description || `Player bounty on ${target}. ${type} operation.`,
       difficulty: Math.min(10, Math.floor(reward / 1000)),
+      difficultyLabel: 'MEDIUM',
       status: 'OPEN',
       createdAt: Date.now(),
       expiresAt: Date.now() + 3 * 86400000,
     };
 
     this.bounties.update(b => [...b, bounty]);
-    this.game.log(`<span style="color: var(--neon-orange)">[BOUNTY] Placed ${reward} CR bounty on ${targetHandle} (${bountyType})</span>`);
+    this.game.log(`<span style="color: var(--neon-orange)">[BOUNTY] Placed ${reward} CR bounty on ${target} (${type})</span>`);
     return bounty;
   }
 
@@ -504,7 +490,7 @@ export class FactionService {
       this.bounties.update(bounties =>
         bounties.map(b => {
           if (b.status === 'OPEN' && b.issuerType !== 'PLAYER' && Math.random() < 0.05) {
-            this.game.log(`<span style="color: var(--text-dim)">[BOUNTY] ${b.bountyType} bounty on ${b.targetHandle} was completed by another operative</span>`);
+            this.game.log(`<span style="color: var(--text-dim)">[BOUNTY] ${b.type} bounty on ${b.target} was completed by another operative</span>`);
             return { ...b, status: 'COMPLETED' as const };
           }
           return b;
@@ -524,8 +510,8 @@ export class FactionService {
         if (req.startsWith('FACTION:')) {
           const factionName = req.split(':')[1].trim();
           const faction = this.factions().find(f => f.name === factionName);
-          if (faction && this.playerFactionId() !== faction.id) {
-            this.game.log(`<span style="color: var(--neon-magenta)">[BOUNTY] Requires faction membership: ${factionName}</span>`);
+          if (!faction || this.playerFactionId() !== faction.id) {
+            this.game.log(`<span style="color: var(--neon-magenta)">[BOUNTY] Access Denied: Requires alignment with ${factionName}</span>`);
             return false;
           }
         }
@@ -535,7 +521,8 @@ export class FactionService {
     this.bounties.update(bounties =>
       bounties.map(b => b.id === bountyId ? { ...b, status: 'CLAIMED' as const } : b)
     );
-    this.game.log(`<span style="color: var(--neon-cyan)">[BOUNTY] Claimed: ${bounty.description.substring(0, 60)}...</span>`);
+
+    this.game.acceptBounty(bounty);
     return true;
   }
 
@@ -547,36 +534,32 @@ export class FactionService {
       bounties.map(b => b.id === bountyId ? { ...b, status: 'COMPLETED' as const } : b)
     );
 
-    let totalReward = bounty.reward;
-    if (bounty.bonusReward && Math.random() > 0.5) {
-      totalReward += bounty.bonusReward;
-      this.game.log(`<span style="color: var(--neon-yellow)">[BOUNTY] BONUS! +${bounty.bonusReward} CR</span>`);
+    this.game.credits.update(c => c + bounty.reward);
+    if (bounty.bonusReward) this.game.credits.update(c => c + bounty.bonusReward!);
+    
+    const factionId = this.playerFactionId();
+    if (factionId) {
+      this.addReputation(factionId, bounty.difficulty * 5);
     }
 
-    this.game.credits.update(c => c + totalReward);
-    this.game.log(`<span style="color: var(--neon-green)">[BOUNTY] Completed! +${totalReward} CR</span>`);
-
-    if (bounty.factionId) {
-      this.addReputation(bounty.factionId, bounty.difficulty * 5);
-    }
+    this.game.log(`<span style="color: var(--neon-green)">[BOUNTY] Contract complete: ${bounty.target}. Reward: ${bounty.reward} CR exfiltrated.</span>`);
     return true;
   }
 
-  // ── Getters ──
   getOpenBounties(): Bounty[] {
     return this.bounties().filter(b => b.status === 'OPEN');
   }
 
+  getAvailableFactions(): Faction[] {
+    return this.factions();
+  }
+
   getPlayerFaction(): Faction | null {
     const id = this.playerFactionId();
-    return id ? this.factions().find(f => f.id === id) || null : null;
+    return this.factions().find(f => f.id === id) || null;
   }
 
   getActiveWars(): FactionWar[] {
     return this.activeWars().filter(w => w.status === 'ACTIVE');
-  }
-
-  getAvailableFactions(): Faction[] {
-    return this.factions().filter(f => !f.isPlayerFaction);
   }
 }

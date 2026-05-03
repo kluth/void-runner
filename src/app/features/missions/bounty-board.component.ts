@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { GameService, Bounty } from '../../core/services/game.service';
+import { GameService } from '../../core/services/game.service';
+import { Bounty } from '../../core/models/game.models';
 import { FactionService } from '../../core/services/faction.service';
 import { CommonModule } from '@angular/common';
 

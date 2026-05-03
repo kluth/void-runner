@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameService, Mission } from '../../core/services/game.service';
+import { GameService } from '../../core/services/game.service';
+import { Mission } from '../../core/models/game.models';
 import { AudioService } from '../../core/services/audio.service';
 
 interface PhishingOption {

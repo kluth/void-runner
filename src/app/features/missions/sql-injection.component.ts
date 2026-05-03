@@ -1,6 +1,7 @@
 import { Component, inject, signal, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameService, Mission } from '../../core/services/game.service';
+import { GameService } from '../../core/services/game.service';
+import { Mission } from '../../core/models/game.models';
 
 interface Column {
   name: string;

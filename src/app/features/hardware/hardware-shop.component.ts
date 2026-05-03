@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { GameService, HardwareItem } from '../../core/services/game.service';
+import { GameService } from '../../core/services/game.service';
+import { HardwareItem } from '../../core/models/game.models';
 import { AudioService } from '../../core/services/audio.service';
 import { CommonModule } from '@angular/common';
 

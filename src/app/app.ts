@@ -210,6 +210,7 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding-top: 28px;
     }
 
     .global-dock {
@@ -245,7 +246,7 @@ import { CommonModule } from '@angular/common';
       background: var(--layer-1); 
       width: 95%; 
       max-width: 600px; 
-      max-height: 85vh; 
+      max-height: calc(100dvh - 120px); 
       display: flex; 
       flex-direction: column; 
       gap: 1rem; 

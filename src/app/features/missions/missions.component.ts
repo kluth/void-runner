@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
-import { GameService, Mission } from '../../core/services/game.service';
+import { GameService } from '../../core/services/game.service';
+import { Mission } from '../../core/models/game.models';
 import { AudioService } from '../../core/services/audio.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
