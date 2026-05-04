@@ -6,6 +6,7 @@ import { NodeMapperComponent } from './node-mapper.component';
 import { TopologyMapComponent } from './topology-map.component';
 import { GhostProbeComponent } from './ghost-probe.component';
 import { DataStreamComponent } from './data-stream.component';
+import { InfoOverlayService } from '../../core/services/info-overlay.service';
 
 @Component({
   selector: 'app-network-hub',
@@ -18,6 +19,8 @@ import { DataStreamComponent } from './data-stream.component';
         <button (click)="subTab.set('nodes')" [class.active]="subTab() === 'nodes'">[ NODE_ANALYSIS ]</button>
         <button (click)="subTab.set('botnet')" [class.active]="subTab() === 'botnet'">[ BOTNET_MGMT ]</button>
         <button (click)="subTab.set('probes')" [class.active]="subTab() === 'probes'">[ GHOST_PROBES ]</button>
+        <div style="flex: 1;"></div>
+        <button class="info-btn" (click)="showInfo()">[ ? ]</button>
       </nav>
 
       <div class="hub-content">
@@ -59,8 +62,21 @@ import { DataStreamComponent } from './data-stream.component';
     
     .uplink-view, .nodes-view { display: flex; flex-direction: column; gap: 1.5rem; height: 100%; }
     app-globe { height: 400px; flex-shrink: 0; }
+    .info-btn { color: var(--neon-cyan); background: transparent; border: 1px solid var(--neon-cyan); padding: 2px 6px; font-size: 0.6rem; margin-left: 10px; cursor: pointer; }
+    .info-btn:hover { background: rgba(0, 229, 255, 0.1); }
   `
 })
 export class NetworkHubComponent {
   subTab = signal('uplink');
+  info = inject(InfoOverlayService);
+
+  showInfo() {
+    this.info.open(
+      'NETWORK HUB // GRID TOPOLOGY',
+      `<p><strong>[ GLOBAL_UPLINK ]:</strong> Visualize real-time connection paths and encrypted data streams crossing the globe.</p>
+       <p><strong>[ NODE_ANALYSIS ]:</strong> Inspect specific server clusters and map their internal topologies for vulnerabilities.</p>
+       <p><strong>[ BOTNET_MGMT ]:</strong> Coordinate your hijacked resources. Launch massive DDoS attacks or deploy Ransomware to gain credits.</p>
+       <p><strong>[ GHOST_PROBES ]:</strong> Deploy autonomous agents to gather intelligence passively, uncovering new mission vectors.</p>`
+    );
+  }
 }

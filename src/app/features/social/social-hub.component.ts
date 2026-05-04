@@ -6,6 +6,7 @@ import { SocialExploitComponent } from './social-exploit.component';
 import { PresenceMeshComponent } from './presence-mesh.component';
 import { InfluenceMatrixComponent } from './influence-matrix.component';
 import { SocialHeatmapComponent } from './social-heatmap.component';
+import { InfoOverlayService } from '../../core/services/info-overlay.service';
 
 @Component({
   selector: 'app-social-hub',
@@ -19,6 +20,8 @@ import { SocialHeatmapComponent } from './social-heatmap.component';
         <button (click)="subTab.set('exploit')" [class.active]="subTab() === 'exploit'">[ SOCIAL_GRAPH ]</button>
         <button (click)="subTab.set('matrix')" [class.active]="subTab() === 'matrix'">[ FACTION_INTEL ]</button>
         <button (click)="subTab.set('presence')" [class.active]="subTab() === 'presence'">[ TEAM_MESH ]</button>
+        <div style="flex: 1;"></div>
+        <button class="info-btn" (click)="showInfo()">[ ? ]</button>
       </nav>
 
       <div class="hub-content">
@@ -54,8 +57,22 @@ import { SocialHeatmapComponent } from './social-heatmap.component';
     .hub-content { flex: 1; overflow-y: auto; padding: 15px; min-height: 0; }
     
     .matrix-view { display: flex; flex-direction: column; gap: 1.5rem; }
+    .info-btn { color: var(--neon-magenta); background: transparent; border: 1px solid var(--neon-magenta); padding: 2px 6px; font-size: 0.6rem; margin-left: 10px; cursor: pointer; }
+    .info-btn:hover { background: rgba(255, 0, 85, 0.1); }
   `
 })
 export class SocialHubComponent {
   subTab = signal('teams');
+  info = inject(InfoOverlayService);
+
+  showInfo() {
+    this.info.open(
+      'SOCIAL HUB // SHADOW OPERATIONS',
+      `<p><strong>[ SYNDICATES ]:</strong> Align with powerful factions to access their unique bounties and resources.</p>
+       <p><strong>[ DARKNET_CHAT ]:</strong> Communicate with your syndicate or send encrypted messages to other operatives.</p>
+       <p><strong>[ SOCIAL_GRAPH ]:</strong> Profile targets and initiate Social Engineering dialogues to manipulate them into leaking data.</p>
+       <p><strong>[ FACTION_INTEL ]:</strong> Monitor the shifting power dynamics and influence matrices of the megacorporations.</p>
+       <p><strong>[ TEAM_MESH ]:</strong> Visualize the real-time presence and activities of your fellow syndicate members.</p>`
+    );
+  }
 }

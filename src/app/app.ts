@@ -25,6 +25,7 @@ import { SocialHubComponent } from './features/social/social-hub.component';
 import { HardwareHubComponent } from './features/hardware/hardware-hub.component';
 import { SystemHubComponent } from './features/system/system-hub.component';
 import { SettingsModalComponent } from './features/system/settings-modal.component';
+import { InfoOverlayComponent } from './features/system/info-overlay.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
 import { NeuralNightmareService } from './core/services/neural-nightmare.service';
 import { CommonModule } from '@angular/common';
@@ -56,6 +57,7 @@ import { CommonModule } from '@angular/common';
     HardwareHubComponent,
     SystemHubComponent,
     SettingsModalComponent,
+    InfoOverlayComponent,
   ],
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
@@ -161,8 +163,10 @@ import { CommonModule } from '@angular/common';
       @if (gameService.settingsModalOpen()) {
          <app-settings-modal />
       }
-    </div>
-  `,
+
+      <app-info-overlay />
+      </div>
+      `,
   styles: `
     .main-layout {
       display: flex;

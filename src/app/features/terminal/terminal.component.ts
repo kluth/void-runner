@@ -4,6 +4,7 @@ import { AudioService } from '../../core/services/audio.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogVortexComponent } from './log-vortex.component';
+import { InfoOverlayService } from '../../core/services/info-overlay.service';
 
 @Component({
   selector: 'app-terminal',
@@ -15,7 +16,10 @@ import { LogVortexComponent } from './log-vortex.component';
          [class.neural-lag]="typingSpeed() > 0 && typingSpeed() < 30"
          [class.hijacked]="gameService.isHijacked()">
       <div class="terminal-frame">
-        <div class="ascii-line">VOID_RUN_TERMINAL_v5.0</div>
+        <div class="ascii-line flex justify-between">
+           <span>VOID_RUN_TERMINAL_v5.0</span>
+           <button class="info-btn" (click)="showInfo()">[ ? ]</button>
+        </div>
         
         <div class="terminal-content">
           <div class="terminal-header">
@@ -141,6 +145,8 @@ import { LogVortexComponent } from './log-vortex.component';
       filter: blur(0.5px);
       opacity: 0.8;
     }
+    .info-btn { color: var(--primary); background: transparent; border: 1px solid var(--primary); padding: 2px 6px; font-size: 0.6rem; cursor: pointer; }
+    .info-btn:hover { background: rgba(0, 255, 159, 0.1); }
     
     .hijacked {
       animation: terminal-liquify 2s infinite alternate;
@@ -416,6 +422,7 @@ export class TerminalComponent implements AfterViewChecked {
   historyIndex = -1;
   autoScroll = true;
   easterEggClicks = 0;
+  info = inject(InfoOverlayService);
 
   currentTime = signal('');
 
@@ -578,5 +585,14 @@ export class TerminalComponent implements AfterViewChecked {
     } else {
       this.cmdInput = history[history.length - 1 - this.historyIndex];
     }
+  }
+
+  showInfo() {
+    this.info.open(
+      'TERMINAL // PRIMARY INPUT',
+      `<p><strong>[ COMMAND_LINE ]:</strong> Type commands like 'help', 'status', 'ls', 'mine', or 'wipe'.</p>
+       <p><strong>[ LOG_VORTEX ]:</strong> A high-fidelity, gravitational visualization of your recent system events. The deeper you go, the older the event.</p>
+       <p><strong>[ EASTER_EGGS ]:</strong> Some legendary phrases might trigger hidden subroutines. Have you tried asking to play a game?</p>`
+    );
   }
 }
