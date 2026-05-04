@@ -59,7 +59,7 @@ import { NeuralNightmareService } from '../../core/services/neural-nightmare.ser
 
     .sad-face { font-size: 120px; margin-bottom: 40px; }
     h1 { font-size: 24px; margin-bottom: 40px; }
-...
+
     @keyframes bsod-flicker {
       0%, 90%, 100% { opacity: 1; }
       95% { opacity: 0.9; filter: hue-rotate(10deg); }
