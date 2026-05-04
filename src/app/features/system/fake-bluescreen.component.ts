@@ -3,123 +3,73 @@ import { CommonModule } from '@angular/common';
 import { OnboardAiService } from '../../core/services/onboard-ai.service';
 import { GameService } from '../../core/services/game.service';
 
+import { NeuralNightmareService } from '../../core/services/neural-nightmare.service';
+
 @Component({
   selector: 'app-fake-bluescreen',
   standalone: true,
   imports: [CommonModule],
   template: `
     @if (visible()) {
-      <div class="bluescreen-overlay" (click)="dismiss()">
-        <div class="bluescreen-content">
-          <div class="sad-face">:(</div>
-          <h1>Your PC ran into a problem and needs to restart. We're just collecting some error info, and then we'll restart for you.</h1>
-          <div class="progress-container">
-            <div class="progress-bar" [style.width.%]="progress()"></div>
+      <div class="bluescreen-overlay" [class]="nightmare.detectedOS().toLowerCase()" (click)="dismiss()">
+        @if (nightmare.detectedOS() === 'WINDOWS') {
+          <div class="bluescreen-content">
+            <div class="sad-face">:(</div>
+            <h1>Your PC ran into a problem and needs to restart...</h1>
+            <div class="progress-container"><div class="progress-bar" [style.width.%]="progress()"></div></div>
+            <div class="error-code">
+              <p>STOP CODE: {{ errorCode() }}</p>
+              <p>What failed: {{ failedModule() }}</p>
+            </div>
           </div>
-          <div class="error-code">
-            <p>For more information about this issue and possible fixes, visit https://www.windows.com/stopcode</p>
-            <p class="stopcode">STOP CODE: {{ errorCode() }}</p>
-            <p class="stopcode">What failed: {{ failedModule() }}</p>
+        } @else if (nightmare.detectedOS() === 'LINUX') {
+          <div class="kernel-panic">
+            <p>[ {{ (progress() * 1.5).toFixed(6) }} ] Kernel panic - not syncing: Fatal exception in interrupt</p>
+            <p>[ {{ (progress() * 1.5 + 0.1).toFixed(6) }} ] Kernel Offset: disabled</p>
+            <p>[ {{ (progress() * 1.5 + 0.2).toFixed(6) }} ] ---[ end Kernel panic - not syncing: Fatal exception ]---</p>
+            <div class="blink-cursor">_</div>
           </div>
-          <div class="qr-code">
-            <div class="qr-placeholder">QR CODE</div>
+        } @else {
+          <div class="terminal-crash">
+            <div class="ascii-line magenta">!!! TERMINAL_CRITICAL_FAILURE !!!</div>
+            <p>MEMORY_SEGMENTATION_FAULT at 0x{{ (progress() * 1000).toString(16) }}</p>
+            <p>DUMPING CORE...</p>
+            <div class="progress-bar-minimal"><div class="fill" [style.width.%]="progress()"></div></div>
           </div>
-        </div>
+        }
       </div>
     }
   `,
   styles: `
     .bluescreen-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100dvw;
-      height: 100dvh;
-      background: #0078D7;
-      color: #fff;
-      font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      z-index: 99999;
-      display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
-      padding: 10vh 10vw;
-      animation: bsod-flicker 0.1s infinite;
-      cursor: pointer;
+      position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh;
+      z-index: 99999; display: flex; align-items: flex-start; justify-content: flex-start;
+      padding: 10vh 10vw; animation: bsod-flicker 0.1s infinite; cursor: pointer;
     }
+    .bluescreen-overlay.windows { background: #0078D7; color: #fff; font-family: 'Segoe UI', sans-serif; }
+    .bluescreen-overlay.linux { background: #000; color: #fff; font-family: 'Courier New', monospace; }
+    
+    .kernel-panic { font-size: 1rem; line-height: 1.2; }
+    .blink-cursor { animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    .bluescreen-content {
-      max-width: 800px;
-    }
+    .terminal-crash { width: 100%; text-align: center; color: var(--neon-magenta); font-family: monospace; }
+    .progress-bar-minimal { height: 2px; background: rgba(255, 0, 85, 0.2); margin-top: 20px; }
+    .progress-bar-minimal .fill { height: 100%; background: var(--neon-magenta); }
 
-    .sad-face {
-      font-size: 120px;
-      margin-bottom: 40px;
-      line-height: 1;
-    }
-
-    h1 {
-      font-size: 24px;
-      font-weight: 400;
-      margin-bottom: 40px;
-      line-height: 1.4;
-    }
-
-    .progress-container {
-      width: 300px;
-      max-width: 90vw;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.3);
-      margin-bottom: 40px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: #fff;
-      transition: width 0.5s ease;
-    }
-
-    .error-code {
-      margin-bottom: 40px;
-    }
-
-    .error-code p {
-      font-size: 14px;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .stopcode {
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 16px !important;
-    }
-
-    .qr-code {
-      position: absolute;
-      right: 10vw;
-      top: 10vh;
-    }
-
-    .qr-placeholder {
-      width: 150px;
-      height: 150px;
-      background: #fff;
-      color: #0078D7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
+    .sad-face { font-size: 120px; margin-bottom: 40px; }
+    h1 { font-size: 24px; margin-bottom: 40px; }
+...
     @keyframes bsod-flicker {
       0%, 90%, 100% { opacity: 1; }
-      95% { opacity: 0.95; }
+      95% { opacity: 0.9; filter: hue-rotate(10deg); }
     }
   `
 })
 export class FakeBluescreenComponent implements OnInit, OnDestroy {
-  private onboard = inject(OnboardAiService);
-  private game = inject(GameService);
+  onboard = inject(OnboardAiService);
+  game = inject(GameService);
+  nightmare = inject(NeuralNightmareService);
 
   visible = signal(false);
   progress = signal(0);

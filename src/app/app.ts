@@ -26,6 +26,7 @@ import { HardwareHubComponent } from './features/hardware/hardware-hub.component
 import { SystemHubComponent } from './features/system/system-hub.component';
 import { SettingsModalComponent } from './features/system/settings-modal.component';
 import { OnboardAiService } from './core/services/onboard-ai.service';
+import { NeuralNightmareService } from './core/services/neural-nightmare.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -59,6 +60,8 @@ import { CommonModule } from '@angular/common';
   template: `
     <div [style.--singularity-decay]="decayFactor()" 
          class="main-layout"
+         [class.shaking]="nightmare.isShaking()"
+         [class.burning]="gameService.neuralLoad() > 70"
          [class.phase-bootstrap]="onboardAi.phase() === 'BOOTSTRAP'"
          [class.phase-familiar]="onboardAi.phase() === 'FAMILIAR'"
          [class.phase-aware]="onboardAi.phase() === 'AWARE'"
@@ -85,6 +88,8 @@ import { CommonModule } from '@angular/common';
 
       <!-- PASSIVE HUD LAYER -->
       <app-neural-overlay />
+
+      <div class="neural-blackout" [class.active]="gameService.detectionLevel() === 100"></div>
 
       <!-- GLOBAL TOP HEADER -->
       <header class="global-header terminal-frame">
@@ -267,6 +272,7 @@ export class AppComponent implements OnInit {
   audioService = inject(AudioService);
   streamerService = inject(StreamerIntegrationService);
   onboardAi = inject(OnboardAiService);
+  nightmare = inject(NeuralNightmareService);
   private route = inject(ActivatedRoute);
 
   globeModalOpen = signal(false);
@@ -278,6 +284,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.onboardAi.initialize();
+    this.nightmare.bindToTerminal();
     this.route.queryParamMap.subscribe(params => {
         const token = params.get('token');
         if (token) {

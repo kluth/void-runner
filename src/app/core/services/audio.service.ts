@@ -226,6 +226,37 @@ export class AudioService {
     source.start();
   }
 
+  triggerHallucination() {
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    
+    const count = 3 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const panner = this.ctx.createStereoPanner();
+            
+            osc.type = Math.random() > 0.5 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(100 + Math.random() * 2000, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 2);
+            
+            panner.pan.setValueAtTime((Math.random() * 2) - 1, this.ctx.currentTime);
+            
+            const vol = 0.02 * this.masterVolume();
+            gain.gain.setValueAtTime(0, this.ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 0.1);
+            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 2);
+            
+            osc.connect(panner);
+            panner.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 2);
+        }, i * 500);
+    }
+  }
+
   speakCreepy(text: string, glitchy = true) {
     if (!this.speechEnabled()) return;
     if (!('speechSynthesis' in window)) return;
