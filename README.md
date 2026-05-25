@@ -1,67 +1,93 @@
-# HackerGame
+# 🔥 Void Runner — HackerGame
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.7.
+[![Angular](https://img.shields.io/badge/Angular-21-DD0031?logo=angular&logoColor=white)](https://angular.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Node](https://img.shields.io/badge/Node-22+-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![CI](https://img.shields.io/badge/CI-Angular_CLI-blue)](https://angular.dev)
 
-## Development server
+> **An immersive cyberpunk hacking simulator — breach networks, exploit vulnerabilities, conquer the digital underworld.**  
+> Built with Angular 21, TypeScript, and a deep narrative-driven gameplay engine.
 
-To start a local development server, run:
+## 🎮 About
+
+Void Runner is a browser-based hacking game that puts you in the seat of a netrunner in a dystopian cyberpunk world. Explore a rich digital landscape, from corporate megacorps to underground anarchist collectives.
+
+## 📚 Game Content
+
+The game features **25 chapters** of lore, manuals, and guides:
+
+| # | Chapter | Type |
+|---|---------|------|
+| 01 | Origins of the Void | Lore |
+| 02 | Megacorporations | Lore |
+| 03 | Fixers & Contacts | Lore |
+| 04 | Anarchist Collectives | Lore |
+| 05 | Blue Team Defenders | Lore |
+| 08 | Neural Uplink | Lore |
+| 09 | Terminal Basics | Manual |
+| 10 | Advanced Commands | Manual |
+| 11 | Hardware Hacking | Manual |
+| 12 | Asset Vault | Manual |
+| 15 | Darknet Markets | Manual |
+| 17-25 | Port Scan → Quantum Exploits | Guides |
+
+## 🚀 Development
+
+### Prerequisites
+- Node.js 22+
+- Angular CLI 21+
 
 ```bash
+# Install dependencies
+npm install
+
+# Start development server
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+# Open in browser
+open http://localhost:4200
 
-## Code scaffolding
+# Run tests
+ng test
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
+# Build for production
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Docker
 
 ```bash
+docker build -t void-runner .
+docker run -p 4200:80 void-runner
+```
+
+## 🏗️ Project Structure
+
+```
+void-runner/
+├── src/               # Angular application source
+├── server/            # Backend server
+├── e2e/               # End-to-end tests
+├── book/              # 25 chapters of game content
+├── public/            # Static assets
+├── screenshots/       # Game screenshots
+└── videos/            # Game trailers & previews
+```
+
+## 🧪 Testing
+
+```bash
+# Unit tests
 ng test
-```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
+# E2E tests
 ng e2e
+
+# Lint
+ng lint
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📄 License
 
-## Additional Resources
-
-## Troubleshooting HMR
-
-If you encounter `[vite] failed to connect to websocket` in your browser console, it usually means the Vite Hot Module Replacement (HMR) socket is being blocked or misrouted.
-
-- **Direct Access:** Ensure port 4200 is open.
-- **Proxy/VPN:** If accessing via a proxy, ensure it forwards WebSocket upgrades.
-- **Local Resolution:** We have configured the dev server to use `127.0.0.1:4200` as the `publicHost` to avoid IPv6 resolution conflicts.
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT
